@@ -1,0 +1,47 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+ext {
+	android_compileSdkVersion = 27
+	android_targetSdkVersion = 27
+	android_minSdkVersion = 15
+
+	retrofit_version = '2.3.0'
+	okhttp_version = '3.10.0'
+	moshi_version = '1.6.0'
+	google_play_version = '15.0.1'
+	jakewharton_timber_version = '4.6.0'
+	jakewharton_threetenabp_version = '1.0.5'
+	sb_libs_timber_version = '0.1.0'
+	room_version = '1.1.1'
+	work_manager_version = '1.0.0-alpha04'
+}
+
+buildscript {
+	ext.kotlin_version = '1.2.50'
+
+	repositories {
+		google()
+		jcenter()
+	}
+	dependencies {
+		classpath 'com.android.tools.build:gradle:3.1.3'
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+		// NOTE: Do not place your application dependencies here; they belong
+		// in the individual module build.gradle files
+	}
+}
+
+allprojects {
+	repositories {
+		google()
+		jcenter()
+	}
+}
+
+task clean(type: Delete) {
+	delete rootProject.buildDir
+}
+
+apply from: 'https://raw.githubusercontent.com/sensorberg-dev/gradle-scripts/master/common-def.gradle'
+apply from: 'https://raw.githubusercontent.com/sensorberg-dev/gradle-scripts/master/apply-code-style-to-project.gradle'
+apply from: 'https://raw.githubusercontent.com/sensorberg-dev/gradle-scripts/master/add_private_maven_repo_to_project.gradle'
