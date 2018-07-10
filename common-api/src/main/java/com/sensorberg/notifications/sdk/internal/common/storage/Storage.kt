@@ -31,9 +31,6 @@ abstract class ActionDao {
 		   "WHERE table_action.id IN (SELECT actionId FROM table_trigger_action_map WHERE (triggerId = :triggerId AND type IN (:types))) AND (deliverAt = 0 OR deliverAt > :now)")
 	abstract fun getActionsForTrigger(triggerId: String, now: Long, vararg types: Trigger.Type): List<ActionQueryModel>
 
-	@Query("SELECT silent FROM table_action WHERE id = :actionId")
-	abstract fun getActionSilentFlagById(actionId: String): Boolean?
-
 	@Query("SELECT * FROM table_statistics WHERE actionId = :actionId")
 	abstract fun getStatisticsForAction(actionId: String): Statistics?
 
@@ -55,7 +52,7 @@ abstract class ActionDao {
 /*	@Query("SELECT * FROM table_geofence")
 	abstract fun getGeofences(): List<GeofenceQuery>*/
 
-	@Query("SELECT *, (:in_sin_lat_rad * sin_lat_rad + :in_cos_lat_rad * cos_lat_rad * (:in_sin_lon_rad * sin_lon_rad + :in_cos_lon_rad * cos_lon_rad)) AS 'distance_acos' FROM table_geofence ORDER BY 'distance_acos' DESC LIMIT 99")
+	@Query("SELECT *, (:in_sin_lat_rad * sin_lat_rad + :in_cos_lat_rad * cos_lat_rad * (:in_sin_lon_rad * sin_lon_rad + :in_cos_lon_rad * cos_lon_rad)) AS \"distance_acos\" FROM table_geofence ORDER BY \"distance_acos\" DESC LIMIT 99")
 	abstract fun findClosestGeofences(in_sin_lat_rad: Double, in_cos_lat_rad: Double, in_sin_lon_rad: Double, in_cos_lon_rad: Double): List<GeofenceQuery>
 
 	@Insert abstract fun insertGeofences(geofences: List<GeofenceQuery>)

@@ -34,12 +34,12 @@ class GeofenceDistanceTests {
 	fun find_closest() {
 
 		for (i in 0..100) {
-			test_execution()
+			execution()
 		}
 
 	}
 
-	fun test_execution() {
+	fun execution() {
 		val dao = actionDao!!
 		dao.insertGeofences(
 				locations()
@@ -49,8 +49,8 @@ class GeofenceDistanceTests {
 		val javaOrdered = locations().sortedBy { office.distanceTo(it) }
 		val fences = dao.findClosestGeofenceQueries(office)
 		javaOrdered.forEachIndexed { index, location ->
-			assertEquals(location.latitude, fences[index].latitude, 0.0)
-			assertEquals(location.longitude, fences[index].longitude, 0.0)
+			assertEquals("$index:(${location.latitude}, ${location.longitude})", location.latitude, fences[index].latitude, 0.0)
+			assertEquals("$index:(${location.latitude}, ${location.longitude})", location.longitude, fences[index].longitude, 0.0)
 		}
 		dao.clearGeofences()
 	}

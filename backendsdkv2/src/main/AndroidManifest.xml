@@ -1,2 +1,7 @@
 <manifest
-	package="com.sensorberg.notifications.sdk.internal.backendsdkv2"/>
+	xmlns:tools="http://schemas.android.com/tools"
+	package="com.sensorberg.notifications.sdk.internal.backendsdkv2">
+
+	<uses-sdk tools:overrideLibrary="com.sensorberg.timberextensions"/>
+
+</manifest>
