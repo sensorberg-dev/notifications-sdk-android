@@ -23,7 +23,7 @@ interface NotificationsSdk {
 
 		val ACTION_PRESENT = "com.sensorberg.notifications.sdk.PRESENT_NOTIFICATION"
 
-		const val KoinContext = "com.sensorberg.notifications.sdk"
+		const val notificationSdkContext = "com.sensorberg.notifications.sdk"
 
 		fun with(context: Context): Builder {
 			return Builder(context.applicationContext as Application)

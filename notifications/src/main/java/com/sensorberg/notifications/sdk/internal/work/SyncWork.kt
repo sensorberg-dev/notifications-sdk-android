@@ -2,6 +2,7 @@ package com.sensorberg.notifications.sdk.internal.work
 
 import android.app.Application
 import androidx.work.Worker
+import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.common.Backend
 import com.sensorberg.notifications.sdk.internal.common.model.ActionModel
 import com.sensorberg.notifications.sdk.internal.common.model.TimePeriod
@@ -19,7 +20,7 @@ import java.util.concurrent.Executor
 
 class SyncWork : Worker(), KoinComponent {
 
-	private val app: Application by inject()
+	private val app: Application by inject(InjectionModule.notificationApp)
 	private val dao: ActionDao by inject()
 	private val backend: Backend by inject()
 	private val executor: Executor by inject()

@@ -19,31 +19,39 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 internal class InjectionModule(private val app: Application, private val apiKey: String, private val log: Boolean) {
+
+	companion object {
+		const val notificationPreferences = "com.sensorberg.notifications.sdk.Preferences"
+		const val notificationApp = "com.sensorberg.notifications.sdk.App"
+		const val notificationContext = "com.sensorberg.notifications.sdk.Context"
+	}
+
 	val module = listOf(applicationContext {
-		context(NotificationsSdk.KoinContext) {
-			bean { app }
+		context(NotificationsSdk.notificationSdkContext) {
+			bean(notificationApp) { app }
+			bean(notificationContext) { app as Context }
 			bean { Executors.newFixedThreadPool(3) as Executor } // used for DB operations
-			bean { Storage.createDatabase(app) }
+			bean { Storage.createDatabase(get(notificationApp)) }
 			bean { get<AppDatabase>().actionDao() }
-			bean { app.getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
-			bean { TriggerProcessor(get(), get(), get(), app) }
-			bean { ActionLauncher(app, get()) }
+			bean(notificationPreferences) { get<Application>(notificationApp).getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
+			bean { TriggerProcessor(get(), get(), get(), get(notificationApp)) }
+			bean { ActionLauncher(get(notificationApp), get()) }
 			bean {
-				WorkManager.initialize(app, Configuration.Builder().build())
-				WorkUtils(WorkManager.getInstance()!!, get(), get())
+				WorkManager.initialize(get(notificationContext), Configuration.Builder().build())
+				WorkUtils(WorkManager.getInstance()!!, get(notificationApp), get())
 			}
 			bean { GoogleApiAvailability.getInstance() }
 			bean { Moshi.Builder().build() }
 			bean {
 
-				val prefs = get<SharedPreferences>()
+				val prefs = get<SharedPreferences>(notificationPreferences)
 				var installId = prefs.getString(NotificationsSdkImpl.PREF_INSTALL_ID, null)
 				if (installId == null) {
 					installId = UUID.randomUUID().toString().replace("-", "").toLowerCase()
 					prefs.edit().putString(NotificationsSdkImpl.PREF_INSTALL_ID, installId).apply()
 				}
 
-				return@bean BackendSdkV2(app,
+				return@bean BackendSdkV2(get(notificationApp),
 										 apiKey,
 										 installId,
 										 log) as Backend

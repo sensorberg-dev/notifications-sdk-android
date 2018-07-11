@@ -46,8 +46,8 @@ class GeofenceDistanceTests {
 					.map { Trigger.Geofence(it.latitude, it.longitude, 100f, Trigger.Type.Enter) }
 					.map { GeofenceMapper.mapInsert(it) })
 
-		val javaOrdered = locations().sortedBy { office.distanceTo(it) }
-		val fences = dao.findClosestGeofenceQueries(office)
+		val javaOrdered = locations().sortedBy { officeLocation.distanceTo(it) }
+		val fences = dao.findClosestGeofenceQueries(officeLocation)
 		javaOrdered.forEachIndexed { index, location ->
 			assertEquals("$index:(${location.latitude}, ${location.longitude})", location.latitude, fences[index].latitude, 0.0)
 			assertEquals("$index:(${location.latitude}, ${location.longitude})", location.longitude, fences[index].longitude, 0.0)
@@ -55,7 +55,7 @@ class GeofenceDistanceTests {
 		dao.clearGeofences()
 	}
 
-	private val office = location(52.528349870000255, 13.415339961647987)
+	private val officeLocation = location(52.528349870000255, 13.415339961647987)
 	private fun locations(): List<Location> {
 		return listOf(
 				location(52.52235065543921, 13.412663387483462) // alex platz

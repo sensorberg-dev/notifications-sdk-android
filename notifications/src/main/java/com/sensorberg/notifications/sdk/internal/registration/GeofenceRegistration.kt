@@ -12,6 +12,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
+import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
 import com.sensorberg.notifications.sdk.internal.haveLocationProvider
@@ -24,7 +25,7 @@ import java.util.concurrent.TimeUnit
 
 class GeofenceRegistration : KoinComponent {
 
-	private val app: Application by inject()
+	private val app: Application by inject(InjectionModule.notificationApp)
 	private val apis: GoogleApiAvailability by inject()
 	private val dao: ActionDao by inject()
 	private val executor: Executor by inject()

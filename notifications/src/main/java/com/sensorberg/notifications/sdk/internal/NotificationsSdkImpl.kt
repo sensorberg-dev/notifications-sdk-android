@@ -5,7 +5,6 @@ import android.app.Activity
 import android.app.Application
 import android.content.SharedPreferences
 import android.os.Build
-import android.os.Handler
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.NotificationsSdk
@@ -26,8 +25,8 @@ import java.util.concurrent.Executor
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 
-	private val app: Application by inject()
-	private val prefs: SharedPreferences by inject()
+	private val app: Application by inject(InjectionModule.notificationApp)
+	private val prefs: SharedPreferences by inject(InjectionModule.notificationPreferences)
 	private val backend: Backend by inject()
 	private val moshi: Moshi by inject()
 	private val workUtils: WorkUtils by inject()
