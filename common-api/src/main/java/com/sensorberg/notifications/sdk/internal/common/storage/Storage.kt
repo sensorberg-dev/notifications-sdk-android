@@ -46,7 +46,9 @@ abstract class ActionDao {
 	@Query("SELECT * FROM table_action_conversion")
 	abstract fun getActionConversion(): List<ActionConversion>
 
-	@Insert abstract fun insertActionConversion(vararg action: ActionConversion)
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
+	abstract fun insertActionConversion(vararg action: ActionConversion)
+
 	@Delete abstract fun clearActionConversion(actions: List<ActionConversion>)
 
 /*	@Query("SELECT * FROM table_geofence")
@@ -55,7 +57,9 @@ abstract class ActionDao {
 	@Query("SELECT *, (:in_sin_lat_rad * sin_lat_rad + :in_cos_lat_rad * cos_lat_rad * (:in_sin_lon_rad * sin_lon_rad + :in_cos_lon_rad * cos_lon_rad)) AS \"distance_acos\" FROM table_geofence ORDER BY \"distance_acos\" DESC LIMIT 99")
 	abstract fun findClosestGeofences(in_sin_lat_rad: Double, in_cos_lat_rad: Double, in_sin_lon_rad: Double, in_cos_lon_rad: Double): List<GeofenceQuery>
 
-	@Insert abstract fun insertGeofences(geofences: List<GeofenceQuery>)
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
+	abstract fun insertGeofences(geofences: List<GeofenceQuery>)
+
 	@Query("DELETE FROM table_geofence") abstract fun clearGeofences()
 
 	@Transaction

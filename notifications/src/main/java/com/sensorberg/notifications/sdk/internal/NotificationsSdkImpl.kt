@@ -25,13 +25,13 @@ import java.util.concurrent.Executor
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 
-	private val app: Application by inject(InjectionModule.notificationApp)
-	private val prefs: SharedPreferences by inject(InjectionModule.notificationPreferences)
+	private val app: Application by inject(InjectionModule.appBean)
+	private val prefs: SharedPreferences by inject(InjectionModule.preferencesBean)
 	private val backend: Backend by inject()
 	private val moshi: Moshi by inject()
 	private val workUtils: WorkUtils by inject()
 	private val dao: ActionDao by inject()
-	private val executor: Executor by inject()
+	private val executor: Executor by inject(InjectionModule.executorBean)
 	private val mapAdapter: JsonAdapter<Map<String, String>> = moshi.adapter<Map<String, String>>(MAP_TYPE)
 
 	init {

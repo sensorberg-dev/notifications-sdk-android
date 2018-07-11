@@ -8,6 +8,7 @@ import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.messages.IBeaconId
 import com.google.android.gms.nearby.messages.Message
 import com.google.android.gms.nearby.messages.MessageListener
+import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.TriggerProcessor
 import com.sensorberg.notifications.sdk.internal.common.model.Trigger
 import org.koin.standalone.KoinComponent
@@ -17,7 +18,7 @@ import java.util.concurrent.Executor
 
 class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 
-	private val executor: Executor by inject()
+	private val executor: Executor by inject(InjectionModule.executorBean)
 	private val triggerProcessor: TriggerProcessor by inject()
 
 	override fun onReceive(context: Context, intent: Intent) {

@@ -13,6 +13,5 @@ class ActionReceiver : AbstractActionReceiver() {
 		Timber.i("Action received by the application. $action")
 		Toast.makeText(context, action.subject ?: action.toString(), Toast.LENGTH_SHORT).show()
 		(context.applicationContext as App).sdk.setConversion(action, Conversion.Ignored)
-
 	}
 }

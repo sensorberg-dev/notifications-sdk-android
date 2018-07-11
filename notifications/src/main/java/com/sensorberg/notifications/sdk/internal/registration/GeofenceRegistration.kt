@@ -25,10 +25,10 @@ import java.util.concurrent.TimeUnit
 
 class GeofenceRegistration : KoinComponent {
 
-	private val app: Application by inject(InjectionModule.notificationApp)
+	private val app: Application by inject(InjectionModule.appBean)
 	private val apis: GoogleApiAvailability by inject()
 	private val dao: ActionDao by inject()
-	private val executor: Executor by inject()
+	private val executor: Executor by inject(InjectionModule.executorBean)
 
 	@SuppressLint("MissingPermission")
 	fun execute(): Worker.Result {

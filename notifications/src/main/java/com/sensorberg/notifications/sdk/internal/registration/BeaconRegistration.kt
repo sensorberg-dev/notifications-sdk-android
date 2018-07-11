@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 
 class BeaconRegistration : KoinComponent {
 
-	private val app: Application by inject(InjectionModule.notificationApp)
+	private val app: Application by inject(InjectionModule.appBean)
 	private val apis: GoogleApiAvailability by inject()
 
 	fun execute(beacons: List<Trigger.Beacon>): Worker.Result {

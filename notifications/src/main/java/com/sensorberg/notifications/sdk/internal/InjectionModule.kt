@@ -21,37 +21,38 @@ import java.util.concurrent.Executors
 internal class InjectionModule(private val app: Application, private val apiKey: String, private val log: Boolean) {
 
 	companion object {
-		const val notificationPreferences = "com.sensorberg.notifications.sdk.Preferences"
-		const val notificationApp = "com.sensorberg.notifications.sdk.App"
-		const val notificationContext = "com.sensorberg.notifications.sdk.Context"
+		const val preferencesBean = "com.sensorberg.notifications.sdk.Preferences"
+		const val appBean = "com.sensorberg.notifications.sdk.App"
+		const val contextBean = "com.sensorberg.notifications.sdk.Context"
+		const val executorBean = "com.sensorberg.notifications.sdk.Executor"
 	}
 
 	val module = listOf(applicationContext {
 		context(NotificationsSdk.notificationSdkContext) {
-			bean(notificationApp) { app }
-			bean(notificationContext) { app as Context }
-			bean { Executors.newFixedThreadPool(3) as Executor } // used for DB operations
-			bean { Storage.createDatabase(get(notificationApp)) }
+			bean(appBean) { app }
+			bean(contextBean) { app as Context }
+			bean(executorBean) { Executors.newFixedThreadPool(3) as Executor } // used for DB operations
+			bean { Storage.createDatabase(get(appBean)) }
 			bean { get<AppDatabase>().actionDao() }
-			bean(notificationPreferences) { get<Application>(notificationApp).getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
-			bean { TriggerProcessor(get(), get(), get(), get(notificationApp)) }
-			bean { ActionLauncher(get(notificationApp), get()) }
+			bean(preferencesBean) { get<Application>(appBean).getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
+			bean { TriggerProcessor(get(), get(), get(), get(appBean)) }
+			bean { ActionLauncher(get(appBean), get()) }
 			bean {
-				WorkManager.initialize(get(notificationContext), Configuration.Builder().build())
-				WorkUtils(WorkManager.getInstance()!!, get(notificationApp), get())
+				WorkManager.initialize(get(contextBean), Configuration.Builder().build())
+				WorkUtils(WorkManager.getInstance()!!, get(appBean), get())
 			}
 			bean { GoogleApiAvailability.getInstance() }
 			bean { Moshi.Builder().build() }
 			bean {
 
-				val prefs = get<SharedPreferences>(notificationPreferences)
+				val prefs = get<SharedPreferences>(preferencesBean)
 				var installId = prefs.getString(NotificationsSdkImpl.PREF_INSTALL_ID, null)
 				if (installId == null) {
 					installId = UUID.randomUUID().toString().replace("-", "").toLowerCase()
 					prefs.edit().putString(NotificationsSdkImpl.PREF_INSTALL_ID, installId).apply()
 				}
 
-				return@bean BackendSdkV2(get(notificationApp),
+				return@bean BackendSdkV2(get(appBean),
 										 apiKey,
 										 installId,
 										 log) as Backend

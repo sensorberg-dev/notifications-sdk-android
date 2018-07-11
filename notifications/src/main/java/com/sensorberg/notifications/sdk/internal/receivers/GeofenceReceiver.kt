@@ -7,6 +7,7 @@ import android.content.Intent
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
+import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.TriggerProcessor
 import com.sensorberg.notifications.sdk.internal.common.model.Trigger
 import com.sensorberg.notifications.sdk.internal.work.GeofenceWork
@@ -18,7 +19,7 @@ import java.util.concurrent.Executor
 
 class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 
-	private val executor: Executor by inject()
+	private val executor: Executor by inject(InjectionModule.executorBean)
 	private val triggerProcessor: TriggerProcessor by inject()
 	private val workUtils: WorkUtils by inject()
 

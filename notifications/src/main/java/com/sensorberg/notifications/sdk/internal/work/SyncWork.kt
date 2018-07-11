@@ -20,10 +20,10 @@ import java.util.concurrent.Executor
 
 class SyncWork : Worker(), KoinComponent {
 
-	private val app: Application by inject(InjectionModule.notificationApp)
+	private val app: Application by inject(InjectionModule.appBean)
 	private val dao: ActionDao by inject()
 	private val backend: Backend by inject()
-	private val executor: Executor by inject()
+	private val executor: Executor by inject(InjectionModule.executorBean)
 
 	// this work uses several async tasks,
 	// so the following exchangers force the worker thread to await them
