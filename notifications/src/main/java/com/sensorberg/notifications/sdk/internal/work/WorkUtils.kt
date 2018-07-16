@@ -59,7 +59,6 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 		Timber.d("Enqueueing periodic sync of ${klazz.simpleName}")
 		val constraint = Constraints.Builder().apply {
 			setRequiredNetworkType(NetworkType.UNMETERED)
-			setRequiresCharging(true)
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
 				setRequiresDeviceIdle(true)
 		}.build()

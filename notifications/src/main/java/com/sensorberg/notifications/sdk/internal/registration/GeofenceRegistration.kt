@@ -64,6 +64,7 @@ class GeofenceRegistration : KoinComponent {
 						.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
 						.setCircularRegion(location.latitude, location.longitude, maxDistance)
 						.setRequestId(GeofenceReceiver.EXIT_CURRENT_LOCATION_FENCE)
+						.setExpirationDuration(Geofence.NEVER_EXPIRE)
 						.setNotificationResponsiveness(20 * 60 * 1000) // 20 minutes, no need to burn battery for that
 						.build()
 					val request = GeofencingRequest.Builder()
@@ -74,10 +75,10 @@ class GeofenceRegistration : KoinComponent {
 				}
 			})
 
-		try {
+		return try {
 			// await synchronously to completion
 			Tasks.await(task, 5, TimeUnit.SECONDS)
-			return if (task.isSuccessful) {
+			if (task.isSuccessful) {
 				Timber.d("Fences registration SUCCESS")
 				Worker.Result.SUCCESS
 			} else {
@@ -85,8 +86,9 @@ class GeofenceRegistration : KoinComponent {
 				Worker.Result.RETRY
 			}
 		} catch (e: Exception) {
-			Timber.d("Fences registration RETRY")
-			return Worker.Result.RETRY
+			Timber.d("Fences registration failed with exception RETRY")
+			Timber.e(e)
+			Worker.Result.RETRY
 		}
 	}
 }

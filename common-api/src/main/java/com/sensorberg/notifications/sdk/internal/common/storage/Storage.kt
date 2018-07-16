@@ -109,6 +109,7 @@ object GeofenceMapper {
 			.setRequestId(query.id)
 			.setCircularRegion(query.latitude, query.longitude, query.radius)
 			.setTransitionTypes(transition)
+			.setExpirationDuration(Geofence.NEVER_EXPIRE)
 			.build()
 	}
 
