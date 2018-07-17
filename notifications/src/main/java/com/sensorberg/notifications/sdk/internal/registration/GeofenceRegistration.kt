@@ -65,11 +65,12 @@ class GeofenceRegistration : KoinComponent {
 						.setCircularRegion(location.latitude, location.longitude, maxDistance)
 						.setRequestId(GeofenceReceiver.EXIT_CURRENT_LOCATION_FENCE)
 						.setExpirationDuration(Geofence.NEVER_EXPIRE)
-						.setNotificationResponsiveness(20 * 60 * 1000) // 20 minutes, no need to burn battery for that
+						.setNotificationResponsiveness(30000) // 5 minutes
 						.build()
 					val request = GeofencingRequest.Builder()
 						.addGeofences(fences) // add all from database
 						.addGeofence(updateGeofencesFence) // add one to update the fences when user moves away from here
+						.setInitialTrigger(0) //disable initial trigger
 						.build()
 					geofenceApi.addGeofences(request, GeofenceReceiver.generatePendingIntent(app))
 				}

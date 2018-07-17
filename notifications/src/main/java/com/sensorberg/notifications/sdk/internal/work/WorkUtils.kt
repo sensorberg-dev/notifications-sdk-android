@@ -29,6 +29,7 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 		val request = OneTimeWorkRequestBuilder<FireActionWork>()
 			.setInitialDelay(delay, TimeUnit.MILLISECONDS)
 			.setInputData(data)
+			.addTag(WORKER_TAG) //only to get the workers states later
 			.addTag(FIRE_ACTION_WORK)
 			.build()
 		workManager.enqueue(request)
@@ -44,10 +45,11 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			.build()
 		val request = OneTimeWorkRequest.Builder(klazz)
 			.setConstraints(constraint)
+			.addTag(WORKER_TAG) //only to get the workers states later
 			.build()
 
 		workManager
-			.beginUniqueWork(name, ExistingWorkPolicy.REPLACE, request) // run now
+			.beginUniqueWork(name, ExistingWorkPolicy.KEEP, request) // run now
 			.then(reschedule(klazz, name)) // then run every once in a while
 			.enqueue()
 	}
@@ -56,7 +58,6 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 		if (!app.isGooglePlayServicesAvailable() || !app.haveLocationPermission()) {
 			return Worker.Result.RETRY
 		}
-		Timber.d("Enqueueing periodic sync of ${klazz.simpleName}")
 		val constraint = Constraints.Builder().apply {
 			setRequiredNetworkType(NetworkType.UNMETERED)
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -64,11 +65,15 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 		}.build()
 		val request = PeriodicWorkRequest.Builder(
 				klazz,
-				24, TimeUnit.HOURS,
-				6, TimeUnit.HOURS)
+				PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.HOURS,
+				PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS, TimeUnit.HOURS)
 			.setConstraints(constraint)
+			.addTag(WORKER_TAG) //only to get the workers states later
 			.build()
-		workManager.enqueueUniquePeriodicWork(name, ExistingPeriodicWorkPolicy.REPLACE, request)
+
+		Timber.d("Enqueueing periodic sync of ${klazz.simpleName} with id: ${request.id}")
+		workManager.enqueueUniquePeriodicWork(name, ExistingPeriodicWorkPolicy.KEEP, request)
+
 		return Worker.Result.SUCCESS
 	}
 
@@ -83,6 +88,7 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			// it was not working without the delay https://stackoverflow.com/questions/51078090/workmanager-chained-work-not-running#
 			.setInitialDelay(1, TimeUnit.SECONDS)
 			.setInputData(data)
+			.addTag(WORKER_TAG) //only to get the workers states later
 			.build()
 	}
 
@@ -96,6 +102,8 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 		internal val TRIGGER_TYPE = "${FireActionWork::class.java.canonicalName!!}.TRIGGER_TYPE"
 		internal val RESCHEDULE_CLASS = "${RescheduleWorker::class.java.canonicalName!!}.CLASS"
 		internal val RESCHEDULE_NAME = "${RescheduleWorker::class.java.canonicalName!!}.NAME"
+
+		internal const val WORKER_TAG = "com.sensorberg.notifications.sdk.internal.work.WORKER_TAG"
 
 		fun createAction(moshi: Moshi): JsonAdapter<Action> {
 			return moshi.adapter<Action>(Action::class.java)
@@ -112,6 +120,15 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			val klazz = Class.forName(className) as Class<out Worker>
 			Timber.i("Rescheduling ${klazz.simpleName}")
 			return workManager.schedule(klazz, name)
+		}
+	}
+
+	fun printWorkerStates() {
+		val statusesForUniqueWork = workManager.getStatusesByTag(WORKER_TAG)
+		statusesForUniqueWork.observeForever { workStatuses ->
+			workStatuses?.forEach { workStatus ->
+				Timber.d(workStatus.toString())
+			}
 		}
 	}
 }

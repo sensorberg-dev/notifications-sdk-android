@@ -3,11 +3,13 @@ package com.sensorberg.notifications.sdk.sample
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import android.widget.Toast
 import com.sensorberg.permissionbitte.BitteBitte
 import com.sensorberg.permissionbitte.PermissionBitte
 
 class MainActivity : AppCompatActivity(), BitteBitte {
+
 	override fun askNicer() {
 		AlertDialog.Builder(this)
 			.setTitle("Do it")
@@ -29,6 +31,11 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
+
 		PermissionBitte.ask(this, this)
+	}
+
+	fun onClickPrint(view: View) {
+		(applicationContext as App).sdk.printWorkerStates()
 	}
 }
