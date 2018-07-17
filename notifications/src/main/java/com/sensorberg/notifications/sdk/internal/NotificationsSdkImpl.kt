@@ -111,4 +111,8 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 
 		return true
 	}
+
+	override fun printWorkerStates() {
+		workUtils.printWorkerStates()
+	}
 }

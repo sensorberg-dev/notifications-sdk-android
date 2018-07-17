@@ -19,6 +19,8 @@ interface NotificationsSdk {
 
 	fun setConversion(action: Action, conversion: Conversion)
 
+	fun printWorkerStates()
+
 	companion object {
 
 		val ACTION_PRESENT = "com.sensorberg.notifications.sdk.PRESENT_NOTIFICATION"
