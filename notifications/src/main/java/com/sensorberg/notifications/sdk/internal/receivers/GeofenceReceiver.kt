@@ -47,7 +47,7 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 	}
 
 	private fun reprocessGeofences() {
-		workUtils.execute(GeofenceWork::class.java, WorkUtils.FENCE_WORK)
+		workUtils.execute(GeofenceWork::class.java)
 	}
 
 	private fun processTrigger(triggerId: String, type: Trigger.Type) {

@@ -52,7 +52,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		//if we are changing something on the Policy. TODO could be deleted if the sdk is stable
 		val sdkVersion = prefs.getString(PREF_SDK_VERSION, null)
 		if (sdkVersion != BuildConfig.VERSION_NAME) {
-			workUtils.cancelAllWork()
+			workUtils.cancelAllWorkByTag(WorkUtils.WORKER_TAG)
 			prefs.edit().putString(PREF_SDK_VERSION, BuildConfig.VERSION_NAME).apply()
 		}
 	}
@@ -63,8 +63,9 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 			override fun onActivityResumed(activity: Activity) {
 				if (app.haveLocationPermission()) {
 					app.unregisterActivityLifecycleCallbacks(this)
-					workUtils.execute(SyncWork::class.java, WorkUtils.SYNC_WORK)
-					workUtils.schedule(UploadWork::class.java, WorkUtils.UPLOAD_WORK)
+					workUtils.execute(SyncWork::class.java) //starting SyncWork immediately
+					workUtils.schedule(SyncWork::class.java) //schedule SyncWork for periodic work
+					workUtils.schedule(UploadWork::class.java)
 				}
 			}
 		}
@@ -82,7 +83,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 			backend.setAdvertisementId(adId)
 			// ad-id changed and backend was already requested,
 			// re-request backend to reload data
-			workUtils.execute(SyncWork::class.java, WorkUtils.SYNC_WORK)
+			workUtils.execute(SyncWork::class.java)
 		}
 	}
 
@@ -100,7 +101,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 			backend.setAttributes(attributes)
 			// attributes changed and backend was already requested,
 			// re-request backend to reload data
-			workUtils.execute(SyncWork::class.java, WorkUtils.SYNC_WORK)
+			workUtils.execute(SyncWork::class.java)
 		}
 	}
 
@@ -110,6 +111,8 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		internal const val PREF_ATTR = "attributes"
 		internal const val PREF_SDK_VERSION = "sdk_version"
 		private val MAP_TYPE = Types.newParameterizedType(Map::class.java, String::class.java, String::class.java)
+
+
 	}
 
 	fun SharedPreferences.set(key: String, value: String?): Boolean {
@@ -124,9 +127,5 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		}
 
 		return true
-	}
-
-	override fun printWorkerStates() {
-		workUtils.printWorkerStates()
 	}
 }

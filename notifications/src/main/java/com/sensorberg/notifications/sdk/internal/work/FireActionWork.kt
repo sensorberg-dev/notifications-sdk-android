@@ -18,7 +18,7 @@ class FireActionWork : Worker(), KoinComponent {
 		val reportImmediate = isReportImmediate()
 		actionLauncher.launchAction(action, triggerType)
 		if (reportImmediate) {
-			workUtils.execute(UploadWork::class.java, WorkUtils.UPLOAD_WORK)
+			workUtils.execute(UploadWork::class.java)
 		}
 		return Result.SUCCESS
 	}
