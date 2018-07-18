@@ -1,7 +1,6 @@
 package com.sensorberg.notifications.sdk.internal.work
 
 import android.app.Application
-import android.os.Build
 import androidx.work.*
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.NotificationsSdk
@@ -49,7 +48,7 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			.build()
 
 		workManager
-			.beginUniqueWork(name, ExistingWorkPolicy.KEEP, request) // run now
+			.beginUniqueWork(name, ExistingWorkPolicy.REPLACE, request) // run now
 			.then(reschedule(klazz, name)) // then run every once in a while
 			.enqueue()
 	}
@@ -59,16 +58,11 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			return Worker.Result.RETRY
 		}
 		val constraint = Constraints.Builder().apply {
-			setRequiredNetworkType(NetworkType.UNMETERED)
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-				setRequiresDeviceIdle(true)
+			setRequiredNetworkType(NetworkType.CONNECTED)
 		}.build()
-		val request = PeriodicWorkRequest.Builder(
-				klazz,
-				PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.HOURS,
-				PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS, TimeUnit.HOURS)
-			.setConstraints(constraint)
+		val request = PeriodicWorkRequest.Builder(klazz, PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)
 			.addTag(WORKER_TAG) //only to get the workers states later
+			.setConstraints(constraint)
 			.build()
 
 		Timber.d("Enqueueing periodic sync of ${klazz.simpleName} with id: ${request.id}")
@@ -92,6 +86,10 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			.build()
 	}
 
+	fun cancelAllWork(){
+		workManager.cancelAllWork()
+	}
+
 	companion object {
 		val SYNC_WORK = "${SyncWork::class.java.canonicalName!!}.SYNC"
 		val UPLOAD_WORK = "${UploadWork::class.java.canonicalName!!}.UPLOAD"
@@ -112,14 +110,14 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 
 	class RescheduleWorker : Worker(), KoinComponent {
 
-		private val workManager: WorkUtils by inject()
+		private val workUtils: WorkUtils by inject()
 
 		override fun doWork(): Result {
 			val className = inputData.getString(WorkUtils.RESCHEDULE_CLASS, null)!!
 			val name = inputData.getString(WorkUtils.RESCHEDULE_NAME, null)!!
 			val klazz = Class.forName(className) as Class<out Worker>
 			Timber.i("Rescheduling ${klazz.simpleName}")
-			return workManager.schedule(klazz, name)
+			return workUtils.schedule(klazz, name)
 		}
 	}
 
