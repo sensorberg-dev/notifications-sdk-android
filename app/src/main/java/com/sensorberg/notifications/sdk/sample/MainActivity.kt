@@ -5,6 +5,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.permissionbitte.BitteBitte
 import com.sensorberg.permissionbitte.PermissionBitte
 
@@ -36,6 +37,6 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 	}
 
 	fun onClickPrint(view: View) {
-		(applicationContext as App).sdk.printWorkerStates()
+		NotificationsSdk.printAllSdkWorkerStates()
 	}
 }

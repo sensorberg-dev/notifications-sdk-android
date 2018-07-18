@@ -14,6 +14,6 @@ class BootReceiver : BroadcastReceiver(), KoinComponent {
 
 	// TODO: add to mainfest on boot
 	override fun onReceive(context: Context, intent: Intent) {
-		workUtils.execute(GeofenceWork::class.java, WorkUtils.FENCE_WORK)
+		workUtils.execute(GeofenceWork::class.java)
 	}
 }

@@ -65,7 +65,6 @@ class GeofenceRegistration : KoinComponent {
 						.setCircularRegion(location.latitude, location.longitude, maxDistance)
 						.setRequestId(GeofenceReceiver.EXIT_CURRENT_LOCATION_FENCE)
 						.setExpirationDuration(Geofence.NEVER_EXPIRE)
-						.setNotificationResponsiveness(30000) // 5 minutes
 						.build()
 					val request = GeofencingRequest.Builder()
 						.addGeofences(fences) // add all from database

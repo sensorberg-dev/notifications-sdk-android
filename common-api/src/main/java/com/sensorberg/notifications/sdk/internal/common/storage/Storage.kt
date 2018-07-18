@@ -110,7 +110,6 @@ object GeofenceMapper {
 			.setCircularRegion(query.latitude, query.longitude, query.radius)
 			.setTransitionTypes(transition)
 			.setExpirationDuration(Geofence.NEVER_EXPIRE)
-			.setNotificationResponsiveness(30000)
 			.build()
 	}
 

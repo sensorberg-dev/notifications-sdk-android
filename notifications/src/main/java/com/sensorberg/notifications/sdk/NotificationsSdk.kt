@@ -3,10 +3,12 @@ package com.sensorberg.notifications.sdk
 import android.app.Application
 import android.content.Context
 import android.os.Build
+import androidx.work.WorkManager
 import com.sensorberg.notifications.sdk.internal.EmptyImpl
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.NotificationsSdkImpl
 import com.sensorberg.notifications.sdk.internal.isGooglePlayServicesAvailable
+import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import com.sensorberg.timberextensions.tree.DebugTree
 import org.koin.standalone.StandAloneContext
 import timber.log.Timber
@@ -19,8 +21,6 @@ interface NotificationsSdk {
 
 	fun setConversion(action: Action, conversion: Conversion)
 
-	fun printWorkerStates()
-
 	companion object {
 
 		val ACTION_PRESENT = "com.sensorberg.notifications.sdk.PRESENT_NOTIFICATION"
@@ -29,6 +29,15 @@ interface NotificationsSdk {
 
 		fun with(context: Context): Builder {
 			return Builder(context.applicationContext as Application)
+		}
+
+		fun printAllSdkWorkerStates() {
+			val statusesForUniqueWork = WorkManager.getInstance()?.getStatusesByTag(WorkUtils.WORKER_TAG)
+			statusesForUniqueWork?.observeForever { workStatuses ->
+				workStatuses?.forEach { workStatus ->
+					Timber.d(workStatus.toString())
+				}
+			}
 		}
 	}
 
