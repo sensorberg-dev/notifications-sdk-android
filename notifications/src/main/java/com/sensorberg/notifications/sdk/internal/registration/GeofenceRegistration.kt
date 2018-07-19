@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit
 class GeofenceRegistration : KoinComponent {
 
 	private val app: Application by inject(InjectionModule.appBean)
-	private val apis: GoogleApiAvailability by inject()
-	private val dao: ActionDao by inject()
+	private val googleApi: GoogleApiAvailability by inject()
+	private val actionDao: ActionDao by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)
 
 	@SuppressLint("MissingPermission")
@@ -43,37 +43,16 @@ class GeofenceRegistration : KoinComponent {
 			return Worker.Result.FAILURE
 		}
 
-		val locationApi = LocationServices.getFusedLocationProviderClient(app)
-		val geofenceApi = GeofencingClient(app)
+		val locationClient = LocationServices.getFusedLocationProviderClient(app)
+		val geofenceClient = GeofencingClient(app)
 
-		val task = apis.checkApiAvailability(locationApi, geofenceApi)
+		val task = googleApi.checkApiAvailability(locationClient, geofenceClient)
 			// remove preview registration
-			.continueWithTask { geofenceApi.removeGeofences(GeofenceReceiver.generatePendingIntent(app)) }
+			.continueWithTask { geofenceClient.removeGeofences(GeofenceReceiver.generatePendingIntent(app)) }
 			// get current location
-			.continueWithTask { locationApi.lastLocation } // TODO: maybe get a new location ?
+			.continueWithTask { locationClient.lastLocation } // TODO: maybe get a new location ?
 			// register on background thread
-			.continueWithTask(executor, Continuation<Location, Task<Void>> { locationTask ->
-				val location = locationTask.result
-				val fencesPair = dao.findClosestGeofences(location)
-				val fences = fencesPair.fences
-				val maxDistance = fencesPair.maxDistance
-				return@Continuation if (fences.isEmpty()) {
-					Tasks.forResult(null)
-				} else {
-					val updateGeofencesFence = Geofence.Builder() // when user moved away from current fences, reprocess them
-						.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
-						.setCircularRegion(location.latitude, location.longitude, maxDistance)
-						.setRequestId(GeofenceReceiver.EXIT_CURRENT_LOCATION_FENCE)
-						.setExpirationDuration(Geofence.NEVER_EXPIRE)
-						.build()
-					val request = GeofencingRequest.Builder()
-						.addGeofences(fences) // add all from database
-						.addGeofence(updateGeofencesFence) // add one to update the fences when user moves away from here
-						.setInitialTrigger(0) //disable initial trigger
-						.build()
-					geofenceApi.addGeofences(request, GeofenceReceiver.generatePendingIntent(app))
-				}
-			})
+			.continueWithTask(executor, getRegisterGeofenceTask(geofenceClient))
 
 		return try {
 			// await synchronously to completion
@@ -89,6 +68,32 @@ class GeofenceRegistration : KoinComponent {
 			Timber.d("Fences registration failed with exception RETRY")
 			Timber.e(e)
 			Worker.Result.RETRY
+		}
+	}
+
+	@SuppressLint("MissingPermission")
+	private fun getRegisterGeofenceTask(geofenceClient: GeofencingClient): Continuation<Location, Task<Void>> {
+		return Continuation { locationTask ->
+			val location = locationTask.result
+			val fencesPair = actionDao.findClosestGeofences(location)
+			val fences = fencesPair.fences
+			val maxDistance = fencesPair.maxDistance
+			return@Continuation if (fences.isEmpty()) {
+				Tasks.forResult(null)
+			} else {
+				val updateGeofencesFence = Geofence.Builder() // when user moved away from current fences, reprocess them
+					.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
+					.setCircularRegion(location.latitude, location.longitude, maxDistance)
+					.setRequestId(GeofenceReceiver.EXIT_CURRENT_LOCATION_FENCE)
+					.setExpirationDuration(Geofence.NEVER_EXPIRE)
+					.build()
+				val request = GeofencingRequest.Builder()
+					.addGeofences(fences) // add all from database
+					.addGeofence(updateGeofencesFence) // add one to update the fences when user moves away from here
+					.setInitialTrigger(0) //disable initial trigger
+					.build()
+				geofenceClient.addGeofences(request, GeofenceReceiver.generatePendingIntent(app))
+			}
 		}
 	}
 }

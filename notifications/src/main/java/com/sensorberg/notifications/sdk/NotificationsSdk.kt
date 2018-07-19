@@ -23,7 +23,7 @@ interface NotificationsSdk {
 
 	companion object {
 
-		val ACTION_PRESENT = "com.sensorberg.notifications.sdk.PRESENT_NOTIFICATION"
+		const val ACTION_PRESENT = "com.sensorberg.notifications.sdk.PRESENT_NOTIFICATION"
 
 		const val notificationSdkContext = "com.sensorberg.notifications.sdk"
 
@@ -41,10 +41,21 @@ interface NotificationsSdk {
 		}
 	}
 
+	open interface OnActionListener {
+		fun onActionReceived(action: Action)
+	}
+
 	class Builder internal constructor(private val app: Application) {
 
 		private var log = false
 		private var tree: DebugTree? = null
+		private var apiKey: String = ""
+
+		var actionListener = object : NotificationsSdk.OnActionListener {
+			override fun onActionReceived(action: Action) {
+				//default action listener does nothing
+			}
+		}
 
 		fun enableLogs(): Builder {
 			log = true
@@ -53,11 +64,20 @@ interface NotificationsSdk {
 			return this
 		}
 
-		fun install(apiKey: String): NotificationsSdk {
+		fun setApiKey(apiKey: String): NotificationsSdk.Builder {
+			this.apiKey = apiKey
+			return this
+		}
+
+		fun build(): NotificationsSdk {
+			if (apiKey.isEmpty()) {
+				throw IllegalArgumentException("apiKey is empty - use setApiKey to provide a apiKey")
+			}
+
 			val osVersion = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
 			val gpsAvailable = app.isGooglePlayServicesAvailable()
 			return if (osVersion && gpsAvailable) {
-				StandAloneContext.loadKoinModules(InjectionModule(app, apiKey, log).module)
+				StandAloneContext.loadKoinModules(InjectionModule(app, apiKey, log, actionListener).module)
 				NotificationsSdkImpl()
 			} else {
 				if (log) {
@@ -66,6 +86,11 @@ interface NotificationsSdk {
 				}
 				EmptyImpl()
 			}
+		}
+
+		fun setOnActionListener(listener: NotificationsSdk.OnActionListener): NotificationsSdk.Builder {
+			actionListener = listener
+			return this
 		}
 	}
 }

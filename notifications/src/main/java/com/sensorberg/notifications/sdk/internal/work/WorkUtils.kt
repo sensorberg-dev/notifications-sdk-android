@@ -17,7 +17,7 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 
 	private val actionAdapter: JsonAdapter<Action> by lazy { createAction(moshi) }
 
-	fun fireDelayedAction(action: Action, type: Trigger.Type, reportImmediately: Boolean, delay: Long) {
+	fun sendDelayedAction(action: Action, type: Trigger.Type, reportImmediately: Boolean, delay: Long) {
 		Timber.d("Scheduling execution of action in ${delay / 1000L} seconds. ${action.subject}")
 		val data = Data.Builder()
 			.putString(ACTION_STRING, actionAdapter.toJson(action))
