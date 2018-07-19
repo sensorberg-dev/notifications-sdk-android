@@ -49,6 +49,8 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 
 	companion object {
 
+		private const val BEACON_REQUEST_CODE = 1
+
 		private fun getBeacon(message: Message): IBeaconId? {
 			return if (Message.MESSAGE_NAMESPACE_RESERVED == message.namespace
 					   && Message.MESSAGE_TYPE_I_BEACON_ID == message.type) {
@@ -63,8 +65,8 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 		}
 
 		fun generatePendingIntent(context: Context): PendingIntent {
-			val i = Intent(context, BeaconReceiver::class.java)
-			return PendingIntent.getBroadcast(context, 1, i, PendingIntent.FLAG_CANCEL_CURRENT)
+			val intent = Intent(context, BeaconReceiver::class.java)
+			return PendingIntent.getBroadcast(context, BEACON_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT)
 		}
 	}
 }

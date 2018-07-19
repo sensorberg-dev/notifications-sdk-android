@@ -17,6 +17,8 @@ import org.koin.standalone.inject
 import timber.log.Timber
 import java.util.concurrent.Executor
 
+
+
 class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 
 	private val executor: Executor by inject(InjectionModule.executorBean)
@@ -60,11 +62,13 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 
 	companion object {
 
+		private const val GEOFENCE_REQUEST_CODE = 2
+
 		val EXIT_CURRENT_LOCATION_FENCE = "${GeofenceReceiver::class.java.canonicalName}.EXIT"
 
 		fun generatePendingIntent(context: Context): PendingIntent {
-			val i = Intent(context, GeofenceReceiver::class.java)
-			return PendingIntent.getBroadcast(context, 2, i, PendingIntent.FLAG_CANCEL_CURRENT)
+			val intent = Intent(context, GeofenceReceiver::class.java)
+			return PendingIntent.getBroadcast(context, GEOFENCE_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT)
 		}
 	}
 

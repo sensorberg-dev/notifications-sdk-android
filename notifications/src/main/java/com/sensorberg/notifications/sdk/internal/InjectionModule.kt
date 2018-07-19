@@ -18,13 +18,14 @@ import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-internal class InjectionModule(private val app: Application, private val apiKey: String, private val log: Boolean) {
+internal class InjectionModule(private val app: Application, private val apiKey: String, private val log: Boolean, actionListener: NotificationsSdk.OnActionListener) {
 
 	companion object {
 		const val preferencesBean = "com.sensorberg.notifications.sdk.Preferences"
 		const val appBean = "com.sensorberg.notifications.sdk.App"
 		const val contextBean = "com.sensorberg.notifications.sdk.Context"
 		const val executorBean = "com.sensorberg.notifications.sdk.Executor"
+		const val actionListenerBean = "com.sensorberg.notifications.sdk.OnActionListener"
 	}
 
 	val module = listOf(applicationContext {
@@ -43,6 +44,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 			}
 			bean { GoogleApiAvailability.getInstance() }
 			bean { Moshi.Builder().build() }
+			bean(actionListenerBean) { actionListener }
 			bean {
 
 				val prefs = get<SharedPreferences>(preferencesBean)

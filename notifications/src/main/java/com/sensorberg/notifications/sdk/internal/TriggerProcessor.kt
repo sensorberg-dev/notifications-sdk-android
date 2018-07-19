@@ -41,18 +41,22 @@ class TriggerProcessor(private val dao: ActionDao,
 		actions.forEach { model ->
 			val action = Action(model.id, UUID.randomUUID().toString(), model.subject, model.body, model.url, model.payload, model.backendMeta, model.triggerBackendMeta)
 			when {
-				model.deliverAt > 0 -> {
-					val delay = calculateDelay(model.deliverAt)
-					if (delay > 0) {
-						workUtils.fireDelayedAction(action, type, model.reportImmediately, delay)
-					}
-				}
-				model.delay > 0 -> workUtils.fireDelayedAction(action, type, model.reportImmediately, model.delay)
-				else -> {
-					actionLauncher.launchAction(action, type)
-				}
+				model.deliverAt > 0 -> calculateAndSendDelayedAction(model, action, type)
+				model.delay > 0 -> sendDelayedAction(action, type, model)
+				else -> actionLauncher.launchAction(action, type)
 			}
 		}
+	}
+
+	private fun calculateAndSendDelayedAction(model: ActionQueryModel, action: Action, type: Trigger.Type) {
+		val delay = calculateDelay(model.deliverAt)
+		if (delay > 0) {
+			workUtils.sendDelayedAction(action, type, model.reportImmediately, delay)
+		}
+	}
+
+	private fun sendDelayedAction(action: Action, type: Trigger.Type, model: ActionQueryModel) {
+		workUtils.sendDelayedAction(action, type, model.reportImmediately, model.delay)
 	}
 
 	private fun updateStatistics(actions: List<ActionQueryModel>) {

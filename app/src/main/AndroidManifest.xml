@@ -17,13 +17,6 @@
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
-		<receiver
-			android:name=".ActionReceiver"
-			android:exported="false">
-			<intent-filter>
-				<action android:name="com.sensorberg.notifications.sdk.PRESENT_NOTIFICATION"/>
-			</intent-filter>
-		</receiver>
 
 	</application>
 
