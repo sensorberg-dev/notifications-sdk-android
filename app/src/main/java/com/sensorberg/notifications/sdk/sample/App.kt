@@ -6,6 +6,7 @@ import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.NotificationsSdk
 import timber.log.Timber
+import com.sensorberg.timberextensions.tree.DebugTree
 
 class App : Application(), NotificationsSdk.OnActionListener {
 	/*
@@ -27,6 +28,7 @@ class App : Application(), NotificationsSdk.OnActionListener {
 	override fun onCreate() {
 		super.onCreate()
 
+		Timber.plant(DebugTree("NotificationsSdk"))
 		sdk = NotificationsSdk.with(this)
 			.enableLogs()
 			.setApiKey(STAGING)

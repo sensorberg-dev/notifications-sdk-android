@@ -62,6 +62,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		val callback = object : ActivityLifecycleCallbacksAdapter() {
 			override fun onActivityResumed(activity: Activity) {
 				if (app.haveLocationPermission()) {
+					Timber.i("Location permission granted")
 					app.unregisterActivityLifecycleCallbacks(this)
 					workUtils.execute(SyncWork::class.java) //starting SyncWork immediately
 					workUtils.schedule(SyncWork::class.java) //schedule SyncWork for periodic work
@@ -111,7 +112,6 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		internal const val PREF_ATTR = "attributes"
 		internal const val PREF_SDK_VERSION = "sdk_version"
 		private val MAP_TYPE = Types.newParameterizedType(Map::class.java, String::class.java, String::class.java)
-
 
 	}
 

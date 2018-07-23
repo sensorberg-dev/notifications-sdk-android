@@ -10,11 +10,19 @@
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
 	<uses-sdk tools:overrideLibrary="com.sensorberg.timberextensions"/>
 
 	<application>
 		<receiver android:name=".internal.receivers.BeaconReceiver"/>
 		<receiver android:name=".internal.receivers.GeofenceReceiver"/>
+		<receiver android:name=".internal.receivers.BootReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED"/>
+				<action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+			</intent-filter>
+		</receiver>
 	</application>
 
 </manifest>

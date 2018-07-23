@@ -9,7 +9,6 @@ import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.NotificationsSdkImpl
 import com.sensorberg.notifications.sdk.internal.isGooglePlayServicesAvailable
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
-import com.sensorberg.timberextensions.tree.DebugTree
 import org.koin.standalone.StandAloneContext
 import timber.log.Timber
 

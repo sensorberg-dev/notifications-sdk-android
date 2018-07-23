@@ -22,12 +22,10 @@ android {
 
 dependencies {
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
 	implementation project(':notifications')
-
 	implementation "android.arch.core:runtime:$room_version"
-
 	implementation "com.jakewharton.timber:timber:$jakewharton_timber_version"
+	implementation "com.sensorberg.libs:timber-extensions:$sb_libs_timber_version"
 	implementation 'com.sensorberg.libs:permission-bitte:0.2.2'
 	implementation 'com.android.support:appcompat-v7:27.1.1'
 	implementation 'com.android.support.constraint:constraint-layout:1.1.2'
