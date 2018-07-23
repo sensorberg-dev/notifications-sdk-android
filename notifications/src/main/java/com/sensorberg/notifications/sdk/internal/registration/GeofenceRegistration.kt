@@ -50,7 +50,7 @@ class GeofenceRegistration : KoinComponent {
 			// remove preview registration
 			.continueWithTask { geofenceClient.removeGeofences(GeofenceReceiver.generatePendingIntent(app)) }
 			// get current location
-			.continueWithTask { locationClient.lastLocation } // TODO: maybe get a new location ?
+			.continueWithTask { locationClient.lastLocation }
 			// register on background thread
 			.continueWithTask(executor, getRegisterGeofenceTask(geofenceClient))
 
