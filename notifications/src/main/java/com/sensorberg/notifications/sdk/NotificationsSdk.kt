@@ -48,7 +48,6 @@ interface NotificationsSdk {
 	class Builder internal constructor(private val app: Application) {
 
 		private var log = false
-		private var tree: DebugTree? = null
 		private var apiKey: String = ""
 
 		var actionListener = object : NotificationsSdk.OnActionListener {
@@ -59,8 +58,6 @@ interface NotificationsSdk {
 
 		fun enableLogs(): Builder {
 			log = true
-			tree = DebugTree("NotificationsSdk")
-			Timber.plant(tree!!)
 			return this
 		}
 
@@ -80,10 +77,7 @@ interface NotificationsSdk {
 				StandAloneContext.loadKoinModules(InjectionModule(app, apiKey, log, actionListener).module)
 				NotificationsSdkImpl()
 			} else {
-				if (log) {
-					Timber.w("NotificationsSdk disabled. Android Version(${Build.VERSION.SDK_INT}). Google Play Services (${if (gpsAvailable) "" else "un"}available)")
-					tree?.let { Timber.uproot(it) } // logs can go away after this message
-				}
+				Timber.w("NotificationsSdk disabled. Android Version(${Build.VERSION.SDK_INT}). Google Play Services (${if (gpsAvailable) "" else "un"}available)")
 				EmptyImpl()
 			}
 		}
