@@ -121,6 +121,18 @@ class TriggerProcessorTest {
 	}
 
 	class DaoAdapter : ActionDao() {
+		override fun getGeofences(): List<GeofenceQuery> {
+
+		}
+
+		override fun insertRegisteredGeoFence(registeredGeoFence: List<RegisteredGeoFence>) {
+		}
+
+		override fun clearAllRegisteredGeoFences() {
+		}
+
+		override fun getRemovableGeofences(list: List<String>): List<RegisteredGeoFence> {
+		}
 
 		var getActionsForTrigger = mutableListOf<ActionQueryModel>()
 		var statistics: Statistics? = null
