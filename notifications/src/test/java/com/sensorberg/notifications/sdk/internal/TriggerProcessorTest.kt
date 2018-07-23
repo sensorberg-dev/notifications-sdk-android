@@ -121,18 +121,6 @@ class TriggerProcessorTest {
 	}
 
 	class DaoAdapter : ActionDao() {
-		override fun getGeofences(): List<GeofenceQuery> {
-
-		}
-
-		override fun insertRegisteredGeoFence(registeredGeoFence: List<RegisteredGeoFence>) {
-		}
-
-		override fun clearAllRegisteredGeoFences() {
-		}
-
-		override fun getRemovableGeofences(list: List<String>): List<RegisteredGeoFence> {
-		}
 
 		var getActionsForTrigger = mutableListOf<ActionQueryModel>()
 		var statistics: Statistics? = null
@@ -150,6 +138,8 @@ class TriggerProcessorTest {
 			return timePeriodCount
 		}
 
+		override fun insertRegisteredGeoFence(registeredGeoFence: List<RegisteredGeoFence>) {}
+		override fun clearAllRegisteredGeoFences() {}
 		override fun insertActions(actions: Collection<ActionModel>) {}
 		override fun insertMappings(mappings: Collection<TriggerActionMap>) {}
 		override fun insertTimePeriods(timePeriods: Collection<TimePeriod>) {}
@@ -168,7 +158,13 @@ class TriggerProcessorTest {
 		override fun getActionConversion(): List<ActionConversion> {
 			TODO("Not part of this test")
 		}
+		override fun getGeofences(): List<GeofenceQuery> {
+			TODO("Not part of this test")
+		}
 
+		override fun getRemovableGeofences(list: List<String>): List<RegisteredGeoFence> {
+			TODO("Not part of this test")
+		}
 		override fun insertActionConversion(vararg action: ActionConversion) {}
 		override fun clearActionConversion(actions: List<ActionConversion>) {}
 		override fun findClosestGeofences(in_sin_lat_rad: Double, in_cos_lat_rad: Double, in_sin_lon_rad: Double, in_cos_lon_rad: Double): List<GeofenceQuery> {
