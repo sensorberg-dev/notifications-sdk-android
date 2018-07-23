@@ -1,12 +1,11 @@
 package com.sensorberg.notifications.sdk.sample
 
 import android.app.Application
-import android.widget.Toast
-import com.sensorberg.notifications.sdk.Action
-import com.sensorberg.notifications.sdk.Conversion
+import android.content.Context
 import com.sensorberg.notifications.sdk.NotificationsSdk
-import timber.log.Timber
 import com.sensorberg.timberextensions.tree.DebugTree
+import com.sensorberg.timberextensions.tree.FileLogTree
+import timber.log.Timber
 
 class App : Application() {
 	/*
@@ -28,7 +27,9 @@ class App : Application() {
 	override fun onCreate() {
 		super.onCreate()
 
-		Timber.plant(DebugTree("NotificationsSdk"))
+		Timber.plant(
+				DebugTree("NotificationsSdk"),
+				FileLogTree(getDir("logs", Context.MODE_PRIVATE).absolutePath, 4))
 		sdk = NotificationsSdk.with(this)
 			.enableLogs()
 			.setApiKey(STAGING)
