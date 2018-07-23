@@ -39,7 +39,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 			bean { ActionLauncher(get(appBean), get()) }
 			bean {
 				WorkManager.initialize(get(contextBean), Configuration.Builder().build())
-				WorkUtils(WorkManager.getInstance()!!, get(appBean), get())
+				WorkUtils(WorkManager.getInstance()!!, get(appBean), get(), get(preferencesBean))
 			}
 			bean { GoogleApiAvailability.getInstance() }
 			bean { Moshi.Builder().build() }
