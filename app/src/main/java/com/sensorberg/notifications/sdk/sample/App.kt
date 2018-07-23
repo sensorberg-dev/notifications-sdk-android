@@ -30,6 +30,7 @@ class App : Application() {
 		Timber.plant(
 				DebugTree("NotificationsSdk"),
 				FileLogTree(getDir("logs", Context.MODE_PRIVATE).absolutePath, 4))
+
 		sdk = NotificationsSdk.with(this)
 			.enableLogs()
 			.setApiKey(STAGING)

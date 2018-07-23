@@ -93,7 +93,8 @@ abstract class ActionDao {
 	 * Because Google Play Services is restricted to 100 GeoFences which can be registered we only add 99 GeoFences (the closest ones)
 	 * plus 1 extra GeoFence to tell that we are leaving this area to reprocess the next 99 GeoFences from this new Area
 	 */
-	fun findMostRelevantGeofences(location: Location): NearbyGeofencesResult {
+	@Transaction
+	open fun findMostRelevantGeofences(location: Location): GeofenceQueryResult {
 		val fences = findClosestGeofenceQueries(location)
 		var maxDistance = 300f
 		fences.forEach {
@@ -103,7 +104,8 @@ abstract class ActionDao {
 			}
 			maxDistance = Math.max(maxDistance, location.distanceTo(fenceLocation))
 		}
-		return NearbyGeofencesResult(fences.map { GeofenceMapper.mapQuery(it) }, maxDistance)
+		val fencesToRemove = getRemovableGeofences(fences.map { it.id }).map { it.id }
+		return GeofenceQueryResult(fences.map { GeofenceMapper.mapQuery(it) }, maxDistance, fencesToRemove)
 	}
 
 	internal fun findClosestGeofenceQueries(location: Location): List<GeofenceQuery> { // for testing
@@ -160,7 +162,7 @@ abstract class AppDatabase : RoomDatabase() {
 	abstract fun actionDao(): ActionDao
 }
 
-data class NearbyGeofencesResult(val fences: List<Geofence>, val maxDistance: Float)
+data class GeofenceQueryResult(val fencesToAdd: List<Geofence>, val maxDistance: Float, val fencesToRemove: List<String>)
 
 object Storage {
 	fun createDatabase(app: Application): AppDatabase {

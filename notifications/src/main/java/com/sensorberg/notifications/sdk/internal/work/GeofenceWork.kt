@@ -3,9 +3,11 @@ package com.sensorberg.notifications.sdk.internal.work
 import androidx.work.Worker
 import com.sensorberg.notifications.sdk.internal.registration.GeofenceRegistration
 import org.koin.standalone.KoinComponent
+import timber.log.Timber
 
 class GeofenceWork : Worker(), KoinComponent {
 	override fun doWork(): Result {
+		Timber.i("Executing GeofenceWork")
 		return if (GeofenceRegistration().execute() == Worker.Result.SUCCESS) {
 			Worker.Result.SUCCESS
 		} else {
@@ -14,4 +16,3 @@ class GeofenceWork : Worker(), KoinComponent {
 		}
 	}
 }
-

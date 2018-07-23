@@ -9,12 +9,13 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.common.model.RegisteredGeoFence
 import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
-import com.sensorberg.notifications.sdk.internal.common.storage.NearbyGeofencesResult
+import com.sensorberg.notifications.sdk.internal.common.storage.GeofenceQueryResult
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
 import com.sensorberg.notifications.sdk.internal.haveLocationProvider
 import com.sensorberg.notifications.sdk.internal.receivers.GeofenceReceiver
@@ -47,37 +48,42 @@ class GeofenceRegistration : KoinComponent {
 		val locationClient = LocationServices.getFusedLocationProviderClient(app)
 		val geofenceClient = GeofencingClient(app)
 
-		var relevantGeoFences: NearbyGeofencesResult? = null
+		var geofenceQueryResult: GeofenceQueryResult? = null
 		var location: Location? = null
+
 		val task = googleApi.checkApiAvailability(locationClient, geofenceClient)
 			// get current location
 			.continueWithTask { locationClient.lastLocation }
-			// get relevant 100
+			// sanitize location client, because GPS sucks
 			.continueWithTask { locationTask ->
-				Timber.d("Getting current location")
 				location = locationTask.result
+				Timber.d("Got location: $location")
 				if (location == null) {
-					Tasks.forException<IllegalStateException>(IllegalStateException("location was null"))
+					Tasks.forException(IllegalStateException("location was null"))
+				} else {
+					Tasks.forResult(location!!)
 				}
-				relevantGeoFences = actionDao.findMostRelevantGeofences(location!!)
-				Timber.d("found ${relevantGeoFences!!.fences.size} most relevant geofences")
+			}
+			// get fences data from data base in background thread
+			.continueWithTask(executor, queryGeofenceData())
+			.continueWithTask { task ->
+				// capture result
+				geofenceQueryResult = task.result
 				Tasks.forResult(true)
 			}
 			//remove GeoFences
 			.continueWithTask {
-				Timber.d("remove geofences")
-				val deletableGeofences = actionDao.getRemovableGeofences(relevantGeoFences!!.fences.map { it.requestId })
-				Timber.d("Remove ${deletableGeofences.size} geofences from Google Play")
-				geofenceClient.removeGeofences(deletableGeofences.map { it.id })
+				Timber.d("Remove ${geofenceQueryResult!!.fencesToRemove.size} geofences from Google Play")
+				geofenceClient.removeGeofences(geofenceQueryResult!!.fencesToRemove)
 			}
 			//register GeoFences
-			.continueWithTask { getRegisterGeofenceTask(geofenceClient, relevantGeoFences!!, location!!) }
+			.continueWithTask { getRegisterGeofenceTask(geofenceClient, geofenceQueryResult!!, location!!) }
 			//remove all registered GeoFences from DB and add the newly registered ones
-			.continueWithTask {
-				Timber.d("Deleting all (${relevantGeoFences!!.fences.size}) registered GeoFences from DB and add most relevant ones to the DB")
-				actionDao.clearAllAndInstertNewRegisteredGeoFences(relevantGeoFences!!.fences.map { RegisteredGeoFence(it.requestId) })
+			.continueWithTask(executor, Continuation<Void, Task<Boolean>> {
+				Timber.d("Updating geofence database with ${geofenceQueryResult!!.fencesToAdd.size} newly registered fences")
+				actionDao.clearAllAndInstertNewRegisteredGeoFences(geofenceQueryResult!!.fencesToAdd.map { RegisteredGeoFence(it.requestId) })
 				Tasks.forResult(true)
-			}
+			})
 
 		return try {
 			// await synchronously to completion
@@ -96,14 +102,31 @@ class GeofenceRegistration : KoinComponent {
 		}
 	}
 
+	private fun queryGeofenceData(): Continuation<Location, Task<GeofenceQueryResult>> {
+		return Continuation { locationTask ->
+			val location = locationTask.result
+			val geofenceQueryResult = actionDao.findMostRelevantGeofences(location)
+			Timber.d("Found ${geofenceQueryResult.fencesToAdd.size} most relevant geofences")
+			Tasks.forResult(geofenceQueryResult)
+		}
+	}
+
+	private fun updateGeofenceData(geofenceQueryResult: GeofenceQueryResult): Continuation<Void, Task<Boolean>> {
+		return Continuation {
+			Timber.d("Deleting all (${geofenceQueryResult.fencesToAdd.size}) registered GeoFences from DB and add most relevant ones to the DB")
+			actionDao.clearAllAndInstertNewRegisteredGeoFences(geofenceQueryResult.fencesToAdd.map { RegisteredGeoFence(it.requestId) })
+			Tasks.forResult(true)
+		}
+	}
+
 	@SuppressLint("MissingPermission")
-	private fun getRegisterGeofenceTask(geofenceClient: GeofencingClient, closestGeoFences: NearbyGeofencesResult, location: Location): Task<Void> {
-		val fences = closestGeoFences.fences
-		val maxDistance = closestGeoFences.maxDistance
+	private fun getRegisterGeofenceTask(geofenceClient: GeofencingClient, geofencesQueryResult: GeofenceQueryResult, location: Location): Task<Void> {
+		val fences = geofencesQueryResult.fencesToAdd
+		val maxDistance = geofencesQueryResult.maxDistance
 		return if (fences.isEmpty()) {
 			Tasks.forResult(null)
 		} else {
-			val updateGeofencesFence = Geofence.Builder() // when user moved away from current fences, reprocess them
+			val updateGeofencesFence = Geofence.Builder() // when user moved away from current fencesToAdd, reprocess them
 				.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
 				.setCircularRegion(location.latitude, location.longitude, maxDistance)
 				.setRequestId(GeofenceReceiver.EXIT_CURRENT_LOCATION_FENCE)
@@ -111,7 +134,7 @@ class GeofenceRegistration : KoinComponent {
 				.build()
 			val request = GeofencingRequest.Builder()
 				.addGeofences(fences) // add all from database
-				.addGeofence(updateGeofencesFence) // add one to update the fences when user moves away from here
+				.addGeofence(updateGeofencesFence) // add one to update the fencesToAdd when user moves away from here
 				.setInitialTrigger(0) //disable initial trigger
 				.build()
 			geofenceClient.addGeofences(request, GeofenceReceiver.generatePendingIntent(app))
