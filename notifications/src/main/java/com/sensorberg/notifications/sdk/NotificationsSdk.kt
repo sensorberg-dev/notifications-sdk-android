@@ -40,20 +40,10 @@ interface NotificationsSdk {
 		}
 	}
 
-	open interface OnActionListener {
-		fun onActionReceived(action: Action)
-	}
-
 	class Builder internal constructor(private val app: Application) {
 
 		private var log = false
 		private var apiKey: String = ""
-
-		var actionListener = object : NotificationsSdk.OnActionListener {
-			override fun onActionReceived(action: Action) {
-				//default action listener does nothing
-			}
-		}
 
 		fun enableLogs(): Builder {
 			log = true
@@ -73,17 +63,12 @@ interface NotificationsSdk {
 			val osVersion = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
 			val gpsAvailable = app.isGooglePlayServicesAvailable()
 			return if (osVersion && gpsAvailable) {
-				StandAloneContext.loadKoinModules(InjectionModule(app, apiKey, log, actionListener).module)
+				StandAloneContext.loadKoinModules(InjectionModule(app, apiKey, log).module)
 				NotificationsSdkImpl()
 			} else {
 				Timber.w("NotificationsSdk disabled. Android Version(${Build.VERSION.SDK_INT}). Google Play Services (${if (gpsAvailable) "" else "un"}available)")
 				EmptyImpl()
 			}
-		}
-
-		fun setOnActionListener(listener: NotificationsSdk.OnActionListener): NotificationsSdk.Builder {
-			actionListener = listener
-			return this
 		}
 	}
 }

@@ -22,7 +22,7 @@ class BootReceiver : BroadcastReceiver(), KoinComponent {
 	override fun onReceive(context: Context, intent: Intent) {
 		if (Intent.ACTION_BOOT_COMPLETED == intent.action ||
 			"android.intent.action.QUICKBOOT_POWERON" == intent.action) {
-			Log.i("NotificationSDK", "On Boot received")
+			Timber.i("On Boot received")
 			val pending = goAsync() // using async because of the DB operation
 			executor.execute {
 				// TODO: clear current registered fences

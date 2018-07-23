@@ -8,7 +8,7 @@ import com.sensorberg.notifications.sdk.NotificationsSdk
 import timber.log.Timber
 import com.sensorberg.timberextensions.tree.DebugTree
 
-class App : Application(), NotificationsSdk.OnActionListener {
+class App : Application() {
 	/*
 
 	TODO: dear Mirko:
@@ -32,15 +32,8 @@ class App : Application(), NotificationsSdk.OnActionListener {
 		sdk = NotificationsSdk.with(this)
 			.enableLogs()
 			.setApiKey(STAGING)
-			.setOnActionListener(this)
 			.build()
 
-	}
-
-	override fun onActionReceived(action: Action) {
-		Timber.i("Action received by the application. $action")
-		Toast.makeText(this, action.subject ?: action.toString(), Toast.LENGTH_SHORT).show()
-		sdk.setConversion(action, Conversion.Ignored)
 	}
 
 	companion object {
