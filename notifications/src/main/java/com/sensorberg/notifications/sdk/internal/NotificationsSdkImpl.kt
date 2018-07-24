@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.SharedPreferences
 import android.os.Build
+import android.os.SystemClock
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.NotificationsSdk
@@ -51,7 +52,8 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 				if (app.haveLocationPermission()) {
 					Timber.i("Location permission granted")
 					app.unregisterActivityLifecycleCallbacks(this)
-					//workUtils.execute(SyncWork::class.java) //starting SyncWork immediately
+					// workUtils.execute(SyncWork::class.java) // for testing only
+					// workUtils.execute(UploadWork::class.java) // for testing only
 					workUtils.schedule(SyncWork::class.java) //schedule SyncWork for periodic work
 					workUtils.schedule(UploadWork::class.java)
 				}
@@ -99,5 +101,18 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		internal const val PREF_ATTR = "attributes"
 		private val MAP_TYPE = Types.newParameterizedType(Map::class.java, String::class.java, String::class.java)
 
+	}
+
+	internal object BeaconRegistrationHack {
+
+		private var registrationTime = 0L
+
+		fun isRecent(): Boolean {
+			return SystemClock.elapsedRealtime() - registrationTime < 5000
+		}
+
+		fun onRegistration() {
+			registrationTime = SystemClock.elapsedRealtime()
+		}
 	}
 }

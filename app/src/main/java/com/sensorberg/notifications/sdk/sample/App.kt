@@ -22,14 +22,14 @@ class App : Application() {
 
 	 */
 
-	lateinit var sdk: NotificationsSdk
+	public lateinit var sdk: NotificationsSdk
 
 	override fun onCreate() {
 		super.onCreate()
 
 		Timber.plant(
 				DebugTree("NotificationsSdk"),
-				FileLogTree(getDir("logs", Context.MODE_PRIVATE).absolutePath, 4))
+				FileLogTree(getDir("logs", Context.MODE_PRIVATE).absolutePath, 1, 3))
 
 		sdk = NotificationsSdk.with(this)
 			.enableLogs()

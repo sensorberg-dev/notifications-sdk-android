@@ -12,7 +12,7 @@ abstract class AbstractActionReceiver : BroadcastReceiver() {
 
 	override fun onReceive(context: Context, intent: Intent) {
 		val action = intent.toAction()
-		Timber.i("Sending action to host app: $action")
+		Timber.d("Sending action to host app: $action")
 		onAction(context, action)
 	}
 }

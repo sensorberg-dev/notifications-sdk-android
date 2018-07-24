@@ -9,6 +9,7 @@ import com.google.android.gms.nearby.messages.IBeaconId
 import com.google.android.gms.nearby.messages.Message
 import com.google.android.gms.nearby.messages.MessageListener
 import com.sensorberg.notifications.sdk.internal.InjectionModule
+import com.sensorberg.notifications.sdk.internal.NotificationsSdkImpl
 import com.sensorberg.notifications.sdk.internal.TriggerProcessor
 import com.sensorberg.notifications.sdk.internal.common.model.Trigger
 import org.koin.standalone.KoinComponent
@@ -25,6 +26,12 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 		Nearby.getMessagesClient(context).handleIntent(intent, object : MessageListener() {
 			override fun onFound(message: Message) {
 				getBeacon(message)?.let {
+
+					if (NotificationsSdkImpl.BeaconRegistrationHack.isRecent()) {
+						Timber.w("onFound ignored $it")
+						return
+					}
+
 					Timber.i("Found beacon: $it")
 					processTrigger(getTriggerId(it, Trigger.Type.Enter), Trigger.Type.Enter)
 				}
@@ -32,6 +39,12 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 
 			override fun onLost(message: Message) {
 				getBeacon(message)?.let {
+
+					if (NotificationsSdkImpl.BeaconRegistrationHack.isRecent()) {
+						Timber.w("onLost ignored $it")
+						return
+					}
+
 					Timber.i("Lost beacon: $it")
 					processTrigger(getTriggerId(it, Trigger.Type.Exit), Trigger.Type.Exit)
 				}

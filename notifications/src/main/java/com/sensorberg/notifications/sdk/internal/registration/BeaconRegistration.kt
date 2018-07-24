@@ -7,6 +7,7 @@ import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.messages.*
 import com.google.android.gms.tasks.Tasks
 import com.sensorberg.notifications.sdk.internal.InjectionModule
+import com.sensorberg.notifications.sdk.internal.NotificationsSdkImpl
 import com.sensorberg.notifications.sdk.internal.common.model.Trigger
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
 import com.sensorberg.notifications.sdk.internal.receivers.BeaconReceiver
@@ -54,6 +55,7 @@ class BeaconRegistration : KoinComponent {
 						.setFilter(messageFilter.build())
 						.build()
 
+					NotificationsSdkImpl.BeaconRegistrationHack.onRegistration()
 					nearby.subscribe(BeaconReceiver.generatePendingIntent(app), options)
 				}
 			}
