@@ -1,13 +1,13 @@
 package com.sensorberg.notifications.sdk.sample
 
 import android.app.Application
-import android.widget.Toast
-import com.sensorberg.notifications.sdk.Action
-import com.sensorberg.notifications.sdk.Conversion
+import android.content.Context
 import com.sensorberg.notifications.sdk.NotificationsSdk
+import com.sensorberg.timberextensions.tree.DebugTree
+import com.sensorberg.timberextensions.tree.FileLogTree
 import timber.log.Timber
 
-class App : Application(), NotificationsSdk.OnActionListener {
+class App : Application() {
 	/*
 
 	TODO: dear Mirko:
@@ -27,18 +27,15 @@ class App : Application(), NotificationsSdk.OnActionListener {
 	override fun onCreate() {
 		super.onCreate()
 
+		Timber.plant(
+				DebugTree("NotificationsSdk"),
+				FileLogTree(getDir("logs", Context.MODE_PRIVATE).absolutePath, 4))
+
 		sdk = NotificationsSdk.with(this)
 			.enableLogs()
 			.setApiKey(STAGING)
-			.setOnActionListener(this)
 			.build()
 
-	}
-
-	override fun onActionReceived(action: Action) {
-		Timber.i("Action received by the application. $action")
-		Toast.makeText(this, action.subject ?: action.toString(), Toast.LENGTH_SHORT).show()
-		sdk.setConversion(action, Conversion.Ignored)
 	}
 
 	companion object {

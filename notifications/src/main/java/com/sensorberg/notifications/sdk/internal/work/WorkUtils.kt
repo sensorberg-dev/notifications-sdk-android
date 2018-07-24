@@ -1,6 +1,7 @@
 package com.sensorberg.notifications.sdk.internal.work
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.work.*
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.BuildConfig
@@ -8,12 +9,13 @@ import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.notifications.sdk.internal.common.model.Trigger
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
 import com.sensorberg.notifications.sdk.internal.isGooglePlayServicesAvailable
+import com.sensorberg.notifications.sdk.internal.set
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class WorkUtils(private val workManager: WorkManager, private val app: Application, moshi: Moshi) {
+class WorkUtils(private val workManager: WorkManager, private val app: Application, moshi: Moshi, private val prefs: SharedPreferences) {
 
 	private val actionAdapter: JsonAdapter<Action> by lazy { createAction(moshi) }
 
@@ -54,17 +56,21 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			.build()
 	}
 
-	fun schedule(klazz: Class<out Worker>): Worker.Result {
+	fun schedule(klazz: Class<out Worker>) {
 		if (!app.isGooglePlayServicesAvailable() || !app.haveLocationPermission()) {
-			return Worker.Result.RETRY
+			return
 		}
 
 		val request = createScheduleRequest(klazz)
 
 		Timber.d("Enqueueing periodic sync of ${klazz.simpleName} with id: ${request.id}")
-		workManager.enqueueUniquePeriodicWork(klazz.canonicalName, ExistingPeriodicWorkPolicy.KEEP, request)
-
-		return Worker.Result.SUCCESS
+		val policy = if (prefs.set("sdkVersion_${klazz.canonicalName}", BuildConfig.VERSION_NAME)) {
+			// if new SDK version, replace previous work
+			ExistingPeriodicWorkPolicy.REPLACE
+		} else {
+			ExistingPeriodicWorkPolicy.KEEP
+		}
+		workManager.enqueueUniquePeriodicWork(klazz.canonicalName, policy, request)
 	}
 
 	private fun createScheduleRequest(klazz: Class<out Worker>): PeriodicWorkRequest {
@@ -79,10 +85,6 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 		return Constraints.Builder()
 			.setRequiredNetworkType(NetworkType.CONNECTED)
 			.build()
-	}
-
-	fun cancelAllWorkByTag(tag: String) {
-		workManager.cancelAllWorkByTag(tag)
 	}
 
 	companion object {

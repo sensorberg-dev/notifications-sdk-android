@@ -1,21 +1,18 @@
 package com.sensorberg.notifications.sdk.internal
 
 import android.app.Application
-import android.os.Handler
-import android.os.Looper
+import android.content.Intent
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.notifications.sdk.internal.common.model.ActionHistory
 import com.sensorberg.notifications.sdk.internal.common.model.Trigger
 import com.sensorberg.notifications.sdk.internal.common.model.toActionHistory
 import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 import timber.log.Timber
 
-class ActionLauncher(private val app: Application, private val dao: ActionDao) : KoinComponent {
+class ActionLauncher(private val app: Application, private val dao: ActionDao) {
 
-	private val actionListener: NotificationsSdk.OnActionListener by inject(InjectionModule.actionListenerBean)
+	private val permissionName: String = app.packageName + SDK_PERMISSION
 
 	fun launchAction(action: Action, type: Trigger.Type) {
 
@@ -23,9 +20,26 @@ class ActionLauncher(private val app: Application, private val dao: ActionDao) :
 		dao.insertActionHistory(history)
 
 		Timber.d("action received to launch with ActionLauncher: $action")
-		Handler(Looper.getMainLooper()).post {
-			actionListener.onActionReceived(action)
-		}
 
+		val queryResult = app.packageManager.queryBroadcastReceivers(newIntent(app), 0)
+		if (queryResult != null && queryResult.isNotEmpty()) {
+
+			val intent = newIntent(app, queryResult[0].activityInfo.name)
+			action.writeToIntent(intent)
+			app.sendBroadcast(intent, permissionName)
+
+		}
+	}
+
+	companion object {
+		private const val SDK_PERMISSION = ".permission.notification.sdk"
+
+		private fun newIntent(app: Application, className: String? = null): Intent {
+			return Intent().apply {
+				action = NotificationsSdk.ACTION_PRESENT
+				`package` = app.packageName
+				className?.let { setClassName(app, it) }
+			}
+		}
 	}
 }

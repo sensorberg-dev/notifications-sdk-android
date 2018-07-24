@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
@@ -56,4 +57,18 @@ internal fun Action.writeToIntent(intent: Intent) {
 internal fun Intent.toAction(): Action {
 	if (hasExtra(KEY_ACTION)) return getParcelableExtra(KEY_ACTION)
 	else throw IllegalArgumentException("Intent does contain action $this")
+}
+
+internal fun SharedPreferences.set(key: String, value: String?): Boolean {
+	if (getString(key, null) == value) { // no change
+		return false
+	}
+
+	if (value == null) {
+		edit().remove(key).apply()
+	} else {
+		edit().putString(key, value).apply()
+	}
+
+	return true
 }

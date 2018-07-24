@@ -51,8 +51,8 @@ abstract class ActionDao {
 
 	@Delete abstract fun clearActionConversion(actions: List<ActionConversion>)
 
-/*	@Query("SELECT * FROM table_geofence")
-	abstract fun getGeofences(): List<GeofenceQuery>*/
+	@Query("SELECT * FROM table_geofence")
+	abstract fun getGeofences(): List<GeofenceQuery>
 
 	@Query("SELECT *, (:in_sin_lat_rad * sin_lat_rad + :in_cos_lat_rad * cos_lat_rad * (:in_sin_lon_rad * sin_lon_rad + :in_cos_lon_rad * cos_lon_rad)) AS \"distance_acos\" FROM table_geofence ORDER BY \"distance_acos\" DESC LIMIT 99")
 	abstract fun findClosestGeofences(in_sin_lat_rad: Double, in_cos_lat_rad: Double, in_sin_lon_rad: Double, in_cos_lon_rad: Double): List<GeofenceQuery>
@@ -61,6 +61,20 @@ abstract class ActionDao {
 	abstract fun insertGeofences(geofences: List<GeofenceQuery>)
 
 	@Query("DELETE FROM table_geofence") abstract fun clearGeofences()
+
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
+	abstract fun insertRegisteredGeoFence(registeredGeoFence: List<RegisteredGeoFence>)
+
+	@Query("DELETE FROM table_registered_geofences") abstract fun clearAllRegisteredGeoFences()
+
+	@Query("SELECT * FROM table_registered_geofences WHERE id NOT IN (:list)")
+	abstract fun getRemovableGeofences(list: List<String>): List<RegisteredGeoFence>
+
+	@Transaction
+	open fun clearAllAndInstertNewRegisteredGeoFences(registeredFences: List<RegisteredGeoFence>?) {
+		clearAllRegisteredGeoFences()
+		registeredFences?.let { insertRegisteredGeoFence(it) }
+	}
 
 	@Transaction
 	open fun insertData(timePeriods: List<TimePeriod>, actions: List<ActionModel>, mappings: List<TriggerActionMap>, geofences: List<Trigger.Geofence>) {
@@ -75,7 +89,12 @@ abstract class ActionDao {
 		insertGeofences(geofences.map { GeofenceMapper.mapInsert(it) })
 	}
 
-	fun findClosestGeofences(location: Location): NearbyGeofencesResult {
+	/**
+	 * Because Google Play Services is restricted to 100 GeoFences which can be registered we only add 99 GeoFences (the closest ones)
+	 * plus 1 extra GeoFence to tell that we are leaving this area to reprocess the next 99 GeoFences from this new Area
+	 */
+	@Transaction
+	open fun findMostRelevantGeofences(location: Location): GeofenceQueryResult {
 		val fences = findClosestGeofenceQueries(location)
 		var maxDistance = 300f
 		fences.forEach {
@@ -85,7 +104,8 @@ abstract class ActionDao {
 			}
 			maxDistance = Math.max(maxDistance, location.distanceTo(fenceLocation))
 		}
-		return NearbyGeofencesResult(fences.map { GeofenceMapper.mapQuery(it) }, maxDistance)
+		val fencesToRemove = getRemovableGeofences(fences.map { it.id }).map { it.id }
+		return GeofenceQueryResult(fences.map { GeofenceMapper.mapQuery(it) }, maxDistance, fencesToRemove)
 	}
 
 	internal fun findClosestGeofenceQueries(location: Location): List<GeofenceQuery> { // for testing
@@ -135,19 +155,19 @@ object GeofenceMapper {
 			  TriggerActionMap::class,
 			  GeofenceQuery::class,
 			  Statistics::class,
-			  TimePeriod::class])
+			  TimePeriod::class,
+			  RegisteredGeoFence::class])
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 	abstract fun actionDao(): ActionDao
 }
 
-data class NearbyGeofencesResult(val fences: List<Geofence>, val maxDistance: Float)
+data class GeofenceQueryResult(val fencesToAdd: List<Geofence>, val maxDistance: Float, val fencesToRemove: List<String>)
 
 object Storage {
 	fun createDatabase(app: Application): AppDatabase {
-		return Room.databaseBuilder(app,
-									AppDatabase::class.java,
-									"notifications-sdk").build()
+		return Room.databaseBuilder(app, AppDatabase::class.java, "notifications-sdk")
+			.build()
 	}
 }
 

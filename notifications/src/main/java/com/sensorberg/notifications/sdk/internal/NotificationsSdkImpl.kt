@@ -6,7 +6,6 @@ import android.app.Application
 import android.content.SharedPreferences
 import android.os.Build
 import com.sensorberg.notifications.sdk.Action
-import com.sensorberg.notifications.sdk.BuildConfig
 import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.notifications.sdk.internal.common.Backend
@@ -43,18 +42,6 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		}
 		// await location
 		awaitForLocationPermission()
-
-		cancelAllWorkIfNewSdkVersion()
-	}
-
-	private fun cancelAllWorkIfNewSdkVersion() {
-		//we cancel all the Werk if there is a new SDK-Version. If a work was started with policy KEEP it will never be restarted
-		//if we are changing something on the Policy. TODO could be deleted if the sdk is stable
-		val sdkVersion = prefs.getString(PREF_SDK_VERSION, null)
-		if (sdkVersion != BuildConfig.VERSION_NAME) {
-			workUtils.cancelAllWorkByTag(WorkUtils.WORKER_TAG)
-			prefs.edit().putString(PREF_SDK_VERSION, BuildConfig.VERSION_NAME).apply()
-		}
 	}
 
 	private fun awaitForLocationPermission() {
@@ -62,8 +49,9 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		val callback = object : ActivityLifecycleCallbacksAdapter() {
 			override fun onActivityResumed(activity: Activity) {
 				if (app.haveLocationPermission()) {
+					Timber.i("Location permission granted")
 					app.unregisterActivityLifecycleCallbacks(this)
-					workUtils.execute(SyncWork::class.java) //starting SyncWork immediately
+					//workUtils.execute(SyncWork::class.java) //starting SyncWork immediately
 					workUtils.schedule(SyncWork::class.java) //schedule SyncWork for periodic work
 					workUtils.schedule(UploadWork::class.java)
 				}
@@ -109,23 +97,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		internal const val PREF_INSTALL_ID = "installation_id"
 		internal const val PREF_AD_ID = "advertisement_id"
 		internal const val PREF_ATTR = "attributes"
-		internal const val PREF_SDK_VERSION = "sdk_version"
 		private val MAP_TYPE = Types.newParameterizedType(Map::class.java, String::class.java, String::class.java)
 
-
-	}
-
-	fun SharedPreferences.set(key: String, value: String?): Boolean {
-		if (getString(key, null) == value) { // no change
-			return false
-		}
-
-		if (value == null) {
-			edit().remove(key).apply()
-		} else {
-			edit().putString(key, value).apply()
-		}
-
-		return true
 	}
 }
