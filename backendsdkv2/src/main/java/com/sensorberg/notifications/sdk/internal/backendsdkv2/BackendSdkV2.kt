@@ -15,6 +15,7 @@ import retrofit2.Response
 import java.util.*
 
 class BackendSdkV2(application: Application,
+				   baseUrl: String,
 				   private val apiKey: String,
 				   installId: String,
 				   log: Boolean) : Backend {
@@ -34,7 +35,7 @@ class BackendSdkV2(application: Application,
 		val interceptors = listOf(HeadersInterceptor(headers))
 		val client = Transport.createClient(application, log, interceptors)
 		val parser = Transport.createParser(moshi)
-		api = Transport.createInterface(client, parser)
+		api = Transport.createInterface(baseUrl,client, parser)
 	}
 
 	override fun getNotificationTriggers(callback: Backend.NotificationTriggers) {

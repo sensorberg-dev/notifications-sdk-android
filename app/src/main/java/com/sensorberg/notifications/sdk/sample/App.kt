@@ -33,14 +33,14 @@ class App : Application() {
 
 		sdk = NotificationsSdk.with(this)
 			.enableLogs()
-			.setApiKey(STAGING)
+			.setApiKey(KEY)
+			.setBaseUrl(STAGING)
 			.build()
 
 	}
 
 	companion object {
-		private const val STAN = "6235745d07e6000955422e48197ee8ffc89483eeb515474a9411776832bb6196"
-		private const val RONALDO = "1690d5ef7e35b5ddafe3782df65d86ad52d8159a0ebd8f201b4eb5a0c126c9e1"
-		private const val STAGING = "67eebdd2cda9bcda000ea32c980599116c3e7621072564e18830a8cdb0528411"
+		private const val KEY = "67eebdd2cda9bcda000ea32c980599116c3e7621072564e18830a8cdb0528411"
+		private const val STAGING = "https://staging.sensorberg-cdn.io"
 	}
 }

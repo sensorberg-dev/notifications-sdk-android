@@ -3,6 +3,7 @@ package com.sensorberg.notifications.sdk
 import android.app.Application
 import android.content.Context
 import android.os.Build
+import android.webkit.URLUtil
 import androidx.work.WorkManager
 import com.sensorberg.notifications.sdk.internal.EmptyImpl
 import com.sensorberg.notifications.sdk.internal.InjectionModule
@@ -44,6 +45,7 @@ interface NotificationsSdk {
 
 		private var log = false
 		private var apiKey: String = ""
+		private var baseUrl: String = "https://portal.sensorberg-cdn.com"
 
 		fun enableLogs(): Builder {
 			log = true
@@ -55,15 +57,23 @@ interface NotificationsSdk {
 			return this
 		}
 
+		fun setBaseUrl(baseUrl: String): NotificationsSdk.Builder {
+			this.baseUrl = baseUrl
+			return this
+		}
+
 		fun build(): NotificationsSdk {
 			if (apiKey.isEmpty()) {
 				throw IllegalArgumentException("apiKey is empty - use setApiKey to provide a apiKey")
+			}
+			if (baseUrl.isEmpty() || !URLUtil.isNetworkUrl(baseUrl)) {
+				throw IllegalArgumentException("baseUrl is invalid - use baseUrl to provide a valid baseUrl")
 			}
 
 			val osVersion = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
 			val gpsAvailable = app.isGooglePlayServicesAvailable()
 			return if (osVersion && gpsAvailable) {
-				StandAloneContext.loadKoinModules(InjectionModule(app, apiKey, log).module)
+				StandAloneContext.loadKoinModules(InjectionModule(app, apiKey, baseUrl,log).module)
 				NotificationsSdkImpl()
 			} else {
 				Timber.w("NotificationsSdk disabled. Android Version(${Build.VERSION.SDK_INT}). Google Play Services (${if (gpsAvailable) "" else "un"}available)")

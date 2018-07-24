@@ -24,9 +24,9 @@ object Transport {
 	internal const val HEADER_USER_AGENT = "User-Agent"
 	internal const val HEADER_XAPIKEY = "X-Api-Key"
 
-	fun createInterface(client: OkHttpClient, converter: Converter.Factory): BackendApi {
+	fun createInterface(baseUrl: String, client: OkHttpClient, converter: Converter.Factory): BackendApi {
 		return Retrofit.Builder()
-			.baseUrl("https://staging.sensorberg-cdn.io")
+			.baseUrl(baseUrl)
 			.client(client)
 			.addConverterFactory(converter)
 			.callbackExecutor(Executors.newSingleThreadExecutor()) // runs on single background thread
