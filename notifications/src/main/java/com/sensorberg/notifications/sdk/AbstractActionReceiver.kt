@@ -11,8 +11,14 @@ abstract class AbstractActionReceiver : BroadcastReceiver() {
 	abstract fun onAction(context: Context, action: Action)
 
 	override fun onReceive(context: Context, intent: Intent) {
-		val action = intent.toAction()
-		Timber.d("Sending action to host app: $action")
-		onAction(context, action)
+		if (intent.action == NotificationsSdk.ACTION_RECEIVER) {
+			try {
+				val action = intent.toAction()
+				Timber.d("Sending action to host app: $action")
+				onAction(context, action)
+			} catch (e: IllegalArgumentException) {
+				Timber.e(e, "Failed to send action to host app, invalid data")
+			}
+		}
 	}
 }
