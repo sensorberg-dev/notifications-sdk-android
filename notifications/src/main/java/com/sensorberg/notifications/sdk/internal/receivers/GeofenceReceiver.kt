@@ -27,6 +27,7 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 
 	override fun onReceive(context: Context, intent: Intent) {
 		val event = GeofencingEvent.fromIntent(intent)
+		if (event == null) return
 		if (event.hasError()) {
 			if (event.errorCode == GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE) {
 				dao.clearAllAndInstertNewRegisteredGeoFences(null)
@@ -36,23 +37,31 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 			Timber.e("Received geofence error: $errorMessage")
 		} else {
 			val fences = event.triggeringGeofences
-			fences.forEach {
-				if (it.requestId == EXIT_CURRENT_LOCATION_FENCE &&
-					event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-					workUtils.execute(GeofenceWork::class.java)
-				} else if (event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-					processTrigger(it.requestId, Trigger.Type.Enter)
-				} else if (event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-					processTrigger(it.requestId, Trigger.Type.Exit)
-				}
+			var reprocessFences = false
+
+			val triggerIds = fences.mapNotNull {
+				return@mapNotNull if (it.requestId == EXIT_CURRENT_LOCATION_FENCE) {
+					reprocessFences = event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT
+					null
+				} else it.requestId
+			}
+
+			if (reprocessFences) {
+				workUtils.execute(GeofenceWork::class.java)
+			}
+
+			if (event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+				processTrigger(triggerIds, Trigger.Type.Enter)
+			} else if (event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+				processTrigger(triggerIds, Trigger.Type.Exit)
 			}
 		}
 	}
 
-	private fun processTrigger(triggerId: String, type: Trigger.Type) {
+	private fun processTrigger(triggerIds: List<String>, type: Trigger.Type) {
 		val pending = goAsync() // process this trigger asynchronously
 		executor.execute {
-			triggerProcessor.process(triggerId, type)
+			triggerIds.forEach { triggerProcessor.process(it, type) }
 			pending.finish()
 		}
 	}
