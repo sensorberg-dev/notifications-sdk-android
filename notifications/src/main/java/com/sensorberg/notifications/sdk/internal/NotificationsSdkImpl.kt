@@ -51,7 +51,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 				if (app.haveLocationPermission()) {
 					Timber.i("Location permission granted")
 					app.unregisterActivityLifecycleCallbacks(this)
-					//workUtils.execute(SyncWork::class.java) //starting SyncWork immediately
+					workUtils.execute(SyncWork::class.java) //starting SyncWork immediately
 					workUtils.schedule(SyncWork::class.java) //schedule SyncWork for periodic work
 					workUtils.schedule(UploadWork::class.java)
 				}
