@@ -18,7 +18,7 @@ import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-internal class InjectionModule(private val app: Application, private val apiKey: String, private val log: Boolean) {
+internal class InjectionModule(private val app: Application, private val apiKey: String, private val baseUrl: String, private val log: Boolean) {
 
 	companion object {
 		const val preferencesBean = "com.sensorberg.notifications.sdk.Preferences"
@@ -53,6 +53,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 				}
 
 				return@bean BackendSdkV2(get(appBean),
+										 baseUrl,
 										 apiKey,
 										 installId,
 										 log) as Backend

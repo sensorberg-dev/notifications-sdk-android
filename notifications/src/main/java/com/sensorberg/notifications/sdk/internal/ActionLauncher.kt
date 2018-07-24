@@ -36,7 +36,7 @@ class ActionLauncher(private val app: Application, private val dao: ActionDao) {
 
 		private fun newIntent(app: Application, className: String? = null): Intent {
 			return Intent().apply {
-				action = NotificationsSdk.ACTION_PRESENT
+				action = NotificationsSdk.ACTION_RECEIVER
 				`package` = app.packageName
 				className?.let { setClassName(app, it) }
 			}

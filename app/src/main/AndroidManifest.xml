@@ -21,10 +21,8 @@
 			android:name=".ActionReceiver"
 			android:exported="false">
 			<intent-filter>
-				<action android:name="com.sensorberg.notifications.sdk.PRESENT_NOTIFICATION"/>
+				<action android:name="com.sensorberg.notifications.sdk.ACTION_RECEIVER"/>
 			</intent-filter>
 		</receiver>
-
 	</application>
-
 </manifest>

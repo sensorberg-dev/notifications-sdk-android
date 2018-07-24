@@ -47,8 +47,6 @@ Entry class of the SDK. Should be a singleton initialized during `Application.on
 
 ### TriggerProcessor
 
-Probably the "juiciest" part of the SDK.
-
 - receives a trigger from one of the receivers
 - compares trigger-id to the database mapping
 - process suppression, max count, time periods, report immediate
