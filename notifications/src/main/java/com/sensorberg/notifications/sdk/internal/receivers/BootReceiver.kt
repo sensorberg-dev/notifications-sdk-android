@@ -25,7 +25,7 @@ class BootReceiver : BroadcastReceiver(), KoinComponent {
 			Timber.i("On Boot received")
 			val pending = goAsync() // using async because of the DB operation
 			executor.execute {
-				// TODO: clear current registered fences
+				dao.clearAllAndInstertNewRegisteredGeoFences(null)
 				workUtils.execute(GeofenceWork::class.java)
 				pending.finish()
 			}

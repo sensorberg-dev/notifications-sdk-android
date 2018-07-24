@@ -10,6 +10,7 @@ import com.google.android.gms.location.GeofencingEvent
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.TriggerProcessor
 import com.sensorberg.notifications.sdk.internal.common.model.Trigger
+import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
 import com.sensorberg.notifications.sdk.internal.work.GeofenceWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import org.koin.standalone.KoinComponent
@@ -17,10 +18,9 @@ import org.koin.standalone.inject
 import timber.log.Timber
 import java.util.concurrent.Executor
 
-
-
 class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 
+	private val dao: ActionDao by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)
 	private val triggerProcessor: TriggerProcessor by inject()
 	private val workUtils: WorkUtils by inject()
@@ -29,7 +29,8 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 		val event = GeofencingEvent.fromIntent(intent)
 		if (event.hasError()) {
 			if (event.errorCode == GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE) {
-				reprocessGeofences()
+				dao.clearAllAndInstertNewRegisteredGeoFences(null)
+				workUtils.execute(GeofenceWork::class.java)
 			}
 			val errorMessage = GeofenceStatusCodes.getStatusCodeString(event.errorCode)
 			Timber.e("Received geofence error: $errorMessage")
@@ -38,7 +39,7 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 			fences.forEach {
 				if (it.requestId == EXIT_CURRENT_LOCATION_FENCE &&
 					event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-					reprocessGeofences()
+					workUtils.execute(GeofenceWork::class.java)
 				} else if (event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
 					processTrigger(it.requestId, Trigger.Type.Enter)
 				} else if (event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
@@ -46,10 +47,6 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 				}
 			}
 		}
-	}
-
-	private fun reprocessGeofences() {
-		workUtils.execute(GeofenceWork::class.java)
 	}
 
 	private fun processTrigger(triggerId: String, type: Trigger.Type) {

@@ -71,9 +71,9 @@ abstract class ActionDao {
 	abstract fun getRemovableGeofences(list: List<String>): List<RegisteredGeoFence>
 
 	@Transaction
-	open fun clearAllAndInstertNewRegisteredGeoFences(relevantGeoFences: List<RegisteredGeoFence>) {
+	open fun clearAllAndInstertNewRegisteredGeoFences(registeredFences: List<RegisteredGeoFence>?) {
 		clearAllRegisteredGeoFences()
-		insertRegisteredGeoFence(relevantGeoFences)
+		registeredFences?.let { insertRegisteredGeoFence(it) }
 	}
 
 	@Transaction
