@@ -74,7 +74,7 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 	}
 
 	private fun createScheduleRequest(klazz: Class<out Worker>): PeriodicWorkRequest {
-		val interval = if (BuildConfig.DEBUG) PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS else TimeUnit.HOURS.toMillis(3)
+		val interval = TimeUnit.HOURS.toMillis(1)
 		return PeriodicWorkRequest.Builder(klazz, interval, TimeUnit.MILLISECONDS)
 			.addTag(WORKER_TAG) //only to get the workers states later
 			.setConstraints(getConstraints())
@@ -88,7 +88,7 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 	}
 
 	companion object {
-		internal val ACTION_STRING = NotificationsSdk.ACTION_PRESENT
+		internal val ACTION_STRING = "com.sensorberg.notifications.sdk.internal.work.ACTION_STRING"
 		internal val FIRE_ACTION_WORK = "${FireActionWork::class.java.canonicalName!!}.ACTION"
 		internal val REPORT_IMMEDIATE = "${FireActionWork::class.java.canonicalName!!}.REPORT_IMMEDIATE"
 		internal val TRIGGER_TYPE = "${FireActionWork::class.java.canonicalName!!}.TRIGGER_TYPE"

@@ -62,7 +62,7 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 
 	companion object {
 
-		private const val BEACON_REQUEST_CODE = 1
+		private const val BEACON_REQUEST_CODE = 1338
 
 		private fun getBeacon(message: Message): IBeaconId? {
 			return if (Message.MESSAGE_NAMESPACE_RESERVED == message.namespace

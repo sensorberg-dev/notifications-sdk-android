@@ -8,21 +8,8 @@ import com.sensorberg.timberextensions.tree.FileLogTree
 import timber.log.Timber
 
 class App : Application() {
-	/*
 
-	TODO: dear Mirko:
-	Manual testing will be required!!!
-
-	- reboot the device: does beacons still work? do geofences get properly re-registered?
-	- put the sync time to something like a 10minutes, run, kill the VM and leave the device. Does it get properly executed?
-	- test the geofences! use a mock provider, setup a fence. reboot the device, kill the VM
-	- disable location, enable again
-	- register geofences when location get enabled again. Is it even possible on Nougat+ ?
-
-
-	 */
-
-	public lateinit var sdk: NotificationsSdk
+	lateinit var sdk: NotificationsSdk
 
 	override fun onCreate() {
 		super.onCreate()
@@ -32,7 +19,7 @@ class App : Application() {
 				FileLogTree(getDir("logs", Context.MODE_PRIVATE).absolutePath, 1, 3))
 
 		sdk = NotificationsSdk.with(this)
-			.enableLogs()
+			.enableHttpLogs()
 			.setApiKey(KEY)
 			.setBaseUrl(STAGING)
 			.build()

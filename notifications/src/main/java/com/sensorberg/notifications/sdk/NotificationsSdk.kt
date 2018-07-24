@@ -2,13 +2,11 @@ package com.sensorberg.notifications.sdk
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.webkit.URLUtil
 import androidx.work.WorkManager
-import com.sensorberg.notifications.sdk.internal.EmptyImpl
-import com.sensorberg.notifications.sdk.internal.InjectionModule
-import com.sensorberg.notifications.sdk.internal.NotificationsSdkImpl
-import com.sensorberg.notifications.sdk.internal.isGooglePlayServicesAvailable
+import com.sensorberg.notifications.sdk.internal.*
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import org.koin.standalone.StandAloneContext
 import timber.log.Timber
@@ -23,7 +21,7 @@ interface NotificationsSdk {
 
 	companion object {
 
-		const val ACTION_PRESENT = "com.sensorberg.notifications.sdk.PRESENT_NOTIFICATION"
+		const val ACTION_RECEIVER = "com.sensorberg.notifications.sdk.ACTION_RECEIVER"
 
 		const val notificationSdkContext = "com.sensorberg.notifications.sdk"
 
@@ -39,6 +37,10 @@ interface NotificationsSdk {
 				}
 			}
 		}
+
+		fun extractAction(intent: Intent): Action {
+			return intent.toAction()
+		}
 	}
 
 	class Builder internal constructor(private val app: Application) {
@@ -47,7 +49,7 @@ interface NotificationsSdk {
 		private var apiKey: String = ""
 		private var baseUrl: String = "https://portal.sensorberg-cdn.com"
 
-		fun enableLogs(): Builder {
+		fun enableHttpLogs(): Builder {
 			log = true
 			return this
 		}
@@ -73,7 +75,7 @@ interface NotificationsSdk {
 			val osVersion = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
 			val gpsAvailable = app.isGooglePlayServicesAvailable()
 			return if (osVersion && gpsAvailable) {
-				StandAloneContext.loadKoinModules(InjectionModule(app, apiKey, baseUrl,log).module)
+				StandAloneContext.loadKoinModules(InjectionModule(app, apiKey, baseUrl, log).module)
 				NotificationsSdkImpl()
 			} else {
 				Timber.w("NotificationsSdk disabled. Android Version(${Build.VERSION.SDK_INT}). Google Play Services (${if (gpsAvailable) "" else "un"}available)")

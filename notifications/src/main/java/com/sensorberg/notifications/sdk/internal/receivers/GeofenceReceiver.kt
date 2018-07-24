@@ -68,7 +68,7 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 
 	companion object {
 
-		private const val GEOFENCE_REQUEST_CODE = 2
+		private const val GEOFENCE_REQUEST_CODE = 1339
 
 		val EXIT_CURRENT_LOCATION_FENCE = "${GeofenceReceiver::class.java.canonicalName}.EXIT"
 
