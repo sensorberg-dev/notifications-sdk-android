@@ -16,6 +16,8 @@ import retrofit2.Response
 import timber.log.Timber
 import java.util.*
 
+private const val DEFAULT_SUPPRESSION_TIME = 1L * 60L * 60L * 1000L
+
 class TriggerMapper(private val callback: Backend.NotificationTriggers) : Callback<ResolveResponse> {
 
 	override fun onResponse(call: Call<ResolveResponse>, response: Response<ResolveResponse>) {
@@ -89,7 +91,7 @@ class TriggerMapper(private val callback: Backend.NotificationTriggers) : Callba
 						   action.reportImmediately == true,
 						   action.delay ?: 0,
 						   action.deliverAt ?: 0,
-						   action.suppressionTime?.apply { this * 1000 } ?: 0,
+						   if (action.suppressionTime == null) DEFAULT_SUPPRESSION_TIME else action.suppressionTime * 1000,
 						   if (action.sendOnlyOnce == true) 1 else 0,
 						   action.type == ResolveAction.TYPE_SILENT)
 			.also {

@@ -20,7 +20,7 @@ sealed class Trigger {
 							 major: Short,
 							 minor: Short,
 							 type: Type): String {
-				return "beacon($proximityUuid)($major)($minor)(${type.name})"
+				return "beacon($proximityUuid)($major)($minor)"
 			}
 		}
 	}
