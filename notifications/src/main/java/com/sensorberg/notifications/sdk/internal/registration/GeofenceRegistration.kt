@@ -45,6 +45,8 @@ class GeofenceRegistration : KoinComponent {
 			return Worker.Result.FAILURE
 		}
 
+		Timber.d("Start to register geofences to Google Play Services")
+
 		val locationClient = LocationServices.getFusedLocationProviderClient(app)
 		val geofenceClient = GeofencingClient(app)
 
@@ -80,7 +82,7 @@ class GeofenceRegistration : KoinComponent {
 			.continueWithTask { getRegisterGeofenceTask(geofenceClient, geofenceQueryResult!!, location!!) }
 			//remove all registered GeoFences from DB and add the newly registered ones
 			.continueWithTask(executor, Continuation<Void, Task<Boolean>> {
-				Timber.d("Updating geofence database with ${geofenceQueryResult!!.fencesToAdd.size} newly registered fences")
+				Timber.d("Updating geofence database with ${geofenceQueryResult!!.fencesToAdd.size} registered fences")
 				actionDao.clearAllAndInstertNewRegisteredGeoFences(geofenceQueryResult!!.fencesToAdd.map { RegisteredGeoFence(it.requestId) })
 				Tasks.forResult(true)
 			})
@@ -92,12 +94,11 @@ class GeofenceRegistration : KoinComponent {
 				Timber.d("Fences registration SUCCESS")
 				Worker.Result.SUCCESS
 			} else {
-				Timber.d("Fences registration RETRY")
+				Timber.w("Fences registration fail. RETRY. ${task.exception}")
 				Worker.Result.RETRY
 			}
 		} catch (e: Exception) {
-			Timber.d("Fences registration failed with exception RETRY")
-			Timber.e(e)
+			Timber.e(e, "Fences registration timeout. RETRY. $e")
 			Worker.Result.RETRY
 		}
 	}
@@ -108,14 +109,6 @@ class GeofenceRegistration : KoinComponent {
 			val geofenceQueryResult = actionDao.findMostRelevantGeofences(location)
 			Timber.d("Found ${geofenceQueryResult.fencesToAdd.size} most relevant geofences")
 			Tasks.forResult(geofenceQueryResult)
-		}
-	}
-
-	private fun updateGeofenceData(geofenceQueryResult: GeofenceQueryResult): Continuation<Void, Task<Boolean>> {
-		return Continuation {
-			Timber.d("Deleting all (${geofenceQueryResult.fencesToAdd.size}) registered GeoFences from DB and add most relevant ones to the DB")
-			actionDao.clearAllAndInstertNewRegisteredGeoFences(geofenceQueryResult.fencesToAdd.map { RegisteredGeoFence(it.requestId) })
-			Tasks.forResult(true)
 		}
 	}
 

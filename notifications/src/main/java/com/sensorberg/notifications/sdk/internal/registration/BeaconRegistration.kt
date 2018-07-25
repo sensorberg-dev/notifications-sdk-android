@@ -28,6 +28,8 @@ class BeaconRegistration : KoinComponent {
 			return Worker.Result.FAILURE
 		}
 
+		Timber.d("Start to register ${beacons.size} beacons to Google Play Services")
+
 		val nearby = Nearby.getMessagesClient(app, MessagesOptions.Builder()
 			.setPermissions(NearbyPermissions.BLE)
 			.build())
@@ -62,16 +64,16 @@ class BeaconRegistration : KoinComponent {
 
 		try {
 			// await synchronously to completion
-			Tasks.await(task, 5, TimeUnit.SECONDS)
+			Tasks.await(task, 30, TimeUnit.SECONDS)
 			return if (task.isSuccessful) {
 				Timber.d("Beacon registration SUCCESS")
 				Worker.Result.SUCCESS
 			} else {
-				Timber.d("Beacon registration RETRY")
+				Timber.w("Beacon registration fail. RETRY. ${task.exception}")
 				Worker.Result.RETRY
 			}
 		} catch (e: Exception) {
-			Timber.d("Beacon registration RETRY")
+			Timber.e(e, "Beacon registration timeout. RETRY. $e")
 			return Worker.Result.RETRY
 		}
 	}
