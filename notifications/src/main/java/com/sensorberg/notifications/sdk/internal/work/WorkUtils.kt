@@ -52,19 +52,26 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 		workManager.beginUniqueWork("beacon_work_$key", ExistingWorkPolicy.REPLACE, request).enqueue()
 	}
 
-	fun execute(klazz: Class<out Worker>) {
+	fun execute(klazz: Class<out Worker>, extras: String? = null) {
 		if (!app.isGooglePlayServicesAvailable() || !app.haveLocationPermission()) {
 			return
 		}
 
-		val request = createExecuteRequest(klazz)
+		val data = extras?.let {
+			Data.Builder()
+				.putString(EXTRA_DATA, extras)
+				.build()
+		}
+
+		val request = createExecuteRequest(klazz, data)
 		Timber.d("Enqueueing for immediate execution of ${klazz.simpleName}")
-		workManager.enqueue(request)
+		workManager.beginUniqueWork(klazz.canonicalName, ExistingWorkPolicy.REPLACE, request).enqueue()
 	}
 
-	private fun createExecuteRequest(klazz: Class<out Worker>): OneTimeWorkRequest {
+	private fun createExecuteRequest(klazz: Class<out Worker>, data: Data?): OneTimeWorkRequest {
 		return OneTimeWorkRequest.Builder(klazz)
 			.setConstraints(getConstraints())
+			.apply { data?.let { setInputData(data) } }
 			.addTag(WORKER_TAG) //only to get the workers states later
 			.build()
 	}
@@ -105,6 +112,7 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 		internal const val FIRE_ACTION_WORK = "com.sensorberg.notifications.sdk.internal.work.fireAction.ACTION"
 		internal const val REPORT_IMMEDIATE = "com.sensorberg.notifications.sdk.internal.work.fireAction.REPORT_IMMEDIATE"
 		internal const val TRIGGER_TYPE = "com.sensorberg.notifications.sdk.internal.work.fireAction.TRIGGER_TYPE"
+		internal const val EXTRA_DATA = "com.sensorberg.notifications.sdk.internal.work.EXTRA_DATA"
 		internal const val WORKER_TAG = "com.sensorberg.notifications.sdk.internal.work.WORKER_TAG"
 		internal const val BEACON_STRING = "com.sensorberg.notifications.sdk.internal.work.BEACON_STRING"
 
@@ -116,6 +124,10 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 
 internal fun BeaconProcessingWork.getBeaconKey(): String {
 	return inputData.getString(WorkUtils.BEACON_STRING)!!
+}
+
+internal fun Data.getExtras(): String {
+	return getString(WorkUtils.EXTRA_DATA)!!
 }
 
 internal fun FireActionWork.getAction(actionAdapter: JsonAdapter<Action>): Action {

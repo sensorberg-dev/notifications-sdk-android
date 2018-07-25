@@ -11,7 +11,9 @@ import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.BackendSdkV2
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
+import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.ToJson
 import org.koin.dsl.module.applicationContext
 import java.util.*
 import java.util.concurrent.Executor
@@ -43,7 +45,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 				WorkUtils(WorkManager.getInstance(), app, get(), get(preferencesBean))
 			}
 			bean(googleApiAvailabilityBean) { GoogleApiAvailability.getInstance() }
-			bean(moshiBean) { Moshi.Builder().build() }
+			bean(moshiBean) { Moshi.Builder().add(UuidObjectAdapter).build() }
 			bean {
 
 				val prefs = get<SharedPreferences>(preferencesBean)
@@ -62,4 +64,14 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 			}
 		}
 	})
+}
+
+private object UuidObjectAdapter {
+	@FromJson fun toUUID(value: String): UUID {
+		return UUID.fromString(value)
+	}
+
+	@ToJson fun fromUUID(value: UUID): String {
+		return value.toString()
+	}
 }
