@@ -27,16 +27,24 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 
 	override fun onReceive(context: Context, intent: Intent) {
 		val event = GeofencingEvent.fromIntent(intent)
-		if (event == null) return
+		if (event == null) return // do not replace with elvis
 		if (event.hasError()) {
 			if (event.errorCode == GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE) {
-				dao.clearAllAndInstertNewRegisteredGeoFences(null)
-				workUtils.execute(GeofenceWork::class.java)
+				val pending = goAsync()
+				executor.execute {
+					dao.clearAllAndInstertNewRegisteredGeoFences(null)
+					workUtils.execute(GeofenceWork::class.java)
+					pending.finish()
+				}
 			}
 			val errorMessage = GeofenceStatusCodes.getStatusCodeString(event.errorCode)
 			Timber.e("Received geofence error: $errorMessage")
 		} else {
 			val fences = event.triggeringGeofences
+			if (fences == null) {
+				workUtils.execute(GeofenceWork::class.java)
+				return
+			} // do not replace with elvis
 			var reprocessFences = false
 
 			val triggerIds = fences.mapNotNull {
