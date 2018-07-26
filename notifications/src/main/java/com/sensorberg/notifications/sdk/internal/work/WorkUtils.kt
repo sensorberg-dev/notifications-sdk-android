@@ -73,8 +73,8 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 	}
 
 	private fun createScheduleRequest(klazz: Class<out Worker>): PeriodicWorkRequest {
-		val interval = TimeUnit.HOURS.toMillis(1)
-		return PeriodicWorkRequest.Builder(klazz, interval, TimeUnit.MILLISECONDS)
+		return PeriodicWorkRequest
+			.Builder(klazz, 8, TimeUnit.HOURS)
 			.addTag(WORKER_TAG) //only to get the workers states later
 			.setConstraints(getConstraints())
 			.build()
