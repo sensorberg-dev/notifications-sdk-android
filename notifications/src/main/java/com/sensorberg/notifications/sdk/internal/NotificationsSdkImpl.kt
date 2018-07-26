@@ -29,7 +29,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 	private val app: Application by inject(InjectionModule.appBean)
 	private val prefs: SharedPreferences by inject(InjectionModule.preferencesBean)
 	private val backend: Backend by inject()
-	private val moshi: Moshi by inject()
+	private val moshi: Moshi by inject(InjectionModule.moshiBean)
 	private val workUtils: WorkUtils by inject()
 	private val dao: ActionDao by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)

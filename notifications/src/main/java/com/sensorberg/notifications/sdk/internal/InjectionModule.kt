@@ -24,6 +24,8 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 		const val appBean = "com.sensorberg.notifications.sdk.App"
 		const val contextBean = "com.sensorberg.notifications.sdk.Context"
 		const val executorBean = "com.sensorberg.notifications.sdk.Executor"
+		const val googleApiAvailabilityBean = "com.sensorberg.notifications.sdk.googleApiAvailability"
+		const val moshiBean = "com.sensorberg.notifications.sdk.moshi"
 	}
 
 	val module = listOf(applicationContext {
@@ -41,8 +43,8 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 				WorkManager.initialize(get(contextBean), Configuration.Builder().build())
 				WorkUtils(WorkManager.getInstance()!!, get(appBean), get(), get(preferencesBean))
 			}
-			bean { GoogleApiAvailability.getInstance() }
-			bean { Moshi.Builder().build() }
+			bean(googleApiAvailabilityBean) { GoogleApiAvailability.getInstance() }
+			bean(moshiBean) { Moshi.Builder().build() }
 			bean {
 
 				val prefs = get<SharedPreferences>(preferencesBean)

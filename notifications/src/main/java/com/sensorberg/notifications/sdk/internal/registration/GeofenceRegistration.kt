@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
 class GeofenceRegistration : KoinComponent {
 
 	private val app: Application by inject(InjectionModule.appBean)
-	private val googleApi: GoogleApiAvailability by inject()
+	private val googleApi: GoogleApiAvailability by inject(InjectionModule.googleApiAvailabilityBean)
 	private val fenceDao: GeofenceDao by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)
 
