@@ -7,6 +7,7 @@ import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.notifications.sdk.internal.model.ActionHistory
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.model.toActionHistory
+import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import timber.log.Timber
 
 class ActionLauncher(private val app: Application, private val dao: ActionDao) {

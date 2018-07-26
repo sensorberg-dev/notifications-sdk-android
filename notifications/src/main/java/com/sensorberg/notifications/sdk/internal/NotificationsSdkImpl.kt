@@ -11,6 +11,7 @@ import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.model.toActionConversion
+import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import com.sensorberg.notifications.sdk.internal.work.SyncWork
 import com.sensorberg.notifications.sdk.internal.work.UploadWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils

@@ -3,6 +3,7 @@ package com.sensorberg.notifications.sdk.internal
 import android.app.Application
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.internal.model.*
+import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import com.sensorberg.notifications.sdk.internal.work.UploadWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import timber.log.Timber

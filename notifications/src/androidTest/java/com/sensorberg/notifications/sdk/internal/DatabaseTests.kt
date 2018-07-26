@@ -4,6 +4,8 @@ import android.arch.persistence.room.Room
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import com.sensorberg.notifications.sdk.internal.model.*
+import com.sensorberg.notifications.sdk.internal.storage.ActionDao
+import com.sensorberg.notifications.sdk.internal.storage.AppDatabase
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before

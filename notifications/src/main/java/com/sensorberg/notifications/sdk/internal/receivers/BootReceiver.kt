@@ -3,8 +3,8 @@ package com.sensorberg.notifications.sdk.internal.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.sensorberg.notifications.sdk.internal.ActionDao
 import com.sensorberg.notifications.sdk.internal.InjectionModule
+import com.sensorberg.notifications.sdk.internal.storage.GeofenceDao
 import com.sensorberg.notifications.sdk.internal.work.GeofenceWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import org.koin.standalone.KoinComponent
@@ -14,7 +14,7 @@ import java.util.concurrent.Executor
 
 class BootReceiver : BroadcastReceiver(), KoinComponent {
 
-	private val dao: ActionDao by inject()
+	private val dao: GeofenceDao by inject()
 	private val workUtils: WorkUtils by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)
 

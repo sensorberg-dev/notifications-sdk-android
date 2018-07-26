@@ -1,6 +1,7 @@
 package com.sensorberg.notifications.sdk.internal
 
 import com.sensorberg.notifications.sdk.internal.model.*
+import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

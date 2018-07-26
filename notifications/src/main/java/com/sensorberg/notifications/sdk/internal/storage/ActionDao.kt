@@ -1,10 +1,7 @@
-package com.sensorberg.notifications.sdk.internal
+package com.sensorberg.notifications.sdk.internal.storage
 
-import android.app.Application
 import android.arch.persistence.room.*
 import android.location.Location
-import com.google.android.gms.location.Geofence
-import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.internal.model.*
 
 @Dao
@@ -40,8 +37,11 @@ abstract class ActionDao {
 	@Query("SELECT * FROM table_action_history")
 	abstract fun getActionHistory(): List<ActionHistory>
 
-	@Insert abstract fun insertActionHistory(vararg action: ActionHistory)
-	@Delete abstract fun clearActionHistory(actions: List<ActionHistory>)
+	@Insert
+	abstract fun insertActionHistory(vararg action: ActionHistory)
+
+	@Delete
+	abstract fun clearActionHistory(actions: List<ActionHistory>)
 
 	@Query("SELECT * FROM table_action_conversion")
 	abstract fun getActionConversion(): List<ActionConversion>
@@ -49,7 +49,12 @@ abstract class ActionDao {
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	abstract fun insertActionConversion(vararg action: ActionConversion)
 
-	@Delete abstract fun clearActionConversion(actions: List<ActionConversion>)
+	@Delete
+	abstract fun clearActionConversion(actions: List<ActionConversion>)
+}
+
+@Dao
+abstract class GeofenceDao {
 
 	@Query("SELECT * FROM table_geofence")
 	abstract fun getGeofences(): List<GeofenceQuery>
@@ -74,19 +79,6 @@ abstract class ActionDao {
 	open fun clearAllAndInstertNewRegisteredGeoFences(registeredFences: List<RegisteredGeoFence>?) {
 		clearAllRegisteredGeoFences()
 		registeredFences?.let { insertRegisteredGeoFence(it) }
-	}
-
-	@Transaction
-	open fun insertData(timePeriods: List<TimePeriod>, actions: List<ActionModel>, mappings: List<TriggerActionMap>, geofences: List<Trigger.Geofence>) {
-		clearActions()
-		clearMappings()
-		clearTimePeriods()
-		clearGeofences()
-
-		insertActions(actions)
-		insertMappings(mappings)
-		insertTimePeriods(timePeriods)
-		insertGeofences(geofences.map { GeofenceMapper.mapInsert(it) })
 	}
 
 	/**
@@ -115,101 +107,4 @@ abstract class ActionDao {
 				in_sin_lon_rad = Math.sin(location.longitude * Math.PI / 180),
 				in_cos_lon_rad = Math.cos(location.longitude * Math.PI / 180))
 	}
-}
-
-object GeofenceMapper {
-	fun mapQuery(query: GeofenceQuery): Geofence {
-		val transition = when (query.type) {
-			Trigger.Type.Enter -> Geofence.GEOFENCE_TRANSITION_ENTER
-			Trigger.Type.Exit -> Geofence.GEOFENCE_TRANSITION_EXIT
-			Trigger.Type.EnterOrExit -> Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT
-		}
-
-		return Geofence.Builder()
-			.setRequestId(query.id)
-			.setCircularRegion(query.latitude, query.longitude, query.radius)
-			.setTransitionTypes(transition)
-			.setExpirationDuration(Geofence.NEVER_EXPIRE)
-			.build()
-	}
-
-	fun mapInsert(fence: Trigger.Geofence): GeofenceQuery {
-		return GeofenceQuery(fence.getTriggerId(),
-							 fence.latitude,
-							 fence.longitude,
-							 fence.radius,
-							 fence.type,
-							 Math.sin(Math.toRadians(fence.latitude)),
-							 Math.sin(Math.toRadians(fence.longitude)),
-							 Math.cos(Math.toRadians(fence.latitude)),
-							 Math.cos(Math.toRadians(fence.longitude)))
-	}
-}
-
-@Database(version = 1,
-		  exportSchema = false,
-		  entities = [
-			  ActionModel::class,
-			  ActionHistory::class,
-			  ActionConversion::class,
-			  TriggerActionMap::class,
-			  GeofenceQuery::class,
-			  Statistics::class,
-			  TimePeriod::class,
-			  RegisteredGeoFence::class])
-@TypeConverters(Converters::class)
-abstract class AppDatabase : RoomDatabase() {
-	abstract fun actionDao(): ActionDao
-}
-
-data class GeofenceQueryResult(val fencesToAdd: List<Geofence>, val maxDistance: Float, val fencesToRemove: List<String>)
-
-object Storage {
-	fun createDatabase(app: Application): AppDatabase {
-		return Room.databaseBuilder(app, AppDatabase::class.java, "notifications-sdk")
-			.build()
-	}
-}
-
-class Converters {
-	@TypeConverter
-	fun toTriggerType(code: Int): Trigger.Type {
-		return when (code) {
-			1 -> Trigger.Type.Enter
-			2 -> Trigger.Type.Exit
-			3 -> Trigger.Type.EnterOrExit
-			else -> throw IllegalArgumentException("Trigger.Type code can't be $code")
-		}
-	}
-
-	@TypeConverter
-	fun fromTriggerType(type: Trigger.Type): Int {
-		return when (type) {
-			Trigger.Type.Enter -> 1
-			Trigger.Type.Exit -> 2
-			Trigger.Type.EnterOrExit -> 3
-		}
-	}
-
-	@TypeConverter
-	fun toConversionType(code: Int): Conversion {
-		return when (code) {
-			1 -> Conversion.NotificationDisabled
-			2 -> Conversion.Suppressed
-			3 -> Conversion.Ignored
-			4 -> Conversion.Success
-			else -> throw IllegalArgumentException("Conversion code can't be $code")
-		}
-	}
-
-	@TypeConverter
-	fun fromConversionType(conversion: Conversion): Int {
-		return when (conversion) {
-			Conversion.NotificationDisabled -> 1
-			Conversion.Suppressed -> 2
-			Conversion.Ignored -> 3
-			Conversion.Success -> 4
-		}
-	}
-
 }
