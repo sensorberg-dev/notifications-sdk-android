@@ -36,6 +36,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 			bean { AppDatabase.createDatabase(get(appBean)) }
 			bean { get<AppDatabase>().actionDao() }
 			bean { get<AppDatabase>().geofenceDao() }
+			bean { get<AppDatabase>().beaconDao() }
 			bean(preferencesBean) { get<Application>(appBean).getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
 			bean { TriggerProcessor(get(), get(), get(), get(appBean)) }
 			bean { ActionLauncher(get(appBean), get()) }

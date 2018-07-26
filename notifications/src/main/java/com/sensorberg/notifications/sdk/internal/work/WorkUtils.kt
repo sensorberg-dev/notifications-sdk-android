@@ -38,6 +38,19 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			.build()
 	}
 
+	fun executeBeaconWorkFor(id: String) {
+		Timber.d("Scheduling execution of the beacon work in 60 seconds for beacon $id")
+		val data = Data.Builder()
+			.putString(BEACON_STRING, id)
+			.build()
+		val request = OneTimeWorkRequestBuilder<BeaconWork>()
+			.setInitialDelay(60, TimeUnit.SECONDS)
+			.setInputData(data)
+			.addTag(WORKER_TAG) //only to get the workers states later
+			.build()
+		workManager.beginUniqueWork("beacon_work_$id", ExistingWorkPolicy.REPLACE, request).enqueue()
+	}
+
 	fun execute(klazz: Class<out Worker>) {
 		if (!app.isGooglePlayServicesAvailable() || !app.haveLocationPermission()) {
 			return
@@ -87,17 +100,21 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 	}
 
 	companion object {
-		internal val ACTION_STRING = "com.sensorberg.notifications.sdk.internal.work.ACTION_STRING"
+		internal const val ACTION_STRING = "com.sensorberg.notifications.sdk.internal.work.ACTION_STRING"
 		internal val FIRE_ACTION_WORK = "${FireActionWork::class.java.canonicalName!!}.ACTION"
 		internal val REPORT_IMMEDIATE = "${FireActionWork::class.java.canonicalName!!}.REPORT_IMMEDIATE"
 		internal val TRIGGER_TYPE = "${FireActionWork::class.java.canonicalName!!}.TRIGGER_TYPE"
-
 		internal const val WORKER_TAG = "com.sensorberg.notifications.sdk.internal.work.WORKER_TAG"
+		internal const val BEACON_STRING = "com.sensorberg.notifications.sdk.internal.work.BEACON_STRING"
 
 		fun createAction(moshi: Moshi): JsonAdapter<Action> {
 			return moshi.adapter<Action>(Action::class.java)
 		}
 	}
+}
+
+internal fun BeaconWork.getBeaconId(): String {
+	return inputData.getString(WorkUtils.BEACON_STRING, null)!!
 }
 
 internal fun FireActionWork.getAction(actionAdapter: JsonAdapter<Action>): Action {
