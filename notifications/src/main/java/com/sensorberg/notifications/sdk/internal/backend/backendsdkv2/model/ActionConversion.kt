@@ -1,16 +1,16 @@
-package com.sensorberg.notifications.sdk.internal.backendsdkv2.model
+package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model
 
 import com.sensorberg.notifications.sdk.Conversion
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class ActionConversion(
+internal data class ActionConversion(
 	@Json(name = "action") var actionInstanceUuid: String? = null,
 	@Json(name = "dt") var date: Long? = null,
 	@Json(name = "type") var type: Int? = null
 		//@Json(name = "location") var geohash: String? = null
-						   ) {
+									) {
 
 	companion object {
 		/**

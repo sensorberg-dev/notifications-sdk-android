@@ -2,7 +2,6 @@ package com.sensorberg.notifications.sdk.internal.work
 
 import android.app.Application
 import androidx.work.Worker
-import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission

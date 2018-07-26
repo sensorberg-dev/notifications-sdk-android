@@ -1,10 +1,10 @@
 package com.sensorberg.notifications.sdk.internal.work
 
 import androidx.work.Worker
-import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.model.ActionConversion
 import com.sensorberg.notifications.sdk.internal.model.ActionHistory
+import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber

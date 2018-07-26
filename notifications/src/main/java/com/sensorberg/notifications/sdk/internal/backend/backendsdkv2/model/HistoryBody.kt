@@ -1,4 +1,4 @@
-package com.sensorberg.notifications.sdk.internal.backendsdkv2.model
+package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model
 
 import ch.hsr.geohash.GeoHash
 import com.sensorberg.notifications.sdk.internal.model.ActionHistory
@@ -10,7 +10,7 @@ import org.threeten.bp.format.DateTimeFormatter
 private typealias SdkConversion = com.sensorberg.notifications.sdk.internal.model.ActionConversion
 
 @JsonClass(generateAdapter = true)
-data class HistoryBody(
+internal data class HistoryBody(
 	val actions: List<BeaconAction>? = null,
 	val conversions: List<ActionConversion>? = null,
 	val deviceTimestamp: String? = null) {

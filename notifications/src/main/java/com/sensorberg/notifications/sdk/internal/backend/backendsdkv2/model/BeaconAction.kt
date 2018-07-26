@@ -1,10 +1,10 @@
-package com.sensorberg.notifications.sdk.internal.backendsdkv2.model
+package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class BeaconAction(
+internal data class BeaconAction(
 	@Json(name = "eid") var actionId: String? = null,
 	@Json(name = "dt") var timeOfPresentation: Long = 0,
 	@Json(name = "trigger") var trigger: Int = 0,

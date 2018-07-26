@@ -1,4 +1,4 @@
-package com.sensorberg.notifications.sdk.internal.backendsdkv2.interceptors
+package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.interceptors
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -9,7 +9,7 @@ import okhttp3.Request
 import timber.log.Timber
 import java.net.URLEncoder
 
-class UserAgent(context: Context) : AddHeader {
+internal class UserAgent(context: Context) : AddHeader {
 
 	private val userAgent: String
 

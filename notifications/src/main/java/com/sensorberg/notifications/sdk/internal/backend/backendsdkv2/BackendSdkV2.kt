@@ -3,9 +3,9 @@ package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2
 import android.app.Application
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.sensorberg.notifications.sdk.internal.backend.Backend
-import com.sensorberg.notifications.sdk.internal.backendsdkv2.interceptors.*
-import com.sensorberg.notifications.sdk.internal.backendsdkv2.model.HistoryBody
-import com.sensorberg.notifications.sdk.internal.backendsdkv2.model.JsonObjectAdapter
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.interceptors.*
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model.HistoryBody
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model.JsonObjectAdapter
 import com.sensorberg.notifications.sdk.internal.model.ActionConversion
 import com.sensorberg.notifications.sdk.internal.model.ActionHistory
 import com.squareup.moshi.Moshi
@@ -14,11 +14,11 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
 
-class BackendSdkV2(application: Application,
-				   baseUrl: String,
-				   private val apiKey: String,
-				   installId: String,
-				   log: Boolean) : Backend {
+internal class BackendSdkV2(application: Application,
+							baseUrl: String,
+							private val apiKey: String,
+							installId: String,
+							log: Boolean) : Backend {
 
 	private val api: BackendApi
 	private val adHeader = AdvertisementId()

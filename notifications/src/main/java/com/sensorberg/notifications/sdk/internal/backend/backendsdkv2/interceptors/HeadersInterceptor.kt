@@ -1,4 +1,4 @@
-package com.sensorberg.notifications.sdk.internal.backendsdkv2.interceptors
+package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.interceptors
 
 import okhttp3.Interceptor
 import okhttp3.Request

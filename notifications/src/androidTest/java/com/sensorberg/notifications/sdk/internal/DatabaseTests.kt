@@ -113,7 +113,7 @@ class DatabaseTests {
 			timePeriods.add(TimePeriod(0, a.id, 0, Long.MAX_VALUE))
 		}
 
-		dao.insertData(timePeriods, actions, mappings, listOf())
+		db!!.insertData(timePeriods, actions, mappings, listOf())
 
 		val q1: List<ActionQueryModel> = dao.getActionsForTrigger(t1.getTriggerId(), System.currentTimeMillis(), Trigger.Type.Enter, Trigger.Type.EnterOrExit)
 		val q2: List<ActionQueryModel> = dao.getActionsForTrigger(t2.getTriggerId(), System.currentTimeMillis(), Trigger.Type.Exit, Trigger.Type.EnterOrExit)
@@ -151,7 +151,7 @@ class DatabaseTests {
 			mappings.add(TriggerActionMap(0, string(), Trigger.Type.Enter, a.id, null))
 			timePeriods.add(TimePeriod(0, a.id, 0, Long.MAX_VALUE))
 		}
-		dao.insertData(timePeriods, actions, mappings, listOf())
+		db!!.insertData(timePeriods, actions, mappings, listOf())
 
 		var query: List<ActionQueryModel> = dao.getActionsForTrigger(t1.getTriggerId(), System.currentTimeMillis(), Trigger.Type.Enter, Trigger.Type.EnterOrExit)
 		assertEquals(3, query.size)
@@ -182,7 +182,7 @@ class DatabaseTests {
 			timePeriods.add(TimePeriod(0, a.id, 0, Long.MAX_VALUE))
 		}
 
-		dao.insertData(timePeriods, actions, mappings, listOf())
+		db!!.insertData(timePeriods, actions, mappings, listOf())
 		return Pair(action.id, trigger.getTriggerId())
 	}
 

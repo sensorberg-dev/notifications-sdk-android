@@ -10,7 +10,7 @@ import com.sensorberg.notifications.sdk.internal.model.toActionHistory
 import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import timber.log.Timber
 
-class ActionLauncher(private val app: Application, private val dao: ActionDao) {
+internal class ActionLauncher(private val app: Application, private val dao: ActionDao) {
 
 	private val permissionName: String = app.packageName + SDK_PERMISSION
 

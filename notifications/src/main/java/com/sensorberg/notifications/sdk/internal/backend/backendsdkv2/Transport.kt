@@ -15,7 +15,7 @@ import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-object Transport {
+internal object Transport {
 
 	private const val CONNECTION_TIMEOUT = 12 //seconds
 	private const val HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024L * 1024L //10MB

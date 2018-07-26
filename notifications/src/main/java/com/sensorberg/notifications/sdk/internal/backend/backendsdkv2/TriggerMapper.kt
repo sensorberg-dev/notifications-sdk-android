@@ -2,8 +2,8 @@ package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2
 
 import ch.hsr.geohash.GeoHash
 import com.sensorberg.notifications.sdk.internal.backend.Backend
-import com.sensorberg.notifications.sdk.internal.backendsdkv2.model.ResolveAction
-import com.sensorberg.notifications.sdk.internal.backendsdkv2.model.ResolveResponse
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model.ResolveAction
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model.ResolveResponse
 import com.sensorberg.notifications.sdk.internal.model.ActionModel
 import com.sensorberg.notifications.sdk.internal.model.TimePeriod
 import com.sensorberg.notifications.sdk.internal.model.Trigger
@@ -18,7 +18,7 @@ import java.util.*
 
 private const val DEFAULT_SUPPRESSION_TIME = 1L * 60L * 60L * 1000L
 
-class TriggerMapper(private val callback: Backend.NotificationTriggers) : Callback<ResolveResponse> {
+internal class TriggerMapper(private val callback: Backend.NotificationTriggers) : Callback<ResolveResponse> {
 
 	override fun onResponse(call: Call<ResolveResponse>, response: Response<ResolveResponse>) {
 		if (response.isSuccessful) {

@@ -1,11 +1,11 @@
 package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2
 
-import com.sensorberg.notifications.sdk.internal.backendsdkv2.model.HistoryBody
-import com.sensorberg.notifications.sdk.internal.backendsdkv2.model.ResolveResponse
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model.HistoryBody
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model.ResolveResponse
 import retrofit2.Call
 import retrofit2.http.*
 
-interface BackendApi {
+internal interface BackendApi {
 /*	@GET("/api/v2/sdk/gateways/{apiKey}/interactions.json")
 	@Headers("Cache-Control: max-age=0")
 	fun updateBeaconLayout(@Path("apiKey") apiKey: String, @QueryMap attributes: SortedMap<String, String>): Call<ResolveResponse>*/

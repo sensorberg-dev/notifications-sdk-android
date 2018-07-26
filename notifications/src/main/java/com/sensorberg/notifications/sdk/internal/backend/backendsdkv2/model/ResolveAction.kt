@@ -1,4 +1,4 @@
-package com.sensorberg.notifications.sdk.internal.backendsdkv2.model
+package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model
 
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.squareup.moshi.FromJson
@@ -9,7 +9,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 @JsonClass(generateAdapter = true)
-data class ResolveAction(
+internal data class ResolveAction(
 	val eid: String,
 	val trigger: Int,
 	val type: Int,

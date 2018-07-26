@@ -28,7 +28,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 		const val moshiBean = "com.sensorberg.notifications.sdk.moshi"
 	}
 
-	val module = listOf(applicationContext {
+	internal val module = listOf(applicationContext {
 		context(NotificationsSdk.notificationSdkContext) {
 			bean(appBean) { app }
 			bean(contextBean) { app as Context }
