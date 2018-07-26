@@ -1,1 +1,1 @@
-include ':app', ':common-api', ':notifications', ':backendsdkv2', ':test-backend'
+include ':app', ':notifications'

@@ -9,9 +9,8 @@ import android.os.SystemClock
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.NotificationsSdk
-import com.sensorberg.notifications.sdk.internal.common.Backend
-import com.sensorberg.notifications.sdk.internal.common.model.toActionConversion
-import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
+import com.sensorberg.notifications.sdk.internal.backend.Backend
+import com.sensorberg.notifications.sdk.internal.model.toActionConversion
 import com.sensorberg.notifications.sdk.internal.work.SyncWork
 import com.sensorberg.notifications.sdk.internal.work.UploadWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils

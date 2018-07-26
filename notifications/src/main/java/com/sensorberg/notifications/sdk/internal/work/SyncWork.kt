@@ -2,14 +2,14 @@ package com.sensorberg.notifications.sdk.internal.work
 
 import android.app.Application
 import androidx.work.Worker
+import com.sensorberg.notifications.sdk.internal.ActionDao
 import com.sensorberg.notifications.sdk.internal.InjectionModule
-import com.sensorberg.notifications.sdk.internal.common.Backend
-import com.sensorberg.notifications.sdk.internal.common.model.ActionModel
-import com.sensorberg.notifications.sdk.internal.common.model.TimePeriod
-import com.sensorberg.notifications.sdk.internal.common.model.Trigger
-import com.sensorberg.notifications.sdk.internal.common.model.TriggerActionMap
-import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
+import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
+import com.sensorberg.notifications.sdk.internal.model.ActionModel
+import com.sensorberg.notifications.sdk.internal.model.TimePeriod
+import com.sensorberg.notifications.sdk.internal.model.Trigger
+import com.sensorberg.notifications.sdk.internal.model.TriggerActionMap
 import com.sensorberg.notifications.sdk.internal.registration.BeaconRegistration
 import com.sensorberg.notifications.sdk.internal.registration.GeofenceRegistration
 import org.koin.standalone.KoinComponent

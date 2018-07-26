@@ -12,12 +12,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
-import com.sensorberg.notifications.sdk.internal.InjectionModule
-import com.sensorberg.notifications.sdk.internal.common.model.RegisteredGeoFence
-import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
-import com.sensorberg.notifications.sdk.internal.common.storage.GeofenceQueryResult
-import com.sensorberg.notifications.sdk.internal.haveLocationPermission
-import com.sensorberg.notifications.sdk.internal.haveLocationProvider
+import com.sensorberg.notifications.sdk.internal.*
+import com.sensorberg.notifications.sdk.internal.model.RegisteredGeoFence
 import com.sensorberg.notifications.sdk.internal.receivers.GeofenceReceiver
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject

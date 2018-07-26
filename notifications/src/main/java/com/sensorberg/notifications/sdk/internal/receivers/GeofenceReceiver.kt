@@ -7,10 +7,10 @@ import android.content.Intent
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
+import com.sensorberg.notifications.sdk.internal.ActionDao
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.TriggerProcessor
-import com.sensorberg.notifications.sdk.internal.common.model.Trigger
-import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
+import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.work.GeofenceWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import org.koin.standalone.KoinComponent

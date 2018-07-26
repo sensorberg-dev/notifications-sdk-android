@@ -1,7 +1,6 @@
 package com.sensorberg.notifications.sdk.internal
 
-import com.sensorberg.notifications.sdk.internal.common.model.*
-import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
+import com.sensorberg.notifications.sdk.internal.model.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -158,6 +157,7 @@ class TriggerProcessorTest {
 		override fun getActionConversion(): List<ActionConversion> {
 			TODO("Not part of this test")
 		}
+
 		override fun getGeofences(): List<GeofenceQuery> {
 			TODO("Not part of this test")
 		}
@@ -165,6 +165,7 @@ class TriggerProcessorTest {
 		override fun getRemovableGeofences(list: List<String>): List<RegisteredGeoFence> {
 			TODO("Not part of this test")
 		}
+
 		override fun insertActionConversion(vararg action: ActionConversion) {}
 		override fun clearActionConversion(actions: List<ActionConversion>) {}
 		override fun findClosestGeofences(in_sin_lat_rad: Double, in_cos_lat_rad: Double, in_sin_lon_rad: Double, in_cos_lon_rad: Double): List<GeofenceQuery> {

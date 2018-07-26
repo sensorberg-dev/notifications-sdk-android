@@ -7,10 +7,8 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.android.gms.common.GoogleApiAvailability
 import com.sensorberg.notifications.sdk.NotificationsSdk
-import com.sensorberg.notifications.sdk.internal.backendsdkv2.BackendSdkV2
-import com.sensorberg.notifications.sdk.internal.common.Backend
-import com.sensorberg.notifications.sdk.internal.common.storage.AppDatabase
-import com.sensorberg.notifications.sdk.internal.common.storage.Storage
+import com.sensorberg.notifications.sdk.internal.backend.Backend
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.BackendSdkV2
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import com.squareup.moshi.Moshi
 import org.koin.dsl.module.applicationContext
@@ -57,8 +55,6 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 										 apiKey,
 										 installId,
 										 log) as Backend
-
-//				return@bean TestBackend(TestBackend.ENTER_EXIT_IMMEDIATE) as Backend
 
 			}
 		}

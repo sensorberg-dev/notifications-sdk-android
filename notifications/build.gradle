@@ -32,10 +32,8 @@ androidExtensions {
 
 dependencies {
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-	api project(':common-api')
-	implementation project(':backendsdkv2')
-//	implementation project(':test-backend')
 
+	// main
 	implementation 'org.koin:koin-android:0.9.3'
 	implementation "com.jakewharton.timber:timber:$jakewharton_timber_version"
 	implementation "com.sensorberg.libs:timber-extensions:$sb_libs_timber_version"
@@ -48,6 +46,19 @@ dependencies {
 	implementation "android.arch.work:work-runtime-ktx:$work_manager_version"
 	implementation "android.arch.work:work-firebase:$work_manager_version"
 
+	// storage
+	api "android.arch.persistence.room:runtime:$room_version"
+	kapt "android.arch.persistence.room:compiler:$room_version"
+
+	// backend
+	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+	implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+	implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+	implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
+	implementation "com.jakewharton.threetenabp:threetenabp:$jakewharton_threetenabp_version"
+	implementation 'ch.hsr:geohash:1.3.0'
+
+	// tests
 	testImplementation 'junit:junit:4.12'
 	androidTestImplementation 'com.android.support.test:runner:1.0.2'
 	androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

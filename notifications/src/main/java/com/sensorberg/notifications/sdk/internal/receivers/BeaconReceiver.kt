@@ -11,7 +11,7 @@ import com.google.android.gms.nearby.messages.MessageListener
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.NotificationsSdkImpl
 import com.sensorberg.notifications.sdk.internal.TriggerProcessor
-import com.sensorberg.notifications.sdk.internal.common.model.Trigger
+import com.sensorberg.notifications.sdk.internal.model.Trigger
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
