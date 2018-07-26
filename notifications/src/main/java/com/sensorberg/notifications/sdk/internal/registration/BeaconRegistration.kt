@@ -8,8 +8,8 @@ import com.google.android.gms.nearby.messages.*
 import com.google.android.gms.tasks.Tasks
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.NotificationsSdkImpl
-import com.sensorberg.notifications.sdk.internal.common.model.Trigger
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
+import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.receivers.BeaconReceiver
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
 class BeaconRegistration : KoinComponent {
 
 	private val app: Application by inject(InjectionModule.appBean)
-	private val apis: GoogleApiAvailability by inject()
+	private val apis: GoogleApiAvailability by inject(InjectionModule.googleApiAvailabilityBean)
 
 	fun execute(beacons: List<Trigger.Beacon>): Worker.Result {
 

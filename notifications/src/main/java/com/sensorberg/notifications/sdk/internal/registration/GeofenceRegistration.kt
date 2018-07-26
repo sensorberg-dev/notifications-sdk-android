@@ -13,12 +13,12 @@ import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.sensorberg.notifications.sdk.internal.InjectionModule
-import com.sensorberg.notifications.sdk.internal.common.model.RegisteredGeoFence
-import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
-import com.sensorberg.notifications.sdk.internal.common.storage.GeofenceQueryResult
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
 import com.sensorberg.notifications.sdk.internal.haveLocationProvider
+import com.sensorberg.notifications.sdk.internal.model.RegisteredGeoFence
 import com.sensorberg.notifications.sdk.internal.receivers.GeofenceReceiver
+import com.sensorberg.notifications.sdk.internal.storage.GeofenceDao
+import com.sensorberg.notifications.sdk.internal.storage.GeofenceQueryResult
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit
 class GeofenceRegistration : KoinComponent {
 
 	private val app: Application by inject(InjectionModule.appBean)
-	private val googleApi: GoogleApiAvailability by inject()
-	private val actionDao: ActionDao by inject()
+	private val googleApi: GoogleApiAvailability by inject(InjectionModule.googleApiAvailabilityBean)
+	private val fenceDao: GeofenceDao by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)
 
 	@SuppressLint("MissingPermission")
@@ -83,7 +83,7 @@ class GeofenceRegistration : KoinComponent {
 			//remove all registered GeoFences from DB and add the newly registered ones
 			.continueWithTask(executor, Continuation<Void, Task<Boolean>> {
 				Timber.d("Updating geofence database with ${geofenceQueryResult!!.fencesToAdd.size} registered fences")
-				actionDao.clearAllAndInstertNewRegisteredGeoFences(geofenceQueryResult!!.fencesToAdd.map { RegisteredGeoFence(it.requestId) })
+				fenceDao.clearAllAndInstertNewRegisteredGeoFences(geofenceQueryResult!!.fencesToAdd.map { RegisteredGeoFence(it.requestId) })
 				Tasks.forResult(true)
 			})
 
@@ -106,7 +106,7 @@ class GeofenceRegistration : KoinComponent {
 	private fun queryGeofenceData(): Continuation<Location, Task<GeofenceQueryResult>> {
 		return Continuation { locationTask ->
 			val location = locationTask.result
-			val geofenceQueryResult = actionDao.findMostRelevantGeofences(location)
+			val geofenceQueryResult = fenceDao.findMostRelevantGeofences(location)
 			Timber.d("Found ${geofenceQueryResult.fencesToAdd.size} most relevant geofences")
 			Tasks.forResult(geofenceQueryResult)
 		}

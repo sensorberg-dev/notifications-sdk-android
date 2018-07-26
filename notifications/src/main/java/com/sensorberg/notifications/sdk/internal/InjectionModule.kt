@@ -7,10 +7,9 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.android.gms.common.GoogleApiAvailability
 import com.sensorberg.notifications.sdk.NotificationsSdk
-import com.sensorberg.notifications.sdk.internal.backendsdkv2.BackendSdkV2
-import com.sensorberg.notifications.sdk.internal.common.Backend
-import com.sensorberg.notifications.sdk.internal.common.storage.AppDatabase
-import com.sensorberg.notifications.sdk.internal.common.storage.Storage
+import com.sensorberg.notifications.sdk.internal.backend.Backend
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.BackendSdkV2
+import com.sensorberg.notifications.sdk.internal.storage.AppDatabase
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import com.squareup.moshi.Moshi
 import org.koin.dsl.module.applicationContext
@@ -25,15 +24,18 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 		const val appBean = "com.sensorberg.notifications.sdk.App"
 		const val contextBean = "com.sensorberg.notifications.sdk.Context"
 		const val executorBean = "com.sensorberg.notifications.sdk.Executor"
+		const val googleApiAvailabilityBean = "com.sensorberg.notifications.sdk.googleApiAvailability"
+		const val moshiBean = "com.sensorberg.notifications.sdk.moshi"
 	}
 
-	val module = listOf(applicationContext {
+	internal val module = listOf(applicationContext {
 		context(NotificationsSdk.notificationSdkContext) {
 			bean(appBean) { app }
 			bean(contextBean) { app as Context }
 			bean(executorBean) { Executors.newFixedThreadPool(3) as Executor } // used for DB operations
-			bean { Storage.createDatabase(get(appBean)) }
+			bean { AppDatabase.createDatabase(get(appBean)) }
 			bean { get<AppDatabase>().actionDao() }
+			bean { get<AppDatabase>().geofenceDao() }
 			bean(preferencesBean) { get<Application>(appBean).getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
 			bean { TriggerProcessor(get(), get(), get(), get(appBean)) }
 			bean { ActionLauncher(get(appBean), get()) }
@@ -41,8 +43,8 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 				WorkManager.initialize(get(contextBean), Configuration.Builder().build())
 				WorkUtils(WorkManager.getInstance()!!, get(appBean), get(), get(preferencesBean))
 			}
-			bean { GoogleApiAvailability.getInstance() }
-			bean { Moshi.Builder().build() }
+			bean(googleApiAvailabilityBean) { GoogleApiAvailability.getInstance() }
+			bean(moshiBean) { Moshi.Builder().build() }
 			bean {
 
 				val prefs = get<SharedPreferences>(preferencesBean)
@@ -57,8 +59,6 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 										 apiKey,
 										 installId,
 										 log) as Backend
-
-//				return@bean TestBackend(TestBackend.ENTER_EXIT_IMMEDIATE) as Backend
 
 			}
 		}

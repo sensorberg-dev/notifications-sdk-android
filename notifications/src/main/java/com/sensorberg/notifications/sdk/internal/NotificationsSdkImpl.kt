@@ -9,9 +9,9 @@ import android.os.SystemClock
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.NotificationsSdk
-import com.sensorberg.notifications.sdk.internal.common.Backend
-import com.sensorberg.notifications.sdk.internal.common.model.toActionConversion
-import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
+import com.sensorberg.notifications.sdk.internal.backend.Backend
+import com.sensorberg.notifications.sdk.internal.model.toActionConversion
+import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import com.sensorberg.notifications.sdk.internal.work.SyncWork
 import com.sensorberg.notifications.sdk.internal.work.UploadWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
@@ -29,7 +29,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 	private val app: Application by inject(InjectionModule.appBean)
 	private val prefs: SharedPreferences by inject(InjectionModule.preferencesBean)
 	private val backend: Backend by inject()
-	private val moshi: Moshi by inject()
+	private val moshi: Moshi by inject(InjectionModule.moshiBean)
 	private val workUtils: WorkUtils by inject()
 	private val dao: ActionDao by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)

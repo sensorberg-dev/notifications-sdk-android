@@ -5,10 +5,9 @@ import android.content.SharedPreferences
 import androidx.work.*
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.BuildConfig
-import com.sensorberg.notifications.sdk.NotificationsSdk
-import com.sensorberg.notifications.sdk.internal.common.model.Trigger
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
 import com.sensorberg.notifications.sdk.internal.isGooglePlayServicesAvailable
+import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.set
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi

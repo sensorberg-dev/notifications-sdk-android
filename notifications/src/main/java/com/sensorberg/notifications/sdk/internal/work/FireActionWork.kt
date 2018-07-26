@@ -2,13 +2,14 @@ package com.sensorberg.notifications.sdk.internal.work
 
 import androidx.work.Worker
 import com.sensorberg.notifications.sdk.internal.ActionLauncher
+import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.squareup.moshi.Moshi
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
 class FireActionWork : Worker(), KoinComponent {
 
-	private val moshi: Moshi by inject()
+	private val moshi: Moshi by inject(InjectionModule.moshiBean)
 	private val workUtils: WorkUtils by inject()
 	private val actionLauncher: ActionLauncher by inject()
 

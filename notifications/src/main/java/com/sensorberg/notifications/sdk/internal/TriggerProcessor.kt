@@ -2,17 +2,17 @@ package com.sensorberg.notifications.sdk.internal
 
 import android.app.Application
 import com.sensorberg.notifications.sdk.Action
-import com.sensorberg.notifications.sdk.internal.common.model.*
-import com.sensorberg.notifications.sdk.internal.common.storage.ActionDao
+import com.sensorberg.notifications.sdk.internal.model.*
+import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import com.sensorberg.notifications.sdk.internal.work.UploadWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import timber.log.Timber
 import java.util.*
 
-class TriggerProcessor(private val dao: ActionDao,
-					   private val workUtils: WorkUtils,
-					   private val actionLauncher: ActionLauncher,
-					   private val app: Application) {
+internal class TriggerProcessor(private val dao: ActionDao,
+								private val workUtils: WorkUtils,
+								private val actionLauncher: ActionLauncher,
+								private val app: Application) {
 
 	fun process(triggerId: String, type: Trigger.Type) {
 		val actions = findActionsToFire(dao, triggerId, type)
