@@ -18,7 +18,9 @@ internal abstract class BeaconDao {
 	@Insert abstract fun addBeaconVisible(beacon: VisibleBeacons)
 	@Delete abstract fun removeBeaconVisible(beacon: VisibleBeacons)
 
-	@Query("SELECT * FROM table_beacon_events WHERE id = :id ORDER BY timestamp ASC") abstract fun getBeaconEvents(id: String): List<BeaconEvent>
+	@Query("SELECT * FROM table_beacon_events WHERE beaconKey = :beaconKey ORDER BY timestamp ASC")
+	abstract fun getBeaconEvents(beaconKey: String): List<BeaconEvent>
+
 	@Insert abstract fun addBeaconEvent(event: BeaconEvent)
 	@Delete abstract fun deleteBeaconEvents(events: List<BeaconEvent>)
 

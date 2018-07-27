@@ -38,17 +38,17 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			.build()
 	}
 
-	fun executeBeaconWorkFor(id: String) {
-		Timber.d("Scheduling execution of the beacon work in 60 seconds for beacon $id")
+	fun executeBeaconWorkFor(key: String) {
+		Timber.d("Scheduling execution of the beacon work in 15 seconds for beacon $key")
 		val data = Data.Builder()
-			.putString(BEACON_STRING, id)
+			.putString(BEACON_STRING, key)
 			.build()
-		val request = OneTimeWorkRequestBuilder<BeaconWork>()
-			.setInitialDelay(60, TimeUnit.SECONDS)
+		val request = OneTimeWorkRequestBuilder<BeaconProcessingWork>()
+			.setInitialDelay(15, TimeUnit.SECONDS)
 			.setInputData(data)
 			.addTag(WORKER_TAG) //only to get the workers states later
 			.build()
-		workManager.beginUniqueWork("beacon_work_$id", ExistingWorkPolicy.REPLACE, request).enqueue()
+		workManager.beginUniqueWork("beacon_work_$key", ExistingWorkPolicy.REPLACE, request).enqueue()
 	}
 
 	fun execute(klazz: Class<out Worker>) {
@@ -113,16 +113,16 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 	}
 }
 
-internal fun BeaconWork.getBeaconId(): String {
-	return inputData.getString(WorkUtils.BEACON_STRING, null)!!
+internal fun BeaconProcessingWork.getBeaconKey(): String {
+	return inputData.getString(WorkUtils.BEACON_STRING)!!
 }
 
 internal fun FireActionWork.getAction(actionAdapter: JsonAdapter<Action>): Action {
-	return actionAdapter.fromJson(inputData.getString(WorkUtils.ACTION_STRING, null)!!)!!
+	return actionAdapter.fromJson(inputData.getString(WorkUtils.ACTION_STRING)!!)!!
 }
 
 internal fun FireActionWork.getTriggerType(): Trigger.Type {
-	return Trigger.Type.valueOf(inputData.getString(WorkUtils.TRIGGER_TYPE, null)!!)
+	return Trigger.Type.valueOf(inputData.getString(WorkUtils.TRIGGER_TYPE)!!)
 }
 
 internal fun FireActionWork.isReportImmediate(): Boolean {

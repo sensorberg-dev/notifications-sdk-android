@@ -6,7 +6,7 @@ import com.google.android.gms.nearby.messages.IBeaconId
 import java.util.*
 
 @Entity(tableName = "table_beacon_events")
-internal data class BeaconEvent(val key: String,
+internal data class BeaconEvent(val beaconKey: String,
 								val timestamp: Long,
 								val proximityUuid: UUID,
 								val major: Short,
@@ -15,7 +15,7 @@ internal data class BeaconEvent(val key: String,
 								@PrimaryKey(autoGenerate = true) var id: Long = 0) {
 	companion object {
 		fun generateEvent(b: IBeaconId, timestamp: Long, type: Trigger.Type): BeaconEvent {
-			return BeaconEvent(BeaconEvent.generateKey(b.proximityUuid, b.major, b.minor),
+			return BeaconEvent(BeaconEvent.generateKey(b),
 							   timestamp,
 							   b.proximityUuid,
 							   b.major,
@@ -23,15 +23,13 @@ internal data class BeaconEvent(val key: String,
 							   type)
 		}
 
-		fun generateKey(proximityUuid: UUID,
-						major: Short,
-						minor: Short): String {
+		fun generateKey(b: IBeaconId): String {
 			// I know this method is basically the same to Trigger.Beacon.getTriggerId
 			// the reason it's a separate method is that they cater different needs
 			// and those two methods implementation might differ in the future.
 			// the trigger ID from beacon is to reference the trigger,
 			// this is for the processing from the database.
-			return "($proximityUuid)($major)($minor)"
+			return "(${b.proximityUuid})(${b.major})(${b.minor})"
 		}
 	}
 }

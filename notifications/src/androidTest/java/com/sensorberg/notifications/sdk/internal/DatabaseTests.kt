@@ -5,7 +5,7 @@ import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import com.sensorberg.notifications.sdk.internal.model.*
 import com.sensorberg.notifications.sdk.internal.storage.ActionDao
-import com.sensorberg.notifications.sdk.internal.storage.AppDatabase
+import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -18,12 +18,12 @@ class DatabaseTests {
 
 	private val random = Random()
 	private var actionDao: ActionDao? = null
-	private var db: AppDatabase? = null
+	private var db: SdkDatabase? = null
 
 	@Before
 	fun createDb() {
 		val context = InstrumentationRegistry.getTargetContext()
-		db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
+		db = Room.inMemoryDatabaseBuilder(context, SdkDatabase::class.java).build()
 		actionDao = db!!.actionDao()
 	}
 

@@ -65,6 +65,7 @@ interface NotificationsSdk {
 		}
 
 		fun build(): NotificationsSdk {
+
 			if (apiKey.isEmpty()) {
 				throw IllegalArgumentException("apiKey is empty - use setApiKey to provide a apiKey")
 			}

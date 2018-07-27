@@ -3,6 +3,7 @@ package com.sensorberg.notifications.sdk.internal.storage
 import android.arch.persistence.room.TypeConverter
 import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.internal.model.Trigger
+import java.util.*
 
 class DatabaseConverters {
 	@TypeConverter
@@ -43,6 +44,16 @@ class DatabaseConverters {
 			Conversion.Ignored -> 3
 			Conversion.Success -> 4
 		}
+	}
+
+	@TypeConverter
+	fun toUUID(value: String): UUID {
+		return UUID.fromString(value)
+	}
+
+	@TypeConverter
+	fun fromUUID(uuid: UUID): String {
+		return uuid.toString()
 	}
 
 }

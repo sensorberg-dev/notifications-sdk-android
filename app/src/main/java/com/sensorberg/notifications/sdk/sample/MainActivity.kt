@@ -32,11 +32,14 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
-
 		PermissionBitte.ask(this, this)
 	}
 
 	fun onClickPrint(view: View) {
 		NotificationsSdk.printAllSdkWorkerStates()
+	}
+
+	fun onClickSync(view:View){
+		NotificationsSdk.
 	}
 }

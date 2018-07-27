@@ -16,7 +16,7 @@ import retrofit2.Response
 import timber.log.Timber
 import java.util.*
 
-private const val DEFAULT_SUPPRESSION_TIME = 1L * 60L * 60L * 1000L
+private const val DEFAULT_SUPPRESSION_TIME = 0L //1L * 60L * 60L * 1000L
 
 internal class TriggerMapper(private val callback: Backend.NotificationTriggers) : Callback<ResolveResponse> {
 

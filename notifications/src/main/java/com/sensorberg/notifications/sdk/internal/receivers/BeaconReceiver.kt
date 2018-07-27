@@ -12,6 +12,7 @@ import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.storage.BeaconDao
+import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
@@ -21,19 +22,20 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 
 	private val executor: Executor by inject(InjectionModule.executorBean)
 	private val dao: BeaconDao by inject()
+	private val workUtils: WorkUtils by inject()
 
 	override fun onReceive(context: Context, intent: Intent) {
 		Nearby.getMessagesClient(context).handleIntent(intent, object : MessageListener() {
 			override fun onFound(message: Message) {
 				getBeacon(message)?.let {
-					Timber.i("Found beacon: $it")
+					Timber.d("Found beacon: $it")
 					enqueueEvent(it, System.currentTimeMillis(), Trigger.Type.Enter)
 				}
 			}
 
 			override fun onLost(message: Message) {
 				getBeacon(message)?.let {
-					Timber.i("Lost beacon: $it")
+					Timber.d("Lost beacon: $it")
 					enqueueEvent(it, System.currentTimeMillis(), Trigger.Type.Exit)
 				}
 			}
@@ -44,6 +46,7 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 		val pending = goAsync() // process this trigger asynchronously
 		executor.execute {
 			dao.addBeaconEvent(BeaconEvent.generateEvent(b, timestamp, type))
+			workUtils.executeBeaconWorkFor(BeaconEvent.generateKey(b))
 			pending.finish()
 		}
 	}

@@ -82,6 +82,7 @@ class GeofenceRegistration : KoinComponent {
 			.continueWithTask { getRegisterGeofenceTask(geofenceClient, geofenceQueryResult!!, location!!) }
 			//remove all registered GeoFences from DB and add the newly registered ones
 			.continueWithTask(executor, Continuation<Void, Task<Boolean>> {
+				Timber.d("We're on this line")
 				Timber.d("Updating geofence database with ${geofenceQueryResult!!.fencesToAdd.size} registered fences")
 				fenceDao.clearAllAndInstertNewRegisteredGeoFences(geofenceQueryResult!!.fencesToAdd.map { RegisteredGeoFence(it.requestId) })
 				Tasks.forResult(true)

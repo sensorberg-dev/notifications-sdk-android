@@ -9,7 +9,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.BackendSdkV2
-import com.sensorberg.notifications.sdk.internal.storage.AppDatabase
+import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import com.squareup.moshi.Moshi
 import org.koin.dsl.module.applicationContext
@@ -33,10 +33,10 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 			bean(appBean) { app }
 			bean(contextBean) { app as Context }
 			bean(executorBean) { Executors.newFixedThreadPool(3) as Executor } // used for DB operations
-			bean { AppDatabase.createDatabase(get(appBean)) }
-			bean { get<AppDatabase>().actionDao() }
-			bean { get<AppDatabase>().geofenceDao() }
-			bean { get<AppDatabase>().beaconDao() }
+			bean { SdkDatabase.createDatabase(get(appBean)) }
+			bean { get<SdkDatabase>().actionDao() }
+			bean { get<SdkDatabase>().geofenceDao() }
+			bean { get<SdkDatabase>().beaconDao() }
 			bean(preferencesBean) { get<Application>(appBean).getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
 			bean { TriggerProcessor(get(), get(), get(), get(appBean)) }
 			bean { ActionLauncher(get(appBean), get()) }
