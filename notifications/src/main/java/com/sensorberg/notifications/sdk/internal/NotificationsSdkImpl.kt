@@ -105,17 +105,4 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		private val MAP_TYPE = Types.newParameterizedType(Map::class.java, String::class.java, String::class.java)
 
 	}
-
-	internal object BeaconRegistrationHack {
-
-		private var registrationTime = 0L
-
-		fun isRecent(): Boolean {
-			return SystemClock.elapsedRealtime() - registrationTime < 5000
-		}
-
-		fun onRegistration() {
-			registrationTime = SystemClock.elapsedRealtime()
-		}
-	}
 }

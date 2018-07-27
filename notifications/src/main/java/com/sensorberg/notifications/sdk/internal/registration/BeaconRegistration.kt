@@ -7,14 +7,12 @@ import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.messages.*
 import com.google.android.gms.tasks.Tasks
 import com.sensorberg.notifications.sdk.internal.InjectionModule
-import com.sensorberg.notifications.sdk.internal.NotificationsSdkImpl
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.receivers.BeaconReceiver
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 class BeaconRegistration : KoinComponent {
 
@@ -35,17 +33,12 @@ class BeaconRegistration : KoinComponent {
 			.build())
 
 		val task = apis
-			// is nearby available ?
 			.checkApiAvailability(nearby)
-			// remove preview registration
-			.continueWithTask {
-				nearby.unsubscribe(BeaconReceiver.generatePendingIntent(app))
-			}
-			// register
-			.continueWithTask {
-				return@continueWithTask if (beacons.isEmpty()) {
+			.onSuccessTask { nearby.unsubscribe(BeaconReceiver.generatePendingIntent(app)) }
+			.onSuccessTask {
+				return@onSuccessTask if (beacons.isEmpty()) {
 					// if beacons is empty, I don't have to register anything,
-					Tasks.forResult(null as Void?) // LOLs, the result have to be void
+					Tasks.forResult(null as Void?)
 				} else {
 					val messageFilter = MessageFilter.Builder()
 					beacons.forEach {
@@ -57,24 +50,9 @@ class BeaconRegistration : KoinComponent {
 						.setFilter(messageFilter.build())
 						.build()
 
-					NotificationsSdkImpl.BeaconRegistrationHack.onRegistration()
 					nearby.subscribe(BeaconReceiver.generatePendingIntent(app), options)
 				}
 			}
-
-		try {
-			// await synchronously to completion
-			Tasks.await(task, 30, TimeUnit.SECONDS)
-			return if (task.isSuccessful) {
-				Timber.d("Beacon registration SUCCESS")
-				Worker.Result.SUCCESS
-			} else {
-				Timber.w("Beacon registration fail. RETRY. ${task.exception}")
-				Worker.Result.RETRY
-			}
-		} catch (e: Exception) {
-			Timber.e(e, "Beacon registration timeout. RETRY. $e")
-			return Worker.Result.RETRY
-		}
+		return RegistrationHelper.awaitResult("Beacon", 30, task)
 	}
 }
