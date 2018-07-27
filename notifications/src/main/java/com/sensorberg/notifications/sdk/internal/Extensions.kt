@@ -31,7 +31,8 @@ internal fun Application.haveLocationProvider(): Boolean {
 		return false
 	}
 	val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-	return lm.getProviders(true).size > 0
+	return lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+		   lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 }
 
 @SuppressLint("MissingPermission")
