@@ -74,6 +74,20 @@ internal class BeaconProcessingWork : Worker(), KoinComponent {
 				return null
 			}
 
+			val last = events.last()
+
+			return when {
+				(last.type == Trigger.Type.Enter && !visible) -> last.copy(type = Trigger.Type.Enter)
+				(last.type == Trigger.Type.Exit && visible) -> last.copy(type = Trigger.Type.Exit)
+				else -> null
+			}
+/*
+			return if (last.type == Trigger.Type.Enter && !visible) {
+				last.copy(type = Trigger.Type.Enter)
+			}else			if (last.type == Trigger.Type.Exit && visible) {
+				last.copy(type = Trigger.Type.Exit)
+			} else null*/
+/*
 			val event = events[0] // used for copy
 			var isVisibleState = visible
 			events.forEach {
@@ -94,7 +108,7 @@ internal class BeaconProcessingWork : Worker(), KoinComponent {
 				event.copy(type = eventType)
 			} else {
 				null
-			}
+			}*/
 		}
 	}
 }
