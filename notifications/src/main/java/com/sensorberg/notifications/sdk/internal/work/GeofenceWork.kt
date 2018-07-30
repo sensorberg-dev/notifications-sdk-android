@@ -6,7 +6,7 @@ import com.sensorberg.notifications.sdk.internal.registration.GeofenceRegistrati
 import org.koin.standalone.KoinComponent
 import timber.log.Timber
 
-class GeofenceWork : Worker(), KoinComponent {
+internal class GeofenceWork : Worker(), KoinComponent {
 	override fun doWork(): Result {
 		logStart()
 		return if (GeofenceRegistration().execute() == Worker.Result.SUCCESS) {

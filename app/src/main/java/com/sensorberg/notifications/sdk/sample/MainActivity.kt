@@ -41,8 +41,4 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 	fun onClickPrint(view: View) {
 		NotificationsSdk.printAllSdkWorkerStates()
 	}
-
-	fun onClickSync(view: View) {
-		WorkManager.getInstance().enqueue(OneTimeWorkRequest.Builder(SyncWork::class.java).build())
-	}
 }

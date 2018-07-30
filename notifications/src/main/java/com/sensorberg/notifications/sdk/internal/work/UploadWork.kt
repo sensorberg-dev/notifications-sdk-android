@@ -13,7 +13,7 @@ import timber.log.Timber
 import java.util.concurrent.Exchanger
 import java.util.concurrent.TimeUnit
 
-class UploadWork : Worker(), KoinComponent {
+internal class UploadWork : Worker(), KoinComponent {
 
 	private val dao: ActionDao by inject()
 	private val backend: Backend by inject()

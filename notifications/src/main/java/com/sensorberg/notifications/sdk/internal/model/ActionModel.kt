@@ -5,7 +5,7 @@ import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 
 @Entity(tableName = "table_action")
-data class ActionModel(
+internal data class ActionModel(
 	@PrimaryKey var id: String,
 
 		// raw data
@@ -28,7 +28,7 @@ data class ActionModel(
 
 	var silent: Boolean)
 
-data class ActionQueryModel(
+internal data class ActionQueryModel(
 	var id: String,
 	var backendMeta: String?,
 	var subject: String?,
@@ -44,20 +44,20 @@ data class ActionQueryModel(
 	var silent: Boolean)
 
 @Entity(tableName = "table_trigger_action_map", indices = [(Index("triggerId"))])
-data class TriggerActionMap(
+internal data class TriggerActionMap(
 	@PrimaryKey(autoGenerate = true) val id: Long = 0,
 	var triggerId: String,
 	var type: Trigger.Type,
 	var actionId: String,
 	var triggerBackendMeta: String?)
 
-@Entity(tableName = "table_statistics") data class Statistics(
+@Entity(tableName = "table_statistics") internal data class Statistics(
 	@PrimaryKey var actionId: String,
 	var count: Int = 0,
 	var lastExecuted: Long)
 
 @Entity(tableName = "table_time_period")
-data class TimePeriod(
+internal data class TimePeriod(
 	@PrimaryKey(autoGenerate = true) var id: Long = 0,
 	var actionId: String,
 	var startsAt: Long,

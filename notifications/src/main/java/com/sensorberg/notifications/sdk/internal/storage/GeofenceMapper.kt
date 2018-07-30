@@ -4,7 +4,7 @@ import com.google.android.gms.location.Geofence
 import com.sensorberg.notifications.sdk.internal.model.GeofenceQuery
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 
-object GeofenceMapper {
+internal object GeofenceMapper {
 	fun mapQuery(query: GeofenceQuery): Geofence {
 		val transition = when (query.type) {
 			Trigger.Type.Enter -> Geofence.GEOFENCE_TRANSITION_ENTER

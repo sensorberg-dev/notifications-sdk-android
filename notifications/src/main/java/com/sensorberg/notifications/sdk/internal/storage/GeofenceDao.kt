@@ -6,7 +6,7 @@ import com.sensorberg.notifications.sdk.internal.model.GeofenceQuery
 import com.sensorberg.notifications.sdk.internal.model.RegisteredGeoFence
 
 @Dao
-abstract class GeofenceDao {
+internal abstract class GeofenceDao {
 
 	@Query("SELECT * FROM table_geofence")
 	abstract fun getGeofences(): List<GeofenceQuery>

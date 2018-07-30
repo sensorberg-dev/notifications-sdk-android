@@ -11,21 +11,28 @@ import com.sensorberg.notifications.sdk.internal.model.ActionModel
 import com.sensorberg.notifications.sdk.internal.model.TimePeriod
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.model.TriggerActionMap
-import com.sensorberg.notifications.sdk.internal.registration.BeaconRegistration
-import com.sensorberg.notifications.sdk.internal.registration.GeofenceRegistration
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
 import java.util.concurrent.Exchanger
 import java.util.concurrent.Executor
 
-class SyncWork : Worker(), KoinComponent {
+internal class SyncWork : Worker(), KoinComponent {
 
 	private val app: Application by inject(InjectionModule.appBean)
 	private val database: SdkDatabase by inject()
 	private val backend: Backend by inject()
+	private val workUtils: WorkUtils by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)
+	private val moshi: Moshi by inject(InjectionModule.moshiBean)
+	private val beaconsAdapter: JsonAdapter<List<Trigger.Beacon>> by lazy {
+		val listMyData = Types.newParameterizedType(List::class.java, Trigger.Beacon::class.java)
+		moshi.adapter<List<Trigger.Beacon>>(listMyData)
+	}
 
 	// this work uses several async tasks,
 	// so the following exchangers force the worker thread to await them
@@ -41,6 +48,7 @@ class SyncWork : Worker(), KoinComponent {
 		}
 
 		getTriggersFromBackend()
+
 		return logResult(exchanger.exchange(null))
 	}
 
@@ -57,10 +65,10 @@ class SyncWork : Worker(), KoinComponent {
 
 					database.insertData(timePeriods, actions, mappings, geofences)
 
-					val beaconResult = BeaconRegistration().execute(beacons)
-					val fencesResult = GeofenceRegistration().execute()
+					workUtils.execute(BeaconWork::class.java, beaconsAdapter.toJson(beacons))
+					workUtils.execute(GeofenceWork::class.java)
 
-					exchanger.exchange(combineResult(beaconResult, fencesResult))
+					exchanger.exchange(Worker.Result.SUCCESS)
 				}
 			}
 
@@ -70,22 +78,4 @@ class SyncWork : Worker(), KoinComponent {
 			}
 		})
 	}
-
-	companion object {
-		fun combineResult(vararg results: Worker.Result): Worker.Result {
-			var fail = false
-			var retry = false
-
-			results.forEach {
-				fail = fail || (it == Worker.Result.FAILURE)
-				retry = retry || (it == Worker.Result.RETRY)
-			}
-			return when {
-				fail -> Worker.Result.FAILURE
-				retry -> Worker.Result.RETRY
-				else -> Worker.Result.SUCCESS
-			}
-		}
-	}
-
 }

@@ -4,7 +4,7 @@ import android.arch.persistence.room.*
 import com.sensorberg.notifications.sdk.internal.model.*
 
 @Dao
-abstract class ActionDao {
+internal abstract class ActionDao {
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	abstract fun insertActions(actions: Collection<ActionModel>)

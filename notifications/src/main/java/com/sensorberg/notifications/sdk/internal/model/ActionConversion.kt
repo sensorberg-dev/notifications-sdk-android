@@ -7,7 +7,7 @@ import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.Conversion
 
 @Entity(tableName = "table_action_conversion")
-data class ActionConversion(
+internal data class ActionConversion(
 	@PrimaryKey var instanceId: String,
 	var timestamp: Long,
 	var value: Conversion,
@@ -16,7 +16,7 @@ data class ActionConversion(
 	var radius: Float?,
 	var locationTimeStamp: Long?)
 
-fun Action.toActionConversion(conversion: Conversion, location: Location?): ActionConversion {
+internal fun Action.toActionConversion(conversion: Conversion, location: Location?): ActionConversion {
 	return ActionConversion(instanceId,
 							System.currentTimeMillis(),
 							conversion,
