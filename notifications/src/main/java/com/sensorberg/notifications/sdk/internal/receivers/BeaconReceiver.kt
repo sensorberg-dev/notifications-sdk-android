@@ -42,11 +42,11 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 		})
 	}
 
-	private fun enqueueEvent(b: IBeaconId, timestamp: Long, type: Trigger.Type) {
+	private fun enqueueEvent(beacon: IBeaconId, timestamp: Long, type: Trigger.Type) {
 		val pending = goAsync() // process this trigger asynchronously
 		executor.execute {
-			dao.addBeaconEvent(BeaconEvent.generateEvent(b, timestamp, type))
-			workUtils.executeBeaconWorkFor(BeaconEvent.generateKey(b), type)
+			dao.addBeaconEvent(BeaconEvent.generateEvent(beacon, timestamp, type))
+			workUtils.executeBeaconWorkFor(BeaconEvent.generateKey(beacon), type)
 			pending.finish()
 		}
 	}
