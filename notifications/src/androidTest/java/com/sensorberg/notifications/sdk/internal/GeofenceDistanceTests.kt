@@ -18,19 +18,19 @@ import org.junit.runner.RunWith
 class GeofenceDistanceTests {
 
 	private var actionDao: GeofenceDao? = null
-	private var db: SdkDatabase? = null
+	private var database: SdkDatabase? = null
 
 	@Before
 	fun createDb() {
 		val context = InstrumentationRegistry.getTargetContext()
-		db = Room.inMemoryDatabaseBuilder(context, SdkDatabase::class.java).build()
-		actionDao = db!!.geofenceDao()
+		database = Room.inMemoryDatabaseBuilder(context, SdkDatabase::class.java).build()
+		actionDao = database!!.geofenceDao()
 	}
 
 	@After
 	fun closeDb() {
-		db!!.clearAllTables()
-		db!!.close()
+		database!!.clearAllTables()
+		database!!.close()
 	}
 
 	@Test
