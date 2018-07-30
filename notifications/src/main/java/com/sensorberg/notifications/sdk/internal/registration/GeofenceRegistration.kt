@@ -9,7 +9,7 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.Continuation
+import com.google.android.gms.tasks.SuccessContinuation
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.sensorberg.notifications.sdk.internal.InjectionModule
@@ -23,7 +23,6 @@ import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
 import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
 
 class GeofenceRegistration : KoinComponent {
 
@@ -50,66 +49,34 @@ class GeofenceRegistration : KoinComponent {
 		val locationClient = LocationServices.getFusedLocationProviderClient(app)
 		val geofenceClient = GeofencingClient(app)
 
-		var geofenceQueryResult: GeofenceQueryResult? = null
 		var location: Location? = null
+		var query: GeofenceQueryResult? = null
 
 		val task = googleApi.checkApiAvailability(locationClient, geofenceClient)
-			// get current location
-			.continueWithTask { locationClient.lastLocation }
-			// sanitize location client, because GPS sucks
-			.continueWithTask { locationTask ->
-				location = locationTask.result
-				Timber.d("Got location: $location")
-				if (location == null) {
-					Tasks.forException(IllegalStateException("location was null"))
-				} else {
-					Tasks.forResult(location!!)
+			.onSuccessTask { locationClient.lastLocation }
+			.onSuccessTask(executor, SuccessContinuation<Location, Void> {
+				if (it == null) {
+					return@SuccessContinuation Tasks.forException(IllegalStateException("location was null"))
 				}
-			}
-			// get fences data from data base in background thread
-			.continueWithTask(executor, queryGeofenceData())
-			.continueWithTask { task ->
-				// capture result
-				geofenceQueryResult = task.result
-				Tasks.forResult(true)
-			}
-			//remove GeoFences
-			.continueWithTask {
-				Timber.d("Remove ${geofenceQueryResult!!.fencesToRemove.size} geofences from Google Play")
-				geofenceClient.removeGeofences(geofenceQueryResult!!.fencesToRemove)
-			}
-			//register GeoFences
-			.continueWithTask { getRegisterGeofenceTask(geofenceClient, geofenceQueryResult!!, location!!) }
-			//remove all registered GeoFences from DB and add the newly registered ones
-			.continueWithTask(executor, Continuation<Void, Task<Boolean>> {
-				Timber.d("Updating geofence database with ${geofenceQueryResult!!.fencesToAdd.size} registered fences")
-				fenceDao.clearAllAndInstertNewRegisteredGeoFences(geofenceQueryResult!!.fencesToAdd.map { RegisteredGeoFence(it.requestId) })
-				Tasks.forResult(true)
+
+				location = it
+				Timber.d("Location is: $location")
+				query = fenceDao.findMostRelevantGeofences(location!!)
+				Timber.d("Found ${query!!.fencesToAdd.size} most relevant geofences and ${query!!.fencesToRemove.size} no longer needed")
+				if (query!!.fencesToRemove.isNotEmpty()) {
+					geofenceClient.removeGeofences(query!!.fencesToRemove)
+				} else {
+					Tasks.forResult(null)
+				}
+			})
+			.onSuccessTask { getRegisterGeofenceTask(geofenceClient, query!!, location!!) }
+			.onSuccessTask(executor, SuccessContinuation<Void, Void> {
+				Timber.d("Updating geofence database with ${query!!.fencesToAdd.size} registered fences")
+				fenceDao.clearAllAndInstertNewRegisteredGeoFences(query!!.fencesToAdd.map { RegisteredGeoFence(it.requestId) })
+				Tasks.forResult(null)
 			})
 
-		return try {
-			// await synchronously to completion
-			Tasks.await(task, 30, TimeUnit.SECONDS)
-			if (task.isSuccessful) {
-				Timber.d("Fences registration SUCCESS")
-				Worker.Result.SUCCESS
-			} else {
-				Timber.w("Fences registration fail. RETRY. ${task.exception}")
-				Worker.Result.RETRY
-			}
-		} catch (e: Exception) {
-			Timber.e(e, "Fences registration timeout. RETRY. $e")
-			Worker.Result.RETRY
-		}
-	}
-
-	private fun queryGeofenceData(): Continuation<Location, Task<GeofenceQueryResult>> {
-		return Continuation { locationTask ->
-			val location = locationTask.result
-			val geofenceQueryResult = fenceDao.findMostRelevantGeofences(location)
-			Timber.d("Found ${geofenceQueryResult.fencesToAdd.size} most relevant geofences")
-			Tasks.forResult(geofenceQueryResult)
-		}
+		return RegistrationHelper.awaitResult("Fences", 30, task)
 	}
 
 	@SuppressLint("MissingPermission")

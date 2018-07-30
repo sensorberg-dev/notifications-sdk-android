@@ -5,7 +5,7 @@ import android.location.Location
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import com.sensorberg.notifications.sdk.internal.model.Trigger
-import com.sensorberg.notifications.sdk.internal.storage.AppDatabase
+import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.storage.GeofenceDao
 import com.sensorberg.notifications.sdk.internal.storage.GeofenceMapper
 import org.junit.After
@@ -18,19 +18,19 @@ import org.junit.runner.RunWith
 class GeofenceDistanceTests {
 
 	private var actionDao: GeofenceDao? = null
-	private var db: AppDatabase? = null
+	private var database: SdkDatabase? = null
 
 	@Before
 	fun createDb() {
 		val context = InstrumentationRegistry.getTargetContext()
-		db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
-		actionDao = db!!.geofenceDao()
+		database = Room.inMemoryDatabaseBuilder(context, SdkDatabase::class.java).build()
+		actionDao = database!!.geofenceDao()
 	}
 
 	@After
 	fun closeDb() {
-		db!!.clearAllTables()
-		db!!.close()
+		database!!.clearAllTables()
+		database!!.close()
 	}
 
 	@Test

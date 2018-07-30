@@ -38,6 +38,20 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			.build()
 	}
 
+	fun executeBeaconWorkFor(key: String, type: Trigger.Type) {
+		val time = if (type == Trigger.Type.Enter) 10L else 180L
+		Timber.d("Scheduling execution of the beacon work in $time seconds for beacon $key")
+		val data = Data.Builder()
+			.putString(BEACON_STRING, key)
+			.build()
+		val request = OneTimeWorkRequestBuilder<BeaconProcessingWork>()
+			.setInitialDelay(time, TimeUnit.SECONDS)
+			.setInputData(data)
+			.addTag(WORKER_TAG) //only to get the workers states later
+			.build()
+		workManager.beginUniqueWork("beacon_work_$key", ExistingWorkPolicy.REPLACE, request).enqueue()
+	}
+
 	fun execute(klazz: Class<out Worker>) {
 		if (!app.isGooglePlayServicesAvailable() || !app.haveLocationPermission()) {
 			return
@@ -87,12 +101,12 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 	}
 
 	companion object {
-		internal val ACTION_STRING = "com.sensorberg.notifications.sdk.internal.work.ACTION_STRING"
-		internal val FIRE_ACTION_WORK = "${FireActionWork::class.java.canonicalName!!}.ACTION"
-		internal val REPORT_IMMEDIATE = "${FireActionWork::class.java.canonicalName!!}.REPORT_IMMEDIATE"
-		internal val TRIGGER_TYPE = "${FireActionWork::class.java.canonicalName!!}.TRIGGER_TYPE"
-
+		internal const val ACTION_STRING = "com.sensorberg.notifications.sdk.internal.work.ACTION_STRING"
+		internal const val FIRE_ACTION_WORK = "com.sensorberg.notifications.sdk.internal.work.fireAction.ACTION"
+		internal const val REPORT_IMMEDIATE = "com.sensorberg.notifications.sdk.internal.work.fireAction.REPORT_IMMEDIATE"
+		internal const val TRIGGER_TYPE = "com.sensorberg.notifications.sdk.internal.work.fireAction.TRIGGER_TYPE"
 		internal const val WORKER_TAG = "com.sensorberg.notifications.sdk.internal.work.WORKER_TAG"
+		internal const val BEACON_STRING = "com.sensorberg.notifications.sdk.internal.work.BEACON_STRING"
 
 		fun createAction(moshi: Moshi): JsonAdapter<Action> {
 			return moshi.adapter<Action>(Action::class.java)
@@ -100,12 +114,16 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 	}
 }
 
+internal fun BeaconProcessingWork.getBeaconKey(): String {
+	return inputData.getString(WorkUtils.BEACON_STRING)!!
+}
+
 internal fun FireActionWork.getAction(actionAdapter: JsonAdapter<Action>): Action {
-	return actionAdapter.fromJson(inputData.getString(WorkUtils.ACTION_STRING, null)!!)!!
+	return actionAdapter.fromJson(inputData.getString(WorkUtils.ACTION_STRING)!!)!!
 }
 
 internal fun FireActionWork.getTriggerType(): Trigger.Type {
-	return Trigger.Type.valueOf(inputData.getString(WorkUtils.TRIGGER_TYPE, null)!!)
+	return Trigger.Type.valueOf(inputData.getString(WorkUtils.TRIGGER_TYPE)!!)
 }
 
 internal fun FireActionWork.isReportImmediate(): Boolean {

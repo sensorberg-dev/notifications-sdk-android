@@ -5,7 +5,7 @@ import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import com.sensorberg.notifications.sdk.internal.model.*
 import com.sensorberg.notifications.sdk.internal.storage.ActionDao
-import com.sensorberg.notifications.sdk.internal.storage.AppDatabase
+import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -18,19 +18,19 @@ class DatabaseTests {
 
 	private val random = Random()
 	private var actionDao: ActionDao? = null
-	private var db: AppDatabase? = null
+	private var database: SdkDatabase? = null
 
 	@Before
 	fun createDb() {
 		val context = InstrumentationRegistry.getTargetContext()
-		db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
-		actionDao = db!!.actionDao()
+		database = Room.inMemoryDatabaseBuilder(context, SdkDatabase::class.java).build()
+		actionDao = database!!.actionDao()
 	}
 
 	@After
 	fun closeDb() {
-		db!!.clearAllTables()
-		db!!.close()
+		database!!.clearAllTables()
+		database!!.close()
 	}
 
 	@Test
@@ -113,7 +113,7 @@ class DatabaseTests {
 			timePeriods.add(TimePeriod(0, a.id, 0, Long.MAX_VALUE))
 		}
 
-		db!!.insertData(timePeriods, actions, mappings, listOf())
+		database!!.insertData(timePeriods, actions, mappings, listOf())
 
 		val q1: List<ActionQueryModel> = dao.getActionsForTrigger(t1.getTriggerId(), System.currentTimeMillis(), Trigger.Type.Enter, Trigger.Type.EnterOrExit)
 		val q2: List<ActionQueryModel> = dao.getActionsForTrigger(t2.getTriggerId(), System.currentTimeMillis(), Trigger.Type.Exit, Trigger.Type.EnterOrExit)
@@ -151,7 +151,7 @@ class DatabaseTests {
 			mappings.add(TriggerActionMap(0, string(), Trigger.Type.Enter, a.id, null))
 			timePeriods.add(TimePeriod(0, a.id, 0, Long.MAX_VALUE))
 		}
-		db!!.insertData(timePeriods, actions, mappings, listOf())
+		database!!.insertData(timePeriods, actions, mappings, listOf())
 
 		var query: List<ActionQueryModel> = dao.getActionsForTrigger(t1.getTriggerId(), System.currentTimeMillis(), Trigger.Type.Enter, Trigger.Type.EnterOrExit)
 		assertEquals(3, query.size)
@@ -182,7 +182,7 @@ class DatabaseTests {
 			timePeriods.add(TimePeriod(0, a.id, 0, Long.MAX_VALUE))
 		}
 
-		db!!.insertData(timePeriods, actions, mappings, listOf())
+		database!!.insertData(timePeriods, actions, mappings, listOf())
 		return Pair(action.id, trigger.getTriggerId())
 	}
 

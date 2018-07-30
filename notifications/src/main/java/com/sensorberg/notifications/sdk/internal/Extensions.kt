@@ -10,9 +10,11 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Process
+import androidx.work.Worker
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.sensorberg.notifications.sdk.Action
+import timber.log.Timber
 
 internal fun Application.haveLocationPermission(): Boolean {
 	return checkPermission(
@@ -30,8 +32,9 @@ internal fun Application.haveLocationProvider(): Boolean {
 	if (!haveLocationPermission()) {
 		return false
 	}
-	val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-	return lm.getProviders(true).size > 0
+	val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+	return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+		   locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 }
 
 @SuppressLint("MissingPermission")
@@ -39,9 +42,9 @@ internal fun Application.getLastLocation(): Location? {
 	if (!haveLocationPermission()) {
 		return null
 	}
-	val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-	val providers = lm.getProviders(true)
-	val locations = providers.mapNotNull { lm.getLastKnownLocation(it) }
+	val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+	val providers = locationManager.getProviders(true)
+	val locations = providers.mapNotNull { locationManager.getLastKnownLocation(it) }
 	return if (locations.isEmpty()) {
 		null
 	} else {
@@ -71,4 +74,13 @@ internal fun SharedPreferences.set(key: String, value: String?): Boolean {
 	}
 
 	return true
+}
+
+internal fun Worker.logStart() {
+	Timber.i("Starting ${javaClass.simpleName}")
+}
+
+internal fun Worker.logResult(result: Worker.Result): Worker.Result {
+	Timber.i("${javaClass.simpleName} workerResult $result")
+	return result
 }

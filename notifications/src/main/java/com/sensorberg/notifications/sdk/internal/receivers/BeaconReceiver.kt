@@ -9,9 +9,10 @@ import com.google.android.gms.nearby.messages.IBeaconId
 import com.google.android.gms.nearby.messages.Message
 import com.google.android.gms.nearby.messages.MessageListener
 import com.sensorberg.notifications.sdk.internal.InjectionModule
-import com.sensorberg.notifications.sdk.internal.NotificationsSdkImpl
-import com.sensorberg.notifications.sdk.internal.TriggerProcessor
+import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.Trigger
+import com.sensorberg.notifications.sdk.internal.storage.BeaconDao
+import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
@@ -20,42 +21,32 @@ import java.util.concurrent.Executor
 class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 
 	private val executor: Executor by inject(InjectionModule.executorBean)
-	private val triggerProcessor: TriggerProcessor by inject()
+	private val dao: BeaconDao by inject()
+	private val workUtils: WorkUtils by inject()
 
 	override fun onReceive(context: Context, intent: Intent) {
 		Nearby.getMessagesClient(context).handleIntent(intent, object : MessageListener() {
 			override fun onFound(message: Message) {
 				getBeacon(message)?.let {
-
-					if (NotificationsSdkImpl.BeaconRegistrationHack.isRecent()) {
-						Timber.w("onFound ignored $it")
-						return
-					}
-
-					Timber.i("Found beacon: $it")
-					processTrigger(getTriggerId(it, Trigger.Type.Enter), Trigger.Type.Enter)
+					Timber.d("Found beacon: $it")
+					enqueueEvent(it, System.currentTimeMillis(), Trigger.Type.Enter)
 				}
 			}
 
 			override fun onLost(message: Message) {
 				getBeacon(message)?.let {
-
-					if (NotificationsSdkImpl.BeaconRegistrationHack.isRecent()) {
-						Timber.w("onLost ignored $it")
-						return
-					}
-
-					Timber.i("Lost beacon: $it")
-					processTrigger(getTriggerId(it, Trigger.Type.Exit), Trigger.Type.Exit)
+					Timber.d("Lost beacon: $it")
+					enqueueEvent(it, System.currentTimeMillis(), Trigger.Type.Exit)
 				}
 			}
 		})
 	}
 
-	private fun processTrigger(triggerId: String, type: Trigger.Type) {
+	private fun enqueueEvent(beacon: IBeaconId, timestamp: Long, type: Trigger.Type) {
 		val pending = goAsync() // process this trigger asynchronously
 		executor.execute {
-			triggerProcessor.process(triggerId, type)
+			dao.addBeaconEvent(BeaconEvent.generateEvent(beacon, timestamp, type))
+			workUtils.executeBeaconWorkFor(BeaconEvent.generateKey(beacon), type)
 			pending.finish()
 		}
 	}
@@ -71,10 +62,6 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 			} else {
 				null
 			}
-		}
-
-		private fun getTriggerId(b: IBeaconId, type: Trigger.Type): String {
-			return Trigger.Beacon.getTriggerId(b.proximityUuid, b.major, b.minor, type)
 		}
 
 		fun generatePendingIntent(context: Context): PendingIntent {

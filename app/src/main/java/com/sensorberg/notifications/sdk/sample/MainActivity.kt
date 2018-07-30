@@ -5,7 +5,10 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.sensorberg.notifications.sdk.NotificationsSdk
+import com.sensorberg.notifications.sdk.internal.work.SyncWork
 import com.sensorberg.permissionbitte.BitteBitte
 import com.sensorberg.permissionbitte.PermissionBitte
 
@@ -32,11 +35,14 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
-
 		PermissionBitte.ask(this, this)
 	}
 
 	fun onClickPrint(view: View) {
 		NotificationsSdk.printAllSdkWorkerStates()
+	}
+
+	fun onClickSync(view: View) {
+		WorkManager.getInstance().enqueue(OneTimeWorkRequest.Builder(SyncWork::class.java).build())
 	}
 }

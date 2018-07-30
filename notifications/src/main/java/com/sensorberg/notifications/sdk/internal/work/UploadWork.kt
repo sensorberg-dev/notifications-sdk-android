@@ -2,6 +2,8 @@ package com.sensorberg.notifications.sdk.internal.work
 
 import androidx.work.Worker
 import com.sensorberg.notifications.sdk.internal.backend.Backend
+import com.sensorberg.notifications.sdk.internal.logResult
+import com.sensorberg.notifications.sdk.internal.logStart
 import com.sensorberg.notifications.sdk.internal.model.ActionConversion
 import com.sensorberg.notifications.sdk.internal.model.ActionHistory
 import com.sensorberg.notifications.sdk.internal.storage.ActionDao
@@ -19,6 +21,8 @@ class UploadWork : Worker(), KoinComponent {
 
 	override fun doWork(): Result {
 
+		logStart()
+
 		val actions: List<ActionHistory> = dao.getActionHistory()
 		val conversions: List<ActionConversion> = dao.getActionConversion()
 		if (actions.isEmpty() && conversions.isEmpty()) {
@@ -33,7 +37,7 @@ class UploadWork : Worker(), KoinComponent {
 			backendExecution.exchange(result)
 		}
 
-		return try {
+		return logResult(try {
 			val result = backendExecution.exchange(null, 30, TimeUnit.SECONDS)
 			if (result == Result.SUCCESS) {
 				dao.clearActionHistory(actions)
@@ -44,6 +48,6 @@ class UploadWork : Worker(), KoinComponent {
 		} catch (e: Exception) {
 			Timber.w(e, "Upload work execution failed")
 			Result.RETRY
-		}
+		})
 	}
 }

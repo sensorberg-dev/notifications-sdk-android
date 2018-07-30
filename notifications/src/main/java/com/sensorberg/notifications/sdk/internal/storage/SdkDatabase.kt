@@ -17,12 +17,15 @@ import com.sensorberg.notifications.sdk.internal.model.*
 			  GeofenceQuery::class,
 			  Statistics::class,
 			  TimePeriod::class,
-			  RegisteredGeoFence::class])
+			  RegisteredGeoFence::class,
+			  BeaconEvent::class,
+			  VisibleBeacons::class])
 @TypeConverters(DatabaseConverters::class)
-abstract class AppDatabase : RoomDatabase() {
+internal abstract class SdkDatabase : RoomDatabase() {
 
 	abstract fun actionDao(): ActionDao
 	abstract fun geofenceDao(): GeofenceDao
+	abstract fun beaconDao(): BeaconDao
 
 	fun insertData(timePeriods: List<TimePeriod>, actions: List<ActionModel>, mappings: List<TriggerActionMap>, geofences: List<Trigger.Geofence>) {
 		runInTransaction {
@@ -42,8 +45,8 @@ abstract class AppDatabase : RoomDatabase() {
 	}
 
 	companion object {
-		fun createDatabase(app: Application): AppDatabase {
-			return Room.databaseBuilder(app, AppDatabase::class.java, "notifications-sdk")
+		fun createDatabase(app: Application): SdkDatabase {
+			return Room.databaseBuilder(app, SdkDatabase::class.java, "notifications-sdk")
 				.build()
 		}
 	}
