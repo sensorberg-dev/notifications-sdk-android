@@ -32,9 +32,9 @@ internal fun Application.haveLocationProvider(): Boolean {
 	if (!haveLocationPermission()) {
 		return false
 	}
-	val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-	return lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-		   lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+	val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+	return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+		   locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 }
 
 @SuppressLint("MissingPermission")
@@ -42,9 +42,9 @@ internal fun Application.getLastLocation(): Location? {
 	if (!haveLocationPermission()) {
 		return null
 	}
-	val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-	val providers = lm.getProviders(true)
-	val locations = providers.mapNotNull { lm.getLastKnownLocation(it) }
+	val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+	val providers = locationManager.getProviders(true)
+	val locations = providers.mapNotNull { locationManager.getLastKnownLocation(it) }
 	return if (locations.isEmpty()) {
 		null
 	} else {
