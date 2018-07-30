@@ -11,7 +11,7 @@ import com.squareup.moshi.Types
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
-class BeaconWork : Worker(), KoinComponent {
+internal class BeaconWork : Worker(), KoinComponent {
 
 	private val moshi: Moshi by inject(InjectionModule.moshiBean)
 	private val beaconsAdapter: JsonAdapter<List<Trigger.Beacon>> by lazy {

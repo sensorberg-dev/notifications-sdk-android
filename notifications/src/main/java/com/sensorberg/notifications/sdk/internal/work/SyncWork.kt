@@ -21,7 +21,7 @@ import timber.log.Timber
 import java.util.concurrent.Exchanger
 import java.util.concurrent.Executor
 
-class SyncWork : Worker(), KoinComponent {
+internal class SyncWork : Worker(), KoinComponent {
 
 	private val app: Application by inject(InjectionModule.appBean)
 	private val database: SdkDatabase by inject()

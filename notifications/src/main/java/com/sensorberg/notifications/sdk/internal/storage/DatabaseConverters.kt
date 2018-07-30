@@ -5,7 +5,7 @@ import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import java.util.*
 
-class DatabaseConverters {
+internal class DatabaseConverters {
 	@TypeConverter
 	fun toTriggerType(code: Int): Trigger.Type {
 		return when (code) {

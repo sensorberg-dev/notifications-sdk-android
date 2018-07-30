@@ -2,7 +2,7 @@ package com.sensorberg.notifications.sdk.internal.model
 
 import java.util.*
 
-sealed class Trigger {
+internal sealed class Trigger {
 	abstract fun getTriggerId(): String
 	abstract val type: Type
 

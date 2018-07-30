@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
-object RegistrationHelper {
+internal object RegistrationHelper {
 	internal fun awaitResult(tag: String, seconds: Long, task: Task<*>): Worker.Result {
 		return try {
 			// await synchronously to completion

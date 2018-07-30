@@ -44,7 +44,7 @@ SELECT *, (:in_sin_lat_rad * sin_lat_rad + :in_cos_lat_rad * cos_lat_rad * (:in_
  */
 
 @Entity(tableName = "table_geofence")
-data class GeofenceQuery(@PrimaryKey val id: String,
+internal data class GeofenceQuery(@PrimaryKey val id: String,
 						 val latitude: Double,
 						 val longitude: Double,
 						 val radius: Float,

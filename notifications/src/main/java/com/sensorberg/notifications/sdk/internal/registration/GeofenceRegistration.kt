@@ -24,7 +24,7 @@ import org.koin.standalone.inject
 import timber.log.Timber
 import java.util.concurrent.Executor
 
-class GeofenceRegistration : KoinComponent {
+internal class GeofenceRegistration : KoinComponent {
 
 	private val app: Application by inject(InjectionModule.appBean)
 	private val googleApi: GoogleApiAvailability by inject(InjectionModule.googleApiAvailabilityBean)

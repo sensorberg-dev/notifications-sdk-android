@@ -2,7 +2,7 @@ package com.sensorberg.notifications.sdk.internal.backend
 
 import com.sensorberg.notifications.sdk.internal.model.*
 
-interface Backend {
+internal interface Backend {
 
 	fun getNotificationTriggers(callback: NotificationTriggers)
 	fun publishHistory(actions: List<ActionHistory>, conversions: List<ActionConversion>, callback: (Boolean) -> Unit)

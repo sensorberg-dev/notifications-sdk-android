@@ -14,7 +14,7 @@ import com.squareup.moshi.Moshi
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class WorkUtils(private val workManager: WorkManager, private val app: Application, moshi: Moshi, private val prefs: SharedPreferences) {
+internal class WorkUtils(private val workManager: WorkManager, private val app: Application, moshi: Moshi, private val prefs: SharedPreferences) {
 
 	private val actionAdapter: JsonAdapter<Action> by lazy { createAction(moshi) }
 

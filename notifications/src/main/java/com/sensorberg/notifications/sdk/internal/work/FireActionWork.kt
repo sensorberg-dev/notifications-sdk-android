@@ -7,7 +7,7 @@ import com.squareup.moshi.Moshi
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
-class FireActionWork : Worker(), KoinComponent {
+internal class FireActionWork : Worker(), KoinComponent {
 
 	private val moshi: Moshi by inject(InjectionModule.moshiBean)
 	private val workUtils: WorkUtils by inject()

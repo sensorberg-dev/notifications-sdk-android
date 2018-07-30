@@ -7,7 +7,7 @@ import com.sensorberg.notifications.sdk.Action
 import java.util.*
 
 @Entity(tableName = "table_action_history")
-data class ActionHistory(
+internal data class ActionHistory(
 	var actionId: String,
 	var timestamp: Long,
 	@PrimaryKey var instanceId: String,
@@ -19,7 +19,7 @@ data class ActionHistory(
 	var actionBackendMeta: String?,
 	var triggerBackendMeta: String?)
 
-fun Action.toActionHistory(type: Trigger.Type, location: Location?): ActionHistory {
+internal fun Action.toActionHistory(type: Trigger.Type, location: Location?): ActionHistory {
 	return ActionHistory(id,
 						 System.currentTimeMillis(),
 						 instanceId,
@@ -32,7 +32,7 @@ fun Action.toActionHistory(type: Trigger.Type, location: Location?): ActionHisto
 						 triggerBackendMeta)
 }
 
-fun ActionQueryModel.toActionHistory(type: Trigger.Type, location: Location?): ActionHistory {
+internal fun ActionQueryModel.toActionHistory(type: Trigger.Type, location: Location?): ActionHistory {
 	return ActionHistory(id,
 						 System.currentTimeMillis(),
 						 UUID.randomUUID().toString(),

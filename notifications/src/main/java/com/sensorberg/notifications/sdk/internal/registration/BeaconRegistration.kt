@@ -14,7 +14,7 @@ import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
 
-class BeaconRegistration : KoinComponent {
+internal class BeaconRegistration : KoinComponent {
 
 	private val app: Application by inject(InjectionModule.appBean)
 	private val apis: GoogleApiAvailability by inject(InjectionModule.googleApiAvailabilityBean)
