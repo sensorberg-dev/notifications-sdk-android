@@ -1,5 +1,6 @@
 package com.sensorberg.notifications.sdk.internal.work
 
+import androidx.work.Worker
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import org.junit.Assert.assertEquals
@@ -10,86 +11,65 @@ import java.util.*
 class BeaconProcessingWorkTest {
 
 	@Test fun single_enter_event_pass_enters() {
-		val result = BeaconProcessingWork.processData(false, listOf(enter()))
+		val result = processInner(false, enter())
 		assertEquals(result!!.type, Trigger.Type.Enter)
 	}
 
 	@Test fun enter_again_pass_null() {
-		val result = BeaconProcessingWork.processData(true, listOf(enter()))
+		val result = processInner(true, enter())
 		assertNull(result)
 	}
 
 	@Test fun single_exit_event_pass_exits() {
-		val result = BeaconProcessingWork.processData(true, listOf(exit()))
+		val result = processInner(true, exit())
 		assertEquals(result!!.type, Trigger.Type.Exit)
 	}
 
 	@Test fun exit_again_pass_null() {
-		val result = BeaconProcessingWork.processData(false, listOf(exit()))
+		val result = processInner(false, exit())
 		assertNull(result)
 	}
 
-	@Test fun multiple_enter_event_pass_enters() {
-		val result = BeaconProcessingWork.processData(false, list(10, Trigger.Type.Enter))
-		assertEquals(result!!.type, Trigger.Type.Enter)
+	@Test fun no_bt_should_retry() {
+		val event = enter()
+		var result = BeaconProcessingWork.processData(false, true, event.beaconKey, false, event)
+		assertEquals(result.workerResult, Worker.Result.RETRY)
+		result = BeaconProcessingWork.processData(false, false, event.beaconKey, false, event)
+		assertEquals(result.workerResult, Worker.Result.RETRY)
+		result = BeaconProcessingWork.processData(false, false, event.beaconKey, true, event)
+		assertEquals(result.workerResult, Worker.Result.RETRY)
 	}
 
-	@Test fun multiple_exit_event_pass_exits() {
-		val result = BeaconProcessingWork.processData(true, list(10, Trigger.Type.Exit))
-		assertEquals(result!!.type, Trigger.Type.Exit)
+	@Test fun no_location_should_retry() {
+		val event = enter()
+		var result = BeaconProcessingWork.processData(true, false, event.beaconKey, false, event)
+		assertEquals(result.workerResult, Worker.Result.RETRY)
+		result = BeaconProcessingWork.processData(false, false, event.beaconKey, false, event)
+		assertEquals(result.workerResult, Worker.Result.RETRY)
+		result = BeaconProcessingWork.processData(true, false, event.beaconKey, true, event)
+		assertEquals(result.workerResult, Worker.Result.RETRY)
 	}
 
-	@Test fun visible_pingpong_then_enter_pass_null() {
-		val result = BeaconProcessingWork.processData(true, pingpong(5, Trigger.Type.Enter).plus(enter()))
-		assertNull(result)
-	}
+	@Test fun no_event_should_success() {
+		var result = BeaconProcessingWork.processData(true, true, "b", false, null)
+		assertEquals(result.workerResult, Worker.Result.SUCCESS)
+		result = BeaconProcessingWork.processData(true, true, "b", true, null)
+		assertEquals(result.workerResult, Worker.Result.SUCCESS)
 
-	@Test fun visible_pingpong_then_exit_pass_exit() {
-		val result = BeaconProcessingWork.processData(true, pingpong(5, Trigger.Type.Enter).plus(enter()))
-		assertNull(result)
-	}
-
-	@Test fun not_visible_pingpong_then_enter_pass_enter() {
-		val result = BeaconProcessingWork.processData(false, pingpong(5, Trigger.Type.Enter).plus(enter()))
-		assertEquals(result!!.type, Trigger.Type.Enter)
-	}
-
-	@Test fun not_visible_pingpong_then_exit_pass_null() {
-		val result = BeaconProcessingWork.processData(false, pingpong(5, Trigger.Type.Enter).plus(exit()))
-		assertNull(result)
-	}
-
-	private fun <T> MutableList<T>.plus(t: T): MutableList<T> {
-		add(t)
-		return this
 	}
 
 	companion object {
+
+		private fun processInner(visible: Boolean, event: BeaconEvent): BeaconEvent? {
+			return BeaconProcessingWork.processData(true, true, event.beaconKey, visible, event).event
+		}
+
 		private fun enter(): BeaconEvent {
 			return BeaconEvent("b", 1, UUID.randomUUID(), 0, 0, Trigger.Type.Enter)
 		}
 
 		private fun exit(): BeaconEvent {
 			return BeaconEvent("b", 1, UUID.randomUUID(), 0, 0, Trigger.Type.Exit)
-		}
-
-		private fun list(number: Int, type: Trigger.Type): MutableList<BeaconEvent> {
-			val e = BeaconEvent("b", 1, UUID.randomUUID(), 0, 0, type)
-			val list = mutableListOf<BeaconEvent>()
-			for (i in 0 until number) list.add(e.copy(timestamp = i + 1L))
-			return list
-		}
-
-		private fun pingpong(number: Int, initial: Trigger.Type): MutableList<BeaconEvent> {
-			val e = BeaconEvent("b", 1, UUID.randomUUID(), 0, 0, initial)
-			var current = initial
-			val list = mutableListOf<BeaconEvent>()
-			for (i in 0 until number) {
-				if (current == Trigger.Type.Exit) current = Trigger.Type.Enter
-				else current = Trigger.Type.Exit
-				list.add(e.copy(timestamp = i + 1L, type = current))
-			}
-			return list
 		}
 	}
 

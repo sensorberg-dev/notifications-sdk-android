@@ -22,7 +22,6 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 	companion object {
 		const val preferencesBean = "com.sensorberg.notifications.sdk.Preferences"
 		const val appBean = "com.sensorberg.notifications.sdk.App"
-		const val contextBean = "com.sensorberg.notifications.sdk.Context"
 		const val executorBean = "com.sensorberg.notifications.sdk.Executor"
 		const val googleApiAvailabilityBean = "com.sensorberg.notifications.sdk.googleApiAvailability"
 		const val moshiBean = "com.sensorberg.notifications.sdk.moshi"
@@ -31,7 +30,6 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 	internal val module = listOf(applicationContext {
 		context(NotificationsSdk.notificationSdkContext) {
 			bean(appBean) { app }
-			bean(contextBean) { app as Context }
 			bean(executorBean) { Executors.newFixedThreadPool(3) as Executor } // used for DB operations
 			bean { SdkDatabase.createDatabase(get(appBean)) }
 			bean { get<SdkDatabase>().actionDao() }
@@ -41,8 +39,8 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 			bean { TriggerProcessor(get(), get(), get(), get(appBean)) }
 			bean { ActionLauncher(get(appBean), get()) }
 			bean {
-				WorkManager.initialize(get(contextBean), Configuration.Builder().build())
-				WorkUtils(WorkManager.getInstance()!!, get(appBean), get(), get(preferencesBean))
+				WorkManager.initialize(app, Configuration.Builder().build())
+				WorkUtils(WorkManager.getInstance(), app, get(), get(preferencesBean))
 			}
 			bean(googleApiAvailabilityBean) { GoogleApiAvailability.getInstance() }
 			bean(moshiBean) { Moshi.Builder().build() }
@@ -55,7 +53,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 					prefs.edit().putString(NotificationsSdkImpl.PREF_INSTALL_ID, installId).apply()
 				}
 
-				return@bean BackendSdkV2(get(appBean),
+				return@bean BackendSdkV2(app,
 										 baseUrl,
 										 apiKey,
 										 installId,

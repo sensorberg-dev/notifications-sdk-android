@@ -50,9 +50,6 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		val callback = object : ActivityLifecycleCallbacksAdapter() {
 			override fun onActivityResumed(activity: Activity) {
 				if (app.haveLocationPermission()) {
-
-					android.util.Log.w("BUDIUS", "Have location provider: ${app.haveLocationProvider()}")
-
 					Timber.i("Location permission granted")
 					app.unregisterActivityLifecycleCallbacks(this)
 					// workUtils.execute(SyncWork::class.java) // for testing only

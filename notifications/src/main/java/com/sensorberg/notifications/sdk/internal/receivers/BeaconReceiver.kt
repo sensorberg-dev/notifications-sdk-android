@@ -46,7 +46,7 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 		val pending = goAsync() // process this trigger asynchronously
 		executor.execute {
 			dao.addBeaconEvent(BeaconEvent.generateEvent(b, timestamp, type))
-			workUtils.executeBeaconWorkFor(BeaconEvent.generateKey(b))
+			workUtils.executeBeaconWorkFor(BeaconEvent.generateKey(b), type)
 			pending.finish()
 		}
 	}

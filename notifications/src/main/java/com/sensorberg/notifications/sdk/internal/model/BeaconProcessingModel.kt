@@ -6,13 +6,12 @@ import com.google.android.gms.nearby.messages.IBeaconId
 import java.util.*
 
 @Entity(tableName = "table_beacon_events")
-internal data class BeaconEvent(val beaconKey: String,
+internal data class BeaconEvent(@PrimaryKey val beaconKey: String,
 								val timestamp: Long,
 								val proximityUuid: UUID,
 								val major: Short,
 								val minor: Short,
-								val type: Trigger.Type,
-								@PrimaryKey(autoGenerate = true) var id: Long = 0) {
+								val type: Trigger.Type) {
 	companion object {
 		fun generateEvent(b: IBeaconId, timestamp: Long, type: Trigger.Type): BeaconEvent {
 			return BeaconEvent(BeaconEvent.generateKey(b),

@@ -3,10 +3,7 @@ package com.sensorberg.notifications.sdk.internal.work
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import androidx.work.Worker
-import com.sensorberg.notifications.sdk.internal.TriggerProcessor
-import com.sensorberg.notifications.sdk.internal.haveLocationProvider
-import com.sensorberg.notifications.sdk.internal.logResult
-import com.sensorberg.notifications.sdk.internal.logStart
+import com.sensorberg.notifications.sdk.internal.*
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.model.VisibleBeacons
@@ -17,7 +14,7 @@ import timber.log.Timber
 
 internal class BeaconProcessingWork : Worker(), KoinComponent {
 
-	private val app: Application by inject()
+	private val app: Application by inject(InjectionModule.appBean)
 	private val dao: BeaconDao by inject()
 	private val triggerProcessor: TriggerProcessor by inject()
 
@@ -25,40 +22,27 @@ internal class BeaconProcessingWork : Worker(), KoinComponent {
 
 		logStart()
 
-		if (!isBluetoothOn()) {
-			Timber.w("${javaClass.simpleName} can't proceed. Bluetooth is off. RETRY")
-			return Worker.Result.RETRY
-		}
-
-		if (!app.haveLocationProvider()) {
-			Timber.w("${javaClass.simpleName} can't proceed. Location is off. RETRY")
-			return Worker.Result.RETRY
-		}
-
 		val beaconKey = getBeaconKey()
-		val isVisible = dao.isBeaconVisible(beaconKey)
-		val events = dao.getBeaconEvents(beaconKey)
 
-		Timber.d("Processing ${events.size} events for currently ${if (isVisible) "" else "not "}visible beacon $beaconKey")
+		val result = processData(isBluetoothOn(),
+								 app.haveLocationProvider(),
+								 beaconKey,
+								 dao.isBeaconVisible(beaconKey),
+								 dao.getLastEventForBeacon(beaconKey))
 
-		val result = processData(isVisible, events)
-		if (result != null) {
-			Timber.d("Beacon $beaconKey event ${result.type}")
-
-			if (result.type == Trigger.Type.Enter) {
+		result.event?.let { event ->
+			if (event.type == Trigger.Type.Enter) {
 				dao.addBeaconVisible(VisibleBeacons(beaconKey, System.currentTimeMillis()))
-			} else if (result.type == Trigger.Type.Exit) {
+			} else if (event.type == Trigger.Type.Exit) {
 				dao.removeBeaconVisible(VisibleBeacons(beaconKey, System.currentTimeMillis()))
 			}
-
-			triggerProcessor.process(Trigger.Beacon.getTriggerId(result.proximityUuid, result.major, result.minor, result.type), result.type)
-		} else {
-			Timber.d("Beacon $beaconKey no changes")
+			triggerProcessor.process(Trigger.Beacon.getTriggerId(event.proximityUuid, event.major, event.minor, event.type), event.type)
 		}
-
-		dao.deleteBeaconEvents(events)
-
-		return logResult(Worker.Result.SUCCESS)
+		result.deleteFromDbTimeStamp?.let { timestamp ->
+			dao.deleteEventForBeacon(beaconKey, timestamp)
+		}
+		Timber.d(result.msg)
+		return logResult(result.workerResult)
 	}
 
 	companion object {
@@ -68,47 +52,40 @@ internal class BeaconProcessingWork : Worker(), KoinComponent {
 			return adapter?.isEnabled ?: false
 		}
 
-		fun processData(visible: Boolean, events: List<BeaconEvent>): BeaconEvent? {
+		internal data class ProcessResult(val workerResult: Worker.Result,
+										  val event: BeaconEvent?,
+										  val msg: String,
+										  val deleteFromDbTimeStamp: Long? = null)
 
-			if (events.isEmpty()) {
-				return null
+		fun processData(bluetoothOn: Boolean,
+						haveLocationProvider: Boolean,
+						beaconKey: String,
+						isBeaconVisible: Boolean,
+						lastEvent: BeaconEvent?): ProcessResult {
+
+			if (!bluetoothOn) {
+				return ProcessResult(Result.RETRY, null, "BeaconProcessingWork can't proceed. Bluetooth is off.")
 			}
 
-			val last = events.last()
+			if (!haveLocationProvider) {
+				return ProcessResult(Result.RETRY, null, "BeaconProcessingWork can't proceed. Location is off.")
+			}
 
-			return when {
-				(last.type == Trigger.Type.Enter && !visible) -> last.copy(type = Trigger.Type.Enter)
-				(last.type == Trigger.Type.Exit && visible) -> last.copy(type = Trigger.Type.Exit)
+			if (lastEvent == null) {
+				// this is a weird edge case in case there's a duplicate work running and one deleted it already from DB
+				// in reality it should never happen, but I rather check it, then crash the app
+				return ProcessResult(Result.SUCCESS, null, "There was no lastEvent for beacon $beaconKey")
+			}
+
+			val result = when {
+				(lastEvent.type == Trigger.Type.Enter && !isBeaconVisible) -> lastEvent.copy(type = Trigger.Type.Enter)
+				(lastEvent.type == Trigger.Type.Exit && isBeaconVisible) -> lastEvent.copy(type = Trigger.Type.Exit)
 				else -> null
 			}
-/*
-			return if (last.type == Trigger.Type.Enter && !visible) {
-				last.copy(type = Trigger.Type.Enter)
-			}else			if (last.type == Trigger.Type.Exit && visible) {
-				last.copy(type = Trigger.Type.Exit)
-			} else null*/
-/*
-			val event = events[0] // used for copy
-			var isVisibleState = visible
-			events.forEach {
+			val message = if (result == null) "Beacon $beaconKey no changes" else "Beacon ${result.type} lastEvent for $beaconKey"
 
-				if (isVisibleState) {
-					if (it.type == Trigger.Type.Exit) {
-						isVisibleState = false
-					}
-				} else {
-					if (it.type == Trigger.Type.Enter) {
-						isVisibleState = true
-					}
-				}
-			}
+			return ProcessResult(Result.SUCCESS, result, message, lastEvent.timestamp)
 
-			return if (isVisibleState != visible) {
-				val eventType = if (isVisibleState) Trigger.Type.Enter else Trigger.Type.Exit
-				event.copy(type = eventType)
-			} else {
-				null
-			}*/
 		}
 	}
 }

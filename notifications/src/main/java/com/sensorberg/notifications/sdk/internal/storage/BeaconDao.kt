@@ -1,9 +1,6 @@
 package com.sensorberg.notifications.sdk.internal.storage
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Delete
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.Query
+import android.arch.persistence.room.*
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.VisibleBeacons
 
@@ -18,10 +15,12 @@ internal abstract class BeaconDao {
 	@Insert abstract fun addBeaconVisible(beacon: VisibleBeacons)
 	@Delete abstract fun removeBeaconVisible(beacon: VisibleBeacons)
 
-	@Query("SELECT * FROM table_beacon_events WHERE beaconKey = :beaconKey ORDER BY timestamp ASC")
-	abstract fun getBeaconEvents(beaconKey: String): List<BeaconEvent>
+	@Query("SELECT * FROM table_beacon_events WHERE beaconKey = :beaconKey")
+	abstract fun getLastEventForBeacon(beaconKey: String): BeaconEvent?
 
-	@Insert abstract fun addBeaconEvent(event: BeaconEvent)
-	@Delete abstract fun deleteBeaconEvents(events: List<BeaconEvent>)
+	@Query("DELETE FROM table_beacon_events WHERE beaconKey = :beaconKey AND timestamp = :timestamp")
+	abstract fun deleteEventForBeacon(beaconKey: String, timestamp: Long)
+
+	@Insert(onConflict = OnConflictStrategy.REPLACE) abstract fun addBeaconEvent(event: BeaconEvent)
 
 }

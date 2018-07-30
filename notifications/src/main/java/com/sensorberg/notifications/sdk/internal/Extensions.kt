@@ -81,6 +81,6 @@ internal fun Worker.logStart() {
 }
 
 internal fun Worker.logResult(result: Worker.Result): Worker.Result {
-	Timber.i("${javaClass.simpleName} result $result")
+	Timber.i("${javaClass.simpleName} workerResult $result")
 	return result
 }

@@ -38,13 +38,14 @@ class WorkUtils(private val workManager: WorkManager, private val app: Applicati
 			.build()
 	}
 
-	fun executeBeaconWorkFor(key: String) {
-		Timber.d("Scheduling execution of the beacon work in 15 seconds for beacon $key")
+	fun executeBeaconWorkFor(key: String, type: Trigger.Type) {
+		val time = if (type == Trigger.Type.Enter) 10L else 180L
+		Timber.d("Scheduling execution of the beacon work in $time seconds for beacon $key")
 		val data = Data.Builder()
 			.putString(BEACON_STRING, key)
 			.build()
 		val request = OneTimeWorkRequestBuilder<BeaconProcessingWork>()
-			.setInitialDelay(15, TimeUnit.SECONDS)
+			.setInitialDelay(time, TimeUnit.SECONDS)
 			.setInputData(data)
 			.addTag(WORKER_TAG) //only to get the workers states later
 			.build()
