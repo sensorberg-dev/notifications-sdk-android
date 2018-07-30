@@ -5,10 +5,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import com.sensorberg.notifications.sdk.NotificationsSdk
-import com.sensorberg.notifications.sdk.internal.work.SyncWork
 import com.sensorberg.permissionbitte.BitteBitte
 import com.sensorberg.permissionbitte.PermissionBitte
 
