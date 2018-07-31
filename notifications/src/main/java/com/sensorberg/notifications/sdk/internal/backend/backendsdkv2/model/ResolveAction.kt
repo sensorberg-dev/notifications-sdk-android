@@ -53,7 +53,7 @@ internal fun Trigger.Type.getType(): Int {
 }
 
 @JsonClass(generateAdapter = true)
-data class Content(
+internal data class Content(
 	val subject: String? = null,
 	val body: String? = null,
 	val payload: JSONObject? = null,

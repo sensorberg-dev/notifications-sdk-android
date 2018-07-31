@@ -11,7 +11,7 @@ android {
 		targetSdkVersion android_targetSdkVersion
 		versionCode 1
 		versionName findProperty("POM_VERSION", "0.0.0-alpha")
-
+		consumerProguardFiles 'proguard-rules.txt'
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
 	}
