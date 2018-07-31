@@ -9,6 +9,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.BackendSdkV2
+import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import com.squareup.moshi.FromJson
@@ -45,7 +46,12 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 				WorkUtils(WorkManager.getInstance(), app, get(), get(preferencesBean))
 			}
 			bean(googleApiAvailabilityBean) { GoogleApiAvailability.getInstance() }
-			bean(moshiBean) { Moshi.Builder().add(UuidObjectAdapter).build() }
+			bean(moshiBean) {
+				Moshi.Builder()
+					.add(UuidObjectAdapter)
+					.add(TriggerTypeObjectAdapter)
+					.build()
+			}
 			bean {
 
 				val prefs = get<SharedPreferences>(preferencesBean)
@@ -73,5 +79,24 @@ private object UuidObjectAdapter {
 
 	@ToJson fun fromUUID(value: UUID): String {
 		return value.toString()
+	}
+}
+
+private object TriggerTypeObjectAdapter {
+	@FromJson fun toTriggerType(value: Int): Trigger.Type {
+		return when (value) {
+			0 -> Trigger.Type.Enter
+			1 -> Trigger.Type.Exit
+			2 -> Trigger.Type.EnterOrExit
+			else -> throw IllegalArgumentException("Trigger.Type cannot be $value")
+		}
+	}
+
+	@ToJson fun fromTriggerType(value: Trigger.Type): Int {
+		return when (value) {
+			Trigger.Type.Enter -> 0
+			Trigger.Type.Exit -> 1
+			Trigger.Type.EnterOrExit -> 2
+		}
 	}
 }
