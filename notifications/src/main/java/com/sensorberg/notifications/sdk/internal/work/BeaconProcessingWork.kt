@@ -27,7 +27,7 @@ internal class BeaconProcessingWork : Worker(), KoinComponent {
 		val result = processData(isBluetoothOn(),
 								 app.haveLocationProvider(),
 								 beaconKey,
-								 dao.isBeaconVisible(beaconKey),
+								 dao.getVisibleBeacon(beaconKey)?.timestamp,
 								 dao.getLastEventForBeacon(beaconKey))
 
 		result.event?.let { event ->
@@ -47,6 +47,8 @@ internal class BeaconProcessingWork : Worker(), KoinComponent {
 
 	companion object {
 
+		private const val ENTER_EVENT_TIMEOUT = 24 * 60 * 60 * 1000L
+
 		private fun isBluetoothOn(): Boolean {
 			val adapter = BluetoothAdapter.getDefaultAdapter()
 			return adapter?.isEnabled ?: false
@@ -60,7 +62,7 @@ internal class BeaconProcessingWork : Worker(), KoinComponent {
 		fun processData(bluetoothOn: Boolean,
 						haveLocationProvider: Boolean,
 						beaconKey: String,
-						isBeaconVisible: Boolean,
+						visibleBeaconTimeStamp: Long?,
 						lastEvent: BeaconEvent?): ProcessResult {
 
 			if (!bluetoothOn) {
@@ -75,6 +77,13 @@ internal class BeaconProcessingWork : Worker(), KoinComponent {
 				// this is a weird edge case in case there's a duplicate work running and one deleted it already from DB
 				// in reality it should never happen, but I rather check it, then crash the app
 				return ProcessResult(Result.SUCCESS, null, "There was no lastEvent for beacon $beaconKey")
+			}
+
+			val isBeaconVisible = if (visibleBeaconTimeStamp != null) {
+				val elapsedTime = System.currentTimeMillis() - visibleBeaconTimeStamp
+				elapsedTime < ENTER_EVENT_TIMEOUT
+			} else {
+				false
 			}
 
 			val result = when {

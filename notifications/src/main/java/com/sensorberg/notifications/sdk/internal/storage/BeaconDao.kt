@@ -7,12 +7,8 @@ import com.sensorberg.notifications.sdk.internal.model.VisibleBeacons
 @Dao
 internal abstract class BeaconDao {
 
-	fun isBeaconVisible(id: String): Boolean {
-		return getBeaconCount(id) == 1
-	}
-
-	@Query("SELECT count(*) FROM table_visible_beacons WHERE id = :id") abstract fun getBeaconCount(id: String): Int
-	@Insert abstract fun addBeaconVisible(beacon: VisibleBeacons)
+	@Query("SELECT * FROM table_visible_beacons WHERE id = :id") abstract fun getVisibleBeacon(id: String): VisibleBeacons?
+	@Insert(onConflict = OnConflictStrategy.REPLACE) abstract fun addBeaconVisible(beacon: VisibleBeacons)
 	@Delete abstract fun removeBeaconVisible(beacon: VisibleBeacons)
 
 	@Query("SELECT * FROM table_beacon_events WHERE beaconKey = :beaconKey")
