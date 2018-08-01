@@ -11,57 +11,62 @@ import java.util.*
 class BeaconProcessingWorkTest {
 
 	@Test fun single_enter_event_pass_enters() {
-		val result = processInner(false, enter())
+		val result = processInner(null, enter())
 		assertEquals(result!!.type, Trigger.Type.Enter)
 	}
 
 	@Test fun enter_again_pass_null() {
-		val result = processInner(true, enter())
+		val result = processInner(seenLately(), enter())
 		assertNull(result)
 	}
 
 	@Test fun single_exit_event_pass_exits() {
-		val result = processInner(true, exit())
+		val result = processInner(seenLately(), exit())
 		assertEquals(result!!.type, Trigger.Type.Exit)
 	}
 
+	@Test fun enter_again_after_long_time_pass_reenter() {
+		val result = processInner(seenLately() - (24 * 60 * 60 * 1000L), enter())
+		assertEquals(result!!.type, Trigger.Type.Enter)
+	}
+
 	@Test fun exit_again_pass_null() {
-		val result = processInner(false, exit())
+		val result = processInner(null, exit())
 		assertNull(result)
 	}
 
 	@Test fun no_bt_should_retry() {
 		val event = enter()
-		var result = BeaconProcessingWork.processData(false, true, event.beaconKey, false, event)
+		var result = BeaconProcessingWork.processData(false, true, event.beaconKey, null, event)
 		assertEquals(result.workerResult, Worker.Result.RETRY)
-		result = BeaconProcessingWork.processData(false, false, event.beaconKey, false, event)
+		result = BeaconProcessingWork.processData(false, false, event.beaconKey, null, event)
 		assertEquals(result.workerResult, Worker.Result.RETRY)
-		result = BeaconProcessingWork.processData(false, false, event.beaconKey, true, event)
+		result = BeaconProcessingWork.processData(false, false, event.beaconKey, seenLately(), event)
 		assertEquals(result.workerResult, Worker.Result.RETRY)
 	}
 
 	@Test fun no_location_should_retry() {
 		val event = enter()
-		var result = BeaconProcessingWork.processData(true, false, event.beaconKey, false, event)
+		var result = BeaconProcessingWork.processData(true, false, event.beaconKey, null, event)
 		assertEquals(result.workerResult, Worker.Result.RETRY)
-		result = BeaconProcessingWork.processData(false, false, event.beaconKey, false, event)
+		result = BeaconProcessingWork.processData(false, false, event.beaconKey, null, event)
 		assertEquals(result.workerResult, Worker.Result.RETRY)
-		result = BeaconProcessingWork.processData(true, false, event.beaconKey, true, event)
+		result = BeaconProcessingWork.processData(true, false, event.beaconKey, seenLately(), event)
 		assertEquals(result.workerResult, Worker.Result.RETRY)
 	}
 
 	@Test fun no_event_should_success() {
-		var result = BeaconProcessingWork.processData(true, true, "b", false, null)
+		var result = BeaconProcessingWork.processData(true, true, "b", null, null)
 		assertEquals(result.workerResult, Worker.Result.SUCCESS)
-		result = BeaconProcessingWork.processData(true, true, "b", true, null)
+		result = BeaconProcessingWork.processData(true, true, "b", seenLately(), null)
 		assertEquals(result.workerResult, Worker.Result.SUCCESS)
 
 	}
 
 	companion object {
 
-		private fun processInner(visible: Boolean, event: BeaconEvent): BeaconEvent? {
-			return BeaconProcessingWork.processData(true, true, event.beaconKey, visible, event).event
+		private fun processInner(visibleBeaconTimeStamp: Long?, event: BeaconEvent): BeaconEvent? {
+			return BeaconProcessingWork.processData(true, true, event.beaconKey, visibleBeaconTimeStamp, event).event
 		}
 
 		private fun enter(): BeaconEvent {
@@ -70,6 +75,10 @@ class BeaconProcessingWorkTest {
 
 		private fun exit(): BeaconEvent {
 			return BeaconEvent("b", 1, UUID.randomUUID(), 0, 0, Trigger.Type.Exit)
+		}
+
+		private fun seenLately(): Long {
+			return System.currentTimeMillis() - 1000L
 		}
 	}
 
