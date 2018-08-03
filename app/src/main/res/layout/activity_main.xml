@@ -16,7 +16,13 @@
 	<Button
 		android:layout_width="match_parent"
 		android:layout_height="60dp"
-		android:onClick="onClickSync"
-		android:text="Force Sync"/>
+		android:onClick="onChangeAttrs"
+		android:text="Change attrs"/>
+
+	<Button
+		android:layout_width="match_parent"
+		android:layout_height="60dp"
+		android:onClick="onChangeAdId"
+		android:text="Change ad-id"/>
 
 </LinearLayout>

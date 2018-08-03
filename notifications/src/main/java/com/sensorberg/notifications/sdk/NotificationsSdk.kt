@@ -19,6 +19,10 @@ interface NotificationsSdk {
 
 	fun setConversion(action: Action, conversion: Conversion)
 
+	fun setEnabled(enabled: Boolean)
+	
+	fun isEnabled(): Boolean
+
 	companion object {
 
 		const val ACTION_RECEIVER = "com.sensorberg.notifications.sdk.ACTION_RECEIVER"

@@ -40,7 +40,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 			bean { get<SdkDatabase>().beaconDao() }
 			bean(preferencesBean) { get<Application>(appBean).getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
 			bean { TriggerProcessor(get(), get(), get(), get(appBean)) }
-			bean { ActionLauncher(get(appBean), get()) }
+			bean { ActionLauncher(get(appBean), get(), get(preferencesBean)) }
 			bean {
 				WorkManager.initialize(app, Configuration.Builder().build())
 				WorkUtils(WorkManager.getInstance(), app, get(), get(preferencesBean))
