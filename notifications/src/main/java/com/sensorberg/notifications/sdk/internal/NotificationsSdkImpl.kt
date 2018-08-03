@@ -95,10 +95,19 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		}
 	}
 
+	override fun setEnabled(enabled: Boolean) {
+		prefs.edit().putBoolean(PREF_ENABLED, enabled).apply()
+	}
+
+	override fun isEnabled(): Boolean {
+		return prefs.getBoolean(PREF_ENABLED, true)
+	}
+
 	companion object {
 		internal const val PREF_INSTALL_ID = "installation_id"
 		internal const val PREF_AD_ID = "advertisement_id"
 		internal const val PREF_ATTR = "attributes"
+		internal const val PREF_ENABLED = "enabled"
 		private val MAP_TYPE = Types.newParameterizedType(Map::class.java, String::class.java, String::class.java)
 
 	}
