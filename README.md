@@ -1,7 +1,5 @@
 # Notification SDK
 
-[ ![Download](null/packages/sensorberg/maven/notification-sdk/images/download.svg?version=2.7.4) ](https://bintray.com/sensorberg/maven/notification-sdk/2.7.4/link)
-
 ## Terms
 
 - Trigger: defines a physical measurement on the real world.
