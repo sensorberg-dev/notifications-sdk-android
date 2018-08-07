@@ -36,7 +36,6 @@ dependencies {
 	// main
 	implementation 'org.koin:koin-android:0.9.3'
 	implementation "com.jakewharton.timber:timber:$jakewharton_timber_version"
-	implementation "com.sensorberg.libs:timber-extensions:$sb_libs_timber_version"
 	implementation "com.squareup.moshi:moshi:$moshi_version"
 	kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
 

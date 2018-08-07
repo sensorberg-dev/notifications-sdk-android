@@ -1,3 +1,5 @@
+ [ ![Download](https://api.bintray.com/packages/sensorberg/maven/notification-sdk/images/download.svg) ](https://bintray.com/sensorberg/maven/notification-sdk/_latestVersion)
+
 # Notification SDK
 
 ## Terms

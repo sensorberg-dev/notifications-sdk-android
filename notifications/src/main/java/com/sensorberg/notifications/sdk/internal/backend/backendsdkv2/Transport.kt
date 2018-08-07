@@ -1,7 +1,6 @@
 package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2
 
 import android.content.Context
-import com.sensorberg.timberextensions.interceptor.CurlCommandLogger
 import com.squareup.moshi.Moshi
 import okhttp3.Cache
 import okhttp3.Interceptor
@@ -48,7 +47,6 @@ internal object Transport {
 			})
 			httpLog.level = HttpLoggingInterceptor.Level.BODY
 			okClientBuilder.addNetworkInterceptor(httpLog)
-			okClientBuilder.addNetworkInterceptor(CurlCommandLogger())
 		}
 
 		val cacheDir = File(context.cacheDir, "HttpResponseCache")
