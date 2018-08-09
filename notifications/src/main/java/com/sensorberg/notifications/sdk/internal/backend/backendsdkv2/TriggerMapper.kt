@@ -129,11 +129,15 @@ internal class TriggerMapper(private val callback: Backend.NotificationTriggers)
 		}
 
 		fun extractMajor(triggerId: String): Short {
-			return triggerId.substring(32, 37).toShort()
+			return stringToShort(triggerId.substring(32, 37))
 		}
 
 		fun extractMinor(triggerId: String): Short {
-			return triggerId.substring(37, 42).toInt().toChar().toShort()
+			return stringToShort(triggerId.substring(37, 42))
+		}
+
+		fun stringToShort(value: String): Short {
+			return value.toInt().toChar().toShort()
 		}
 
 		private fun String.fromIso8601(): Long {
