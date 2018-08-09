@@ -8,6 +8,7 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
 import com.sensorberg.notifications.sdk.internal.InjectionModule
+import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.TriggerProcessor
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.storage.GeofenceDao
@@ -24,8 +25,10 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 	private val executor: Executor by inject(InjectionModule.executorBean)
 	private val triggerProcessor: TriggerProcessor by inject()
 	private val workUtils: WorkUtils by inject()
+	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun onReceive(context: Context, intent: Intent) {
+		if (!sdkEnableHandler.isEnabled()) return
 		val event = GeofencingEvent.fromIntent(intent)
 		if (event == null) return // do not replace with elvis
 		if (event.hasError()) {

@@ -17,9 +17,10 @@ internal class BeaconProcessingWork : Worker(), KoinComponent {
 	private val app: Application by inject(InjectionModule.appBean)
 	private val dao: BeaconDao by inject()
 	private val triggerProcessor: TriggerProcessor by inject()
+	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun doWork(): Result {
-
+		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
 		logStart()
 
 		val beaconKey = getBeaconKey()

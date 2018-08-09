@@ -20,7 +20,7 @@ interface NotificationsSdk {
 	fun setConversion(action: Action, conversion: Conversion)
 
 	fun setEnabled(enabled: Boolean)
-	
+
 	fun isEnabled(): Boolean
 
 	companion object {
@@ -34,8 +34,8 @@ interface NotificationsSdk {
 		}
 
 		fun printAllSdkWorkerStates() {
-			val statusesForUniqueWork = WorkManager.getInstance()?.getStatusesByTag(WorkUtils.WORKER_TAG)
-			statusesForUniqueWork?.observeForever { workStatuses ->
+			val statusesForUniqueWork = WorkManager.getInstance().getStatusesByTag(WorkUtils.WORKER_TAG)
+			statusesForUniqueWork.observeForever { workStatuses ->
 				workStatuses?.forEach { workStatus ->
 					Timber.d(workStatus.toString())
 				}

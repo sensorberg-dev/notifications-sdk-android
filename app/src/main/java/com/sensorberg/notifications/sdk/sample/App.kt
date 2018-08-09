@@ -2,6 +2,7 @@ package com.sensorberg.notifications.sdk.sample
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.timberextensions.tree.DebugTree
 import com.sensorberg.timberextensions.tree.FileLogTree
@@ -19,6 +20,9 @@ class App : Application() {
 				DebugTree("NotificationsSdk"),
 				FileLogTree(getDir("logs", Context.MODE_PRIVATE).absolutePath, 1, 3))
 
+		getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE)
+			.registerOnSharedPreferenceChangeListener(preferencesChange)
+
 		sdk = NotificationsSdk.with(this)
 			.enableHttpLogs()
 			.setApiKey(KEY)
@@ -30,5 +34,9 @@ class App : Application() {
 	companion object {
 		private const val KEY = "67eebdd2cda9bcda000ea32c980599116c3e7621072564e18830a8cdb0528411"
 		private const val STAGING = "https://staging.sensorberg-cdn.io"
+	}
+
+	private val preferencesChange = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+		Timber.d("OnPreferencesChanged. $key:${sharedPreferences.all[key]}")
 	}
 }

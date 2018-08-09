@@ -9,6 +9,7 @@ import com.google.android.gms.nearby.messages.IBeaconId
 import com.google.android.gms.nearby.messages.Message
 import com.google.android.gms.nearby.messages.MessageListener
 import com.sensorberg.notifications.sdk.internal.InjectionModule
+import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.storage.BeaconDao
@@ -23,8 +24,10 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 	private val executor: Executor by inject(InjectionModule.executorBean)
 	private val dao: BeaconDao by inject()
 	private val workUtils: WorkUtils by inject()
+	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun onReceive(context: Context, intent: Intent) {
+		if (!sdkEnableHandler.isEnabled()) return
 		Nearby.getMessagesClient(context).handleIntent(intent, object : MessageListener() {
 			override fun onFound(message: Message) {
 				getBeacon(message)?.let {

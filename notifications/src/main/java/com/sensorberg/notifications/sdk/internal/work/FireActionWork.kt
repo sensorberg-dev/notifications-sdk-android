@@ -3,6 +3,7 @@ package com.sensorberg.notifications.sdk.internal.work
 import androidx.work.Worker
 import com.sensorberg.notifications.sdk.internal.ActionLauncher
 import com.sensorberg.notifications.sdk.internal.InjectionModule
+import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.squareup.moshi.Moshi
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
@@ -12,8 +13,10 @@ internal class FireActionWork : Worker(), KoinComponent {
 	private val moshi: Moshi by inject(InjectionModule.moshiBean)
 	private val workUtils: WorkUtils by inject()
 	private val actionLauncher: ActionLauncher by inject()
+	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun doWork(): Result {
+		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
 		val action = getAction(WorkUtils.createAction(moshi))
 		val triggerType = getTriggerType()
 		val reportImmediate = isReportImmediate()

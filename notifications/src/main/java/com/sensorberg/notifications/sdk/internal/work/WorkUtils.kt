@@ -107,6 +107,10 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 			.build()
 	}
 
+	fun disableAll() {
+		workManager.cancelAllWorkByTag(WORKER_TAG)
+	}
+
 	companion object {
 		internal const val ACTION_STRING = "com.sensorberg.notifications.sdk.internal.work.ACTION_STRING"
 		internal const val FIRE_ACTION_WORK = "com.sensorberg.notifications.sdk.internal.work.fireAction.ACTION"

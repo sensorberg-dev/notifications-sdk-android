@@ -1,6 +1,7 @@
 package com.sensorberg.notifications.sdk.internal.work
 
 import androidx.work.Worker
+import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.logResult
 import com.sensorberg.notifications.sdk.internal.logStart
@@ -15,12 +16,13 @@ import java.util.concurrent.TimeUnit
 
 internal class UploadWork : Worker(), KoinComponent {
 
+	private val sdkEnableHandler: SdkEnableHandler by inject()
 	private val dao: ActionDao by inject()
 	private val backend: Backend by inject()
 	private val backendExecution = Exchanger<Result>()
 
 	override fun doWork(): Result {
-
+		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
 		logStart()
 
 		val actions: List<ActionHistory> = dao.getActionHistory()

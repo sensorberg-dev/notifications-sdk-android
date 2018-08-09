@@ -2,11 +2,8 @@ package com.sensorberg.notifications.sdk.internal.work
 
 import android.app.Application
 import androidx.work.Worker
-import com.sensorberg.notifications.sdk.internal.InjectionModule
+import com.sensorberg.notifications.sdk.internal.*
 import com.sensorberg.notifications.sdk.internal.backend.Backend
-import com.sensorberg.notifications.sdk.internal.haveLocationPermission
-import com.sensorberg.notifications.sdk.internal.logResult
-import com.sensorberg.notifications.sdk.internal.logStart
 import com.sensorberg.notifications.sdk.internal.model.ActionModel
 import com.sensorberg.notifications.sdk.internal.model.TimePeriod
 import com.sensorberg.notifications.sdk.internal.model.Trigger
@@ -23,6 +20,7 @@ import java.util.concurrent.Executor
 
 internal class SyncWork : Worker(), KoinComponent {
 
+	private val sdkEnableHandler: SdkEnableHandler by inject()
 	private val app: Application by inject(InjectionModule.appBean)
 	private val database: SdkDatabase by inject()
 	private val backend: Backend by inject()
@@ -39,7 +37,7 @@ internal class SyncWork : Worker(), KoinComponent {
 	private val exchanger = Exchanger<Worker.Result>()
 
 	override fun doWork(): Result {
-
+		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
 		logStart()
 
 		if (!app.haveLocationPermission()) {
