@@ -15,6 +15,7 @@ class App : Application() {
 		super.onCreate()
 
 		Timber.plant(
+				/*Timber.DebugTree(),*/
 				DebugTree("NotificationsSdk"),
 				FileLogTree(getDir("logs", Context.MODE_PRIVATE).absolutePath, 1, 3))
 

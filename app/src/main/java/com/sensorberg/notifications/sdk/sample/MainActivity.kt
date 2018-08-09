@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.permissionbitte.BitteBitte
@@ -12,6 +13,8 @@ import timber.log.Timber
 import java.util.*
 
 class MainActivity : AppCompatActivity(), BitteBitte {
+
+	private lateinit var notificationsSdk: NotificationsSdk
 
 	override fun askNicer() {
 		AlertDialog.Builder(this)
@@ -35,6 +38,8 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
 		PermissionBitte.ask(this, this)
+		notificationsSdk = (application as App).sdk
+		updateEnabledText()
 	}
 
 	fun onClickPrint(view: View) {
@@ -46,12 +51,25 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 			put("blz", UUID.randomUUID().toString().replace("-", "_"))
 		}
 		Timber.d("Adding blz = ${map["blz"]}")
-		(application as App).sdk.setAttributes(map)
+		notificationsSdk.setAttributes(map)
 	}
 
 	fun onChangeAdId(view: View) {
 		val ad = UUID.randomUUID().toString()
 		Timber.d("Adding ad = $ad")
-		(application as App).sdk.setAdvertisementId(ad)
+		notificationsSdk.setAdvertisementId(ad)
+	}
+
+	fun onEnabledChange(view: View) {
+		if (notificationsSdk.isEnabled()) {
+			notificationsSdk.setEnabled(false)
+		} else {
+			notificationsSdk.setEnabled(true)
+		}
+		updateEnabledText()
+	}
+
+	private fun updateEnabledText() {
+		findViewById<TextView>(R.id.btn_enable).text = if (notificationsSdk.isEnabled()) "SDK enabled" else "SDK disabled"
 	}
 }
