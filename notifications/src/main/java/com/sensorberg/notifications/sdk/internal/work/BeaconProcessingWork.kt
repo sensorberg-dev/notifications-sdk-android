@@ -14,36 +14,14 @@ import timber.log.Timber
 
 internal class BeaconProcessingWork : Worker(), KoinComponent {
 
-	private val app: Application by inject(InjectionModule.appBean)
-	private val dao: BeaconDao by inject()
-	private val triggerProcessor: TriggerProcessor by inject()
 	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun doWork(): Result {
 		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
 		logStart()
-
 		val beaconKey = getBeaconKey()
-
-		val result = processData(isBluetoothOn(),
-								 app.haveLocationProvider(),
-								 beaconKey,
-								 dao.getVisibleBeacon(beaconKey)?.timestamp,
-								 dao.getLastEventForBeacon(beaconKey))
-
-		result.event?.let { event ->
-			if (event.type == Trigger.Type.Enter) {
-				dao.addBeaconVisible(VisibleBeacons(beaconKey, System.currentTimeMillis()))
-			} else if (event.type == Trigger.Type.Exit) {
-				dao.removeBeaconVisible(VisibleBeacons(beaconKey, System.currentTimeMillis()))
-			}
-			triggerProcessor.process(Trigger.Beacon.getTriggerId(event.proximityUuid, event.major, event.minor, event.type), event.type)
-		}
-		result.deleteFromDbTimeStamp?.let { timestamp ->
-			dao.deleteEventForBeacon(beaconKey, timestamp)
-		}
-		Timber.d(result.msg)
-		return logResult(result.workerResult)
+		val result = BeaconProcessingDelegate().execute(beaconKey)
+		return logResult(result)
 	}
 
 	companion object {
@@ -96,6 +74,36 @@ internal class BeaconProcessingWork : Worker(), KoinComponent {
 
 			return ProcessResult(Result.SUCCESS, result, message, lastEvent.timestamp)
 
+		}
+	}
+
+	internal class BeaconProcessingDelegate : KoinComponent {
+
+		private val app: Application by inject(InjectionModule.appBean)
+		private val dao: BeaconDao by inject()
+		private val triggerProcessor: TriggerProcessor by inject()
+
+		fun execute(beaconKey: String): Result {
+
+			val result = processData(isBluetoothOn(),
+									 app.haveLocationProvider(),
+									 beaconKey,
+									 dao.getVisibleBeacon(beaconKey)?.timestamp,
+									 dao.getLastEventForBeacon(beaconKey))
+
+			result.event?.let { event ->
+				if (event.type == Trigger.Type.Enter) {
+					dao.addBeaconVisible(VisibleBeacons(beaconKey, System.currentTimeMillis()))
+				} else if (event.type == Trigger.Type.Exit) {
+					dao.removeBeaconVisible(VisibleBeacons(beaconKey, System.currentTimeMillis()))
+				}
+				triggerProcessor.process(Trigger.Beacon.getTriggerId(event.proximityUuid, event.major, event.minor, event.type), event.type)
+			}
+			result.deleteFromDbTimeStamp?.let { timestamp ->
+				dao.deleteEventForBeacon(beaconKey, timestamp)
+			}
+			Timber.d(result.msg)
+			return result.workerResult
 		}
 	}
 }

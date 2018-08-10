@@ -10,6 +10,7 @@ import com.google.android.gms.location.GeofencingEvent
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.TriggerProcessor
+import com.sensorberg.notifications.sdk.internal.async
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.storage.GeofenceDao
 import com.sensorberg.notifications.sdk.internal.work.GeofenceWork
@@ -70,10 +71,8 @@ class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
 	}
 
 	private fun processTrigger(triggerIds: List<String>, type: Trigger.Type) {
-		val pending = goAsync() // process this trigger asynchronously
-		executor.execute {
+		async(executor) {
 			triggerIds.forEach { triggerProcessor.process(it, type) }
-			pending.finish()
 		}
 	}
 

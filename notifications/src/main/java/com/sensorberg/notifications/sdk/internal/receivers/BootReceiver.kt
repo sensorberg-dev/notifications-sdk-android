@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
+import com.sensorberg.notifications.sdk.internal.async
 import com.sensorberg.notifications.sdk.internal.storage.GeofenceDao
 import com.sensorberg.notifications.sdk.internal.work.GeofenceWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
@@ -24,12 +25,10 @@ class BootReceiver : BroadcastReceiver(), KoinComponent {
 		if (!sdkEnableHandler.isEnabled()) return
 		if (Intent.ACTION_BOOT_COMPLETED == intent.action ||
 			"android.intent.action.QUICKBOOT_POWERON" == intent.action) {
-			Timber.i("On Boot received")
-			val pending = goAsync() // using async because of the DB operation
-			executor.execute {
+			Timber.i("On Boot received. $intent")
+			async(executor) {
 				dao.clearAllAndInstertNewRegisteredGeoFences(null)
 				workUtils.execute(GeofenceWork::class.java)
-				pending.finish()
 			}
 		}
 	}

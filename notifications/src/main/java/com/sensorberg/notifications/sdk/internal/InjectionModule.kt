@@ -3,7 +3,6 @@ package com.sensorberg.notifications.sdk.internal
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.android.gms.common.GoogleApiAvailability
 import com.sensorberg.notifications.sdk.BuildConfig
