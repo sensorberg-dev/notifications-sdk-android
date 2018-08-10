@@ -1,6 +1,9 @@
 package com.sensorberg.notifications.sdk.sample
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -10,7 +13,9 @@ import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.permissionbitte.BitteBitte
 import com.sensorberg.permissionbitte.PermissionBitte
 import timber.log.Timber
+import java.io.File
 import java.util.*
+import android.support.v4.content.FileProvider.getUriForFile
 
 class MainActivity : AppCompatActivity(), BitteBitte {
 
@@ -31,7 +36,7 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 	}
 
 	override fun yesYouCan() {
-		Toast.makeText(this, "Yey \uD83C\uDF89 !!!!", Toast.LENGTH_SHORT).show()
+
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +45,18 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 		PermissionBitte.ask(this, this)
 		notificationsSdk = (application as App).sdk
 		updateEnabledText()
+	}
+
+	fun onShareLogs(view: View) {
+		File(filesDir, "logs/").listFiles().toList().sortedBy { it.absolutePath }.lastOrNull()?.let {
+			val contentUri = getUriForFile(this, "com.sensorberg.notifications.sdk.sample.fileprovider", it)
+			val shareIntent: Intent = Intent().apply {
+				action = Intent.ACTION_SEND
+				putExtra(Intent.EXTRA_STREAM, contentUri)
+				type = "*/*"
+			}
+			startActivity(Intent.createChooser(shareIntent, "Share to:"))
+		}
 	}
 
 	fun onClickPrint(view: View) {
