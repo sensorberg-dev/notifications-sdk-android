@@ -84,6 +84,7 @@ interface NotificationsSdk {
 				NotificationsSdkImpl()
 			} else {
 				Timber.w("NotificationsSdk disabled. Android Version(${Build.VERSION.SDK_INT}). Google Play Services (${if (gpsAvailable) "" else "un"}available)")
+				SdkEnableHandler.setAllComponentsEnable(false, app)
 				EmptyImpl()
 			}
 		}

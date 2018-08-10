@@ -18,9 +18,15 @@
 	<uses-sdk tools:overrideLibrary="com.sensorberg.timberextensions"/>
 
 	<application>
-		<receiver android:name=".internal.receivers.BeaconReceiver"/>
-		<receiver android:name=".internal.receivers.GeofenceReceiver"/>
-		<receiver android:name=".internal.receivers.BootReceiver">
+		<receiver
+			android:name=".internal.receivers.BeaconReceiver"
+			android:enabled="false"/>
+		<receiver
+			android:name=".internal.receivers.GeofenceReceiver"
+			android:enabled="false"/>
+		<receiver
+			android:name=".internal.receivers.BootReceiver"
+			android:enabled="false">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED"/>
 				<action android:name="android.intent.action.QUICKBOOT_POWERON"/>

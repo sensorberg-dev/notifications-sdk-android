@@ -33,10 +33,20 @@ internal class SdkEnableHandler : KoinComponent {
 	private val executor: Executor by inject(InjectionModule.executorBean)
 
 	fun onNotificationSdkInit() {
+
+		// the SDK ships default all components to be disabled,
+		// the Builder also disable all in case of missing requirements
+		// here they get enabled again
+		if (isEnabled() && !isComponentsEnabled(app)) {
+			Timber.d("Enabling broadcast receivers")
+			setAllComponentsEnable(true, app)
+		}
+
 		// if we're migrating, but it's already enabled,
 		// all workers are executing and we don't have to do anything
 		// so we only call enableExecution if it's currently disabled
 		if (versionUpdate.shouldMigrateSetEnabled && !isEnabled()) {
+			Timber.d("Version update, enable execution")
 			enableExecution(false)
 		}
 	}
@@ -93,8 +103,17 @@ internal class SdkEnableHandler : KoinComponent {
 		private const val componentPackage = "com.sensorberg.notifications.sdk.internal.receivers."
 		private val components = listOf("BeaconReceiver", "GeofenceReceiver", "BootReceiver")
 
-		private fun setAllComponentsEnable(enabled: Boolean, context: Context) {
+		internal fun setAllComponentsEnable(enabled: Boolean, context: Context) {
 			components.forEach { setComponentEnable(enabled, context, "$componentPackage$it") }
+		}
+
+		internal fun isComponentsEnabled(context: Context): Boolean {
+			var isEnabled = true
+			components.forEach {
+				val component = ComponentName(context, it)
+				isEnabled = isEnabled && context.packageManager.getComponentEnabledSetting(component) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+			}
+			return isEnabled
 		}
 
 		private fun setComponentEnable(enabled: Boolean, context: Context, className: String) {
