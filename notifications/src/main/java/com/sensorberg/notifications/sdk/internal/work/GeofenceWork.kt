@@ -3,10 +3,9 @@ package com.sensorberg.notifications.sdk.internal.work
 import androidx.work.Worker
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.logStart
-import com.sensorberg.notifications.sdk.internal.registration.GeofenceRegistration
+import com.sensorberg.notifications.sdk.internal.work.delegate.GeofenceRegistration
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
-import timber.log.Timber
 
 internal class GeofenceWork : Worker(), KoinComponent {
 

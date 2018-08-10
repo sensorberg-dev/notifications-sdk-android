@@ -16,6 +16,7 @@ import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.storage.BeaconDao
 import com.sensorberg.notifications.sdk.internal.work.BeaconProcessingWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
+import com.sensorberg.notifications.sdk.internal.work.delegate.BeaconProcessingDelegate
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
@@ -57,7 +58,7 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 				// we can safely ignore here the return value,
 				// that's because RETRY only happens if location or bluetooth is off
 				// but we won't have an enter event if they're off
-				BeaconProcessingWork.BeaconProcessingDelegate().execute(beaconKey)
+				BeaconProcessingDelegate().execute(beaconKey)
 			} else {
 				workUtils.executeBeaconWork(beaconKey)
 			}

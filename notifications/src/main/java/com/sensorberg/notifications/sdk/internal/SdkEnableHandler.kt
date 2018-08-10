@@ -15,10 +15,11 @@ import com.google.android.gms.nearby.messages.MessagesOptions
 import com.google.android.gms.nearby.messages.NearbyPermissions
 import com.sensorberg.notifications.sdk.internal.receivers.BeaconReceiver
 import com.sensorberg.notifications.sdk.internal.receivers.GeofenceReceiver
-import com.sensorberg.notifications.sdk.internal.registration.RegistrationHelper
+import com.sensorberg.notifications.sdk.internal.work.delegate.RegistrationHelper
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.SyncWork
 import com.sensorberg.notifications.sdk.internal.work.UploadWork
+import com.sensorberg.notifications.sdk.internal.work.delegate.SyncDelegate
 import timber.log.Timber
 import java.util.concurrent.Executor
 
@@ -74,6 +75,11 @@ internal class SdkEnableHandler : KoinComponent {
 				setAllComponentsEnable(true, app) // enable the manifest stuff
 				if (app.haveLocationPermission()) {
 					Timber.i("SDK enabled, scheduling work execution")
+
+					// executes 1-off direct call to sync
+					// this ensures data is synced even if `schedule` doesn't start immediately
+					SyncDelegate().execute()
+
 					workUtils.schedule(SyncWork::class.java)
 					workUtils.schedule(UploadWork::class.java)
 				}

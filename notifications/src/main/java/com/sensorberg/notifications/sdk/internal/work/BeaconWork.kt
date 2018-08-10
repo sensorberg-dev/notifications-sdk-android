@@ -5,7 +5,7 @@ import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.logStart
 import com.sensorberg.notifications.sdk.internal.model.Trigger
-import com.sensorberg.notifications.sdk.internal.registration.BeaconRegistration
+import com.sensorberg.notifications.sdk.internal.work.delegate.BeaconRegistration
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
