@@ -25,4 +25,11 @@
 		android:onClick="onChangeAdId"
 		android:text="Change ad-id"/>
 
+	<Button
+		android:id="@+id/btn_enable"
+		android:layout_width="match_parent"
+		android:layout_height="60dp"
+		android:onClick="onEnabledChange"
+		android:text="Enable/Disable"/>
+
 </LinearLayout>

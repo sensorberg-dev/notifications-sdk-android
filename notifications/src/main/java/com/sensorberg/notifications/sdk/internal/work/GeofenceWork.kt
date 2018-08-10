@@ -1,13 +1,18 @@
 package com.sensorberg.notifications.sdk.internal.work
 
 import androidx.work.Worker
+import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.logStart
-import com.sensorberg.notifications.sdk.internal.registration.GeofenceRegistration
+import com.sensorberg.notifications.sdk.internal.work.delegate.GeofenceRegistration
 import org.koin.standalone.KoinComponent
-import timber.log.Timber
+import org.koin.standalone.inject
 
 internal class GeofenceWork : Worker(), KoinComponent {
+
+	private val sdkEnableHandler: SdkEnableHandler by inject()
+
 	override fun doWork(): Result {
+		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
 		logStart()
 		return if (GeofenceRegistration().execute() == Worker.Result.SUCCESS) {
 			Worker.Result.SUCCESS

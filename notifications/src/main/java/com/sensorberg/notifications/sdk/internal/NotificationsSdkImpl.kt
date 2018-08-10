@@ -32,6 +32,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 	private val moshi: Moshi by inject(InjectionModule.moshiBean)
 	private val workUtils: WorkUtils by inject()
 	private val dao: ActionDao by inject()
+	private val sdkEnableHandler: SdkEnableHandler by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)
 	private val mapAdapter: JsonAdapter<Map<String, String>> = moshi.adapter<Map<String, String>>(MAP_TYPE)
 
@@ -41,7 +42,11 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		prefs.getString(PREF_ATTR, null)?.let {
 			backend.setAttributes(mapAdapter.fromJson(it))
 		}
-		// await location
+
+		// check for enable/disable migration
+		sdkEnableHandler.onNotificationSdkInit()
+
+		// await location to register workers
 		awaitForLocationPermission()
 	}
 
@@ -49,13 +54,25 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 		Timber.i("Awaiting for location permission")
 		val callback = object : ActivityLifecycleCallbacksAdapter() {
 			override fun onActivityResumed(activity: Activity) {
+
+				// even if we're disabled, we still want to wait for location permission
+				// this covers the case that sdk gets enabled after initialisation
+
 				if (app.haveLocationPermission()) {
-					Timber.i("Location permission granted")
+
+					// unregister the SDK for activity lifecycle
 					app.unregisterActivityLifecycleCallbacks(this)
-					// workUtils.execute(SyncWork::class.java) // for testing only
-					// workUtils.execute(UploadWork::class.java) // for testing only
-					workUtils.schedule(SyncWork::class.java) //schedule SyncWork for periodic work
-					workUtils.schedule(UploadWork::class.java)
+
+					// if enabled perform initialisation
+					if (isEnabled()) {
+						Timber.i("Location permission granted")
+						// workUtils.execute(SyncWork::class.java) // for testing only
+						// workUtils.execute(UploadWork::class.java) // for testing only
+						workUtils.schedule(SyncWork::class.java)
+						workUtils.schedule(UploadWork::class.java)
+					} else {
+						Timber.d("Location permission granted, but SDK is disabled")
+					}
 				}
 			}
 		}
@@ -63,6 +80,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 	}
 
 	override fun setConversion(action: Action, conversion: Conversion) {
+		if (!isEnabled()) return
 		executor.execute {
 			dao.insertActionConversion(action.toActionConversion(conversion, app.getLastLocation()))
 		}
@@ -71,9 +89,12 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 	override fun setAdvertisementId(adId: String?) {
 		if (prefs.set(PREF_AD_ID, adId)) {
 			backend.setAdvertisementId(adId)
-			// ad-id changed and backend was already requested,
-			// re-request backend to reload data
-			workUtils.execute(SyncWork::class.java)
+
+			if (isEnabled()) {
+				// ad-id changed and backend was already requested,
+				// re-request backend to reload data
+				workUtils.execute(SyncWork::class.java)
+			}
 		}
 	}
 
@@ -89,18 +110,20 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 
 		if (prefs.set(PREF_ATTR, attrs)) {
 			backend.setAttributes(attributes)
-			// attributes changed and backend was already requested,
-			// re-request backend to reload data
-			workUtils.execute(SyncWork::class.java)
+			if (isEnabled()) {
+				// attributes changed and backend was already requested,
+				// re-request backend to reload data
+				workUtils.execute(SyncWork::class.java)
+			}
 		}
 	}
 
 	override fun setEnabled(enabled: Boolean) {
-		prefs.edit().putBoolean(PREF_ENABLED, enabled).apply()
+		sdkEnableHandler.setEnabled(enabled)
 	}
 
 	override fun isEnabled(): Boolean {
-		return prefs.getBoolean(PREF_ENABLED, true)
+		return sdkEnableHandler.isEnabled()
 	}
 
 	companion object {

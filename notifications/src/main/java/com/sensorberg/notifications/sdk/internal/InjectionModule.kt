@@ -3,9 +3,9 @@ package com.sensorberg.notifications.sdk.internal
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.android.gms.common.GoogleApiAvailability
+import com.sensorberg.notifications.sdk.BuildConfig
 import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.BackendSdkV2
@@ -41,11 +41,10 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 			bean(preferencesBean) { get<Application>(appBean).getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
 			bean { TriggerProcessor(get(), get(), get(), get(appBean)) }
 			bean { ActionLauncher(get(appBean), get(), get(preferencesBean)) }
-			bean {
-				WorkManager.initialize(app, Configuration.Builder().build())
-				WorkUtils(WorkManager.getInstance(), app, get(), get(preferencesBean))
-			}
+			bean { VersionUpdate.check(get(preferencesBean), BuildConfig.VERSION_NAME) }
+			bean { SdkEnableHandler() }
 			bean(googleApiAvailabilityBean) { GoogleApiAvailability.getInstance() }
+			bean { WorkUtils(WorkManager.getInstance(), app, get(), get(preferencesBean)) }
 			bean(moshiBean) {
 				Moshi.Builder()
 					.add(UuidObjectAdapter)

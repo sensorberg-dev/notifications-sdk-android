@@ -1,4 +1,4 @@
-package com.sensorberg.notifications.sdk.internal.registration
+package com.sensorberg.notifications.sdk.internal.work.delegate
 
 import android.annotation.SuppressLint
 import android.app.Application

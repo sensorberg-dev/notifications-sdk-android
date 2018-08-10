@@ -9,10 +9,14 @@ import com.google.android.gms.nearby.messages.IBeaconId
 import com.google.android.gms.nearby.messages.Message
 import com.google.android.gms.nearby.messages.MessageListener
 import com.sensorberg.notifications.sdk.internal.InjectionModule
+import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
+import com.sensorberg.notifications.sdk.internal.async
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.storage.BeaconDao
+import com.sensorberg.notifications.sdk.internal.work.BeaconProcessingWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
+import com.sensorberg.notifications.sdk.internal.work.delegate.BeaconProcessingDelegate
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
@@ -23,8 +27,10 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 	private val executor: Executor by inject(InjectionModule.executorBean)
 	private val dao: BeaconDao by inject()
 	private val workUtils: WorkUtils by inject()
+	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun onReceive(context: Context, intent: Intent) {
+		if (!sdkEnableHandler.isEnabled()) return
 		Nearby.getMessagesClient(context).handleIntent(intent, object : MessageListener() {
 			override fun onFound(message: Message) {
 				getBeacon(message)?.let {
@@ -43,11 +49,19 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 	}
 
 	private fun enqueueEvent(beacon: IBeaconId, timestamp: Long, type: Trigger.Type) {
-		val pending = goAsync() // process this trigger asynchronously
-		executor.execute {
+		async(executor) {
 			dao.addBeaconEvent(BeaconEvent.generateEvent(beacon, timestamp, type))
-			workUtils.executeBeaconWorkFor(BeaconEvent.generateKey(beacon), type)
-			pending.finish()
+			val beaconKey = BeaconEvent.generateKey(beacon)
+			if (type == Trigger.Type.Enter) {
+				// cancel if there's an awaiting exit event to be processed
+				workUtils.cancelBeaconWork(beaconKey)
+				// we can safely ignore here the return value,
+				// that's because RETRY only happens if location or bluetooth is off
+				// but we won't have an enter event if they're off
+				BeaconProcessingDelegate().execute(beaconKey)
+			} else {
+				workUtils.executeBeaconWork(beaconKey)
+			}
 		}
 	}
 

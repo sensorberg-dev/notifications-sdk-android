@@ -24,12 +24,6 @@ internal class ActionLauncher(private val app: Application,
 		val history: ActionHistory = action.toActionHistory(type, app.getLastLocation())
 		dao.insertActionHistory(history)
 
-		if (!prefs.getBoolean(NotificationsSdkImpl.PREF_ENABLED, true)) {
-			dao.insertActionConversion(action.toActionConversion(Conversion.NotificationDisabled, app.getLastLocation()))
-			Timber.d("Action won't be launched. Notifications SDK is disabled")
-			return
-		}
-
 		Timber.d("action received to launch with ActionLauncher: $action")
 
 		val queryResult = app.packageManager.queryBroadcastReceivers(newIntent(app), 0)

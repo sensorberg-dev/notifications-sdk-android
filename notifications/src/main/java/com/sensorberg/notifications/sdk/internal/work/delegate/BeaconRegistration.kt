@@ -1,4 +1,4 @@
-package com.sensorberg.notifications.sdk.internal.registration
+package com.sensorberg.notifications.sdk.internal.work.delegate
 
 import android.app.Application
 import androidx.work.Worker

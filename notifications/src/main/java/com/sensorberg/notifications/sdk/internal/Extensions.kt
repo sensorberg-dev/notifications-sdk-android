@@ -3,6 +3,7 @@ package com.sensorberg.notifications.sdk.internal
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -15,6 +16,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.sensorberg.notifications.sdk.Action
 import timber.log.Timber
+import java.util.concurrent.Executor
 
 internal fun Application.haveLocationPermission(): Boolean {
 	return checkPermission(
@@ -83,4 +85,16 @@ internal fun Worker.logStart() {
 internal fun Worker.logResult(result: Worker.Result): Worker.Result {
 	Timber.i("${javaClass.simpleName} workerResult $result")
 	return result
+}
+
+internal fun BroadcastReceiver.async(executor: Executor, run: () -> Unit) {
+	val pending = goAsync()
+	executor.execute {
+		try {
+			run.invoke()
+		} finally {
+			pending.finish()
+		}
+	}
+
 }

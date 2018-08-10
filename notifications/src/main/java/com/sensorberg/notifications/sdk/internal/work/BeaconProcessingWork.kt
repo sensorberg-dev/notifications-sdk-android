@@ -1,58 +1,30 @@
 package com.sensorberg.notifications.sdk.internal.work
 
-import android.app.Application
-import android.bluetooth.BluetoothAdapter
 import androidx.work.Worker
-import com.sensorberg.notifications.sdk.internal.*
+import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
+import com.sensorberg.notifications.sdk.internal.logResult
+import com.sensorberg.notifications.sdk.internal.logStart
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.Trigger
-import com.sensorberg.notifications.sdk.internal.model.VisibleBeacons
-import com.sensorberg.notifications.sdk.internal.storage.BeaconDao
+import com.sensorberg.notifications.sdk.internal.work.delegate.BeaconProcessingDelegate
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
-import timber.log.Timber
 
 internal class BeaconProcessingWork : Worker(), KoinComponent {
 
-	private val app: Application by inject(InjectionModule.appBean)
-	private val dao: BeaconDao by inject()
-	private val triggerProcessor: TriggerProcessor by inject()
+	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun doWork(): Result {
-
+		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
 		logStart()
-
 		val beaconKey = getBeaconKey()
-
-		val result = processData(isBluetoothOn(),
-								 app.haveLocationProvider(),
-								 beaconKey,
-								 dao.getVisibleBeacon(beaconKey)?.timestamp,
-								 dao.getLastEventForBeacon(beaconKey))
-
-		result.event?.let { event ->
-			if (event.type == Trigger.Type.Enter) {
-				dao.addBeaconVisible(VisibleBeacons(beaconKey, System.currentTimeMillis()))
-			} else if (event.type == Trigger.Type.Exit) {
-				dao.removeBeaconVisible(VisibleBeacons(beaconKey, System.currentTimeMillis()))
-			}
-			triggerProcessor.process(Trigger.Beacon.getTriggerId(event.proximityUuid, event.major, event.minor, event.type), event.type)
-		}
-		result.deleteFromDbTimeStamp?.let { timestamp ->
-			dao.deleteEventForBeacon(beaconKey, timestamp)
-		}
-		Timber.d(result.msg)
-		return logResult(result.workerResult)
+		val result = BeaconProcessingDelegate().execute(beaconKey)
+		return logResult(result)
 	}
 
 	companion object {
 
 		private const val ENTER_EVENT_TIMEOUT = 24 * 60 * 60 * 1000L
-
-		private fun isBluetoothOn(): Boolean {
-			val adapter = BluetoothAdapter.getDefaultAdapter()
-			return adapter?.isEnabled ?: false
-		}
 
 		internal data class ProcessResult(val workerResult: Worker.Result,
 										  val event: BeaconEvent?,
