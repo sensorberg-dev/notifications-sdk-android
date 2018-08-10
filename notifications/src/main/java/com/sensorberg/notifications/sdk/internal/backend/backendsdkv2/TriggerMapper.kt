@@ -89,7 +89,7 @@ internal class TriggerMapper(private val callback: Backend.NotificationTriggers)
 						   action.content?.url,
 						   action.content?.payload?.toString(),
 						   action.reportImmediately == true,
-						   action.delay ?: 0,
+						   if (action.delay == null) 0 else action.delay * 1000,
 						   action.deliverAt ?: 0,
 						   if (action.suppressionTime == null) DEFAULT_SUPPRESSION_TIME else action.suppressionTime * 1000,
 						   if (action.sendOnlyOnce == true) 1 else 0,

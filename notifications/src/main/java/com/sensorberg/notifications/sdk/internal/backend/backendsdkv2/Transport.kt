@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 
 internal object Transport {
 
-	private const val CONNECTION_TIMEOUT = 12 //seconds
+	private const val CONNECTION_TIMEOUT = 30 //seconds
 	private const val HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024L * 1024L //10MB
 	internal const val HEADER_INSTALLATION_IDENTIFIER = "X-iid"
 	internal const val HEADER_ADVERTISER_IDENTIFIER = "X-aid"
