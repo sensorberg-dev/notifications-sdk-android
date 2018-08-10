@@ -10,6 +10,12 @@
 	<Button
 		android:layout_width="match_parent"
 		android:layout_height="60dp"
+		android:onClick="onShareLogs"
+		android:text="Share Logs"/>
+
+	<Button
+		android:layout_width="match_parent"
+		android:layout_height="60dp"
 		android:onClick="onClickPrint"
 		android:text="Print Worker states"/>
 
