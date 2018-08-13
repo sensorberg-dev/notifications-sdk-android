@@ -66,10 +66,8 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 					// if enabled perform initialisation
 					if (isEnabled()) {
 						Timber.i("Location permission granted")
-						// workUtils.execute(SyncWork::class.java) // for testing only
-						// workUtils.execute(UploadWork::class.java) // for testing only
-						workUtils.schedule(SyncWork::class.java)
-						workUtils.schedule(UploadWork::class.java)
+						workUtils.executeAndSchedule(SyncWork::class.java)
+						workUtils.executeAndSchedule(UploadWork::class.java)
 					} else {
 						Timber.d("Location permission granted, but SDK is disabled")
 					}
@@ -93,7 +91,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 			if (isEnabled()) {
 				// ad-id changed and backend was already requested,
 				// re-request backend to reload data
-				workUtils.execute(SyncWork::class.java)
+				workUtils.executeAndSchedule(SyncWork::class.java)
 			}
 		}
 	}
@@ -113,7 +111,7 @@ internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
 			if (isEnabled()) {
 				// attributes changed and backend was already requested,
 				// re-request backend to reload data
-				workUtils.execute(SyncWork::class.java)
+				workUtils.executeAndSchedule(SyncWork::class.java)
 			}
 		}
 	}

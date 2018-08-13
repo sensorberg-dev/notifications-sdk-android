@@ -22,7 +22,7 @@ internal class FireActionWork : Worker(), KoinComponent {
 		val reportImmediate = isReportImmediate()
 		actionLauncher.launchAction(action, triggerType)
 		if (reportImmediate) {
-			workUtils.execute(UploadWork::class.java)
+			workUtils.executeAndSchedule(UploadWork::class.java)
 		}
 		return Result.SUCCESS
 	}

@@ -26,15 +26,21 @@ Action and the mapping contains an `backendMeta` value to allow backend implemen
 
 Utility class to access the WorkManager.
 
-- schedule() schedule a work for 24 hours sync
+- executeAndSchedule() immediately executes a work and after success schedule it for periodic sync
+- schedule() schedule a work for periodic sync
 - execute() immediately executes a work
 - sendDelayedAction() executes FireActionWork after delay
 - executeBeaconWorkFor() executes with delay execution of BeaconWork
 
 #### Available works
 
+##### execute and schedule with network constrain
+
 - SyncWork: synchronizes the backend data with local storage and register triggers (BroadcastReceiver)
 - UploadWork: publishes user action history and conversion to the backend
+
+##### execute directly without network constrain
+
 - FireActionWork: fire action instance to the user, used for delayed actions
 - BeaconProcessingWork: delayed processing and queued beacon events
 - GeofenceWork: registers geofences
@@ -46,8 +52,8 @@ Entry class of the SDK. Should be a singleton initialized during `Application.on
 
 - On init, sets backend related data
 - Awaits for application to be in foreground and to have location permission
-- schedule SyncWork UploadWork
-- upon data change (adId or attributes), re-execute SyncWork
+- execute/schedule SyncWork UploadWork
+- upon data change (adId or attributes), re-execute/schedule SyncWork
 
 ### Triggers
 
@@ -62,3 +68,10 @@ Entry class of the SDK. Should be a singleton initialized during `Application.on
 - if(delayed) schedule execution;
 - else instantiate an Action and sends to host app
 - if(immediate) starts execution of UploadWord
+
+### SdkEnableHandler
+
+Delegate to the SDK impl for setEnable/isEnabled methods
+
+- on enable make sure receivers are enabled, and work is scheduled
+- on disable disable receivers, cancel the works, clear database and unregister from Google Play Services

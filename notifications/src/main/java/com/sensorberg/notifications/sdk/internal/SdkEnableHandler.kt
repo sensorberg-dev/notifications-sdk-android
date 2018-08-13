@@ -75,12 +75,7 @@ internal class SdkEnableHandler : KoinComponent {
 				setAllComponentsEnable(true, app) // enable the manifest stuff
 				if (app.haveLocationPermission()) {
 					Timber.i("SDK enabled, scheduling work execution")
-
-					// executes 1-off direct call to sync
-					// this ensures data is synced even if `schedule` doesn't start immediately
-					SyncDelegate().execute()
-
-					workUtils.schedule(SyncWork::class.java)
+					workUtils.executeAndSchedule(SyncWork::class.java)
 					workUtils.schedule(UploadWork::class.java)
 				}
 			} else {

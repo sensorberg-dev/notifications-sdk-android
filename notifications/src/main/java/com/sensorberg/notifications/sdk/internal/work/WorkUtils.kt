@@ -4,13 +4,13 @@ import android.app.Application
 import android.content.SharedPreferences
 import androidx.work.*
 import com.sensorberg.notifications.sdk.Action
-import com.sensorberg.notifications.sdk.BuildConfig
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
 import com.sensorberg.notifications.sdk.internal.isGooglePlayServicesAvailable
 import com.sensorberg.notifications.sdk.internal.model.Trigger
-import com.sensorberg.notifications.sdk.internal.set
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.inject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -67,39 +67,42 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 				.build()
 		}
 
-		val request = createExecuteRequest(klazz, data)
+		val request = createExecuteRequest(klazz, false, data)
 		Timber.d("Enqueueing for immediate execution of ${klazz.simpleName}")
-		workManager.beginUniqueWork(klazz.canonicalName, ExistingWorkPolicy.REPLACE, request).enqueue()
+		workManager.beginUniqueWork("execute_${klazz.canonicalName}", ExistingWorkPolicy.REPLACE, request).enqueue()
 	}
 
-	private fun createExecuteRequest(klazz: Class<out Worker>, data: Data?): OneTimeWorkRequest {
+	private fun createExecuteRequest(klazz: Class<out Worker>, needsNetwork: Boolean, data: Data?): OneTimeWorkRequest {
 		return OneTimeWorkRequest.Builder(klazz)
-			.setConstraints(getConstraints())
+			.setConstraints(if (needsNetwork) getConstraints() else Constraints.NONE)
 			.apply { data?.let { setInputData(data) } }
 			.addTag(WORKER_TAG) //only to get the workers states later
 			.build()
+	}
+
+	fun executeAndSchedule(klazz: Class<out Worker>) {
+		if (!app.isGooglePlayServicesAvailable() || !app.haveLocationPermission()) {
+			return
+		}
+		Timber.d("Enqueueing for immediate execution of ${klazz.simpleName} and then schedule for periodic")
+		workManager
+			.beginUniqueWork(klazz.canonicalName, ExistingWorkPolicy.REPLACE, createExecuteRequest(klazz, true, null))
+			.then(reschedule(klazz))
+			.enqueue()
 	}
 
 	fun schedule(klazz: Class<out Worker>) {
 		if (!app.isGooglePlayServicesAvailable() || !app.haveLocationPermission()) {
 			return
 		}
-
 		val request = createScheduleRequest(klazz)
-
 		Timber.d("Enqueueing periodic sync of ${klazz.simpleName} with id: ${request.id}")
-		val policy = if (prefs.set("sdkVersion_${klazz.canonicalName}", BuildConfig.VERSION_NAME)) {
-			// if new SDK version, replace previous work
-			ExistingPeriodicWorkPolicy.REPLACE
-		} else {
-			ExistingPeriodicWorkPolicy.KEEP
-		}
-		workManager.enqueueUniquePeriodicWork(klazz.canonicalName, policy, request)
+		workManager.enqueueUniquePeriodicWork(klazz.canonicalName, ExistingPeriodicWorkPolicy.REPLACE, request)
 	}
 
 	private fun createScheduleRequest(klazz: Class<out Worker>): PeriodicWorkRequest {
 		return PeriodicWorkRequest
-			.Builder(klazz, 8, TimeUnit.HOURS)
+			.Builder(klazz, 12, TimeUnit.HOURS, 4, TimeUnit.HOURS)
 			.addTag(WORKER_TAG) //only to get the workers states later
 			.setConstraints(getConstraints())
 			.build()
@@ -109,6 +112,25 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 		return Constraints.Builder()
 			.setRequiredNetworkType(NetworkType.CONNECTED)
 			.build()
+	}
+
+	private fun reschedule(klazz: Class<out Worker>): OneTimeWorkRequest {
+		return OneTimeWorkRequest
+			.Builder(Rescheduler::class.java)
+			.setConstraints(Constraints.NONE)
+			.setInputData(Data.Builder().putString("klazz", klazz.canonicalName).build())
+			.addTag(WORKER_TAG)
+			.build()
+	}
+
+	class Rescheduler : Worker(), KoinComponent {
+
+		private val workUtils: WorkUtils by inject()
+		override fun doWork(): Result {
+			val className = inputData.getString("klazz")!!
+			workUtils.schedule(Class.forName(className) as Class<out Worker>)
+			return Result.SUCCESS
+		}
 	}
 
 	fun disableAll() {
