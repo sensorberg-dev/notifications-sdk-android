@@ -33,7 +33,7 @@ internal class TriggerProcessor(private val dao: ActionDao,
 		}
 
 		if (reportImmediate) {
-			workUtils.execute(UploadWork::class.java)
+			workUtils.executeAndSchedule(UploadWork::class.java)
 		}
 	}
 

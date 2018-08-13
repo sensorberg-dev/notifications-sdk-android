@@ -26,8 +26,8 @@ class App : Application() {
 
 		sdk = NotificationsSdk.with(this)
 			.enableHttpLogs()
-			.setApiKey(KEY_PORTAL)
-			.setBaseUrl(PORTAL_CDN)
+			.setApiKey(KEY)
+			.setBaseUrl(STAGING)
 			.build()
 
 	}
