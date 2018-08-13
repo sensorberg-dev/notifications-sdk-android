@@ -24,7 +24,9 @@ internal abstract class ActionDao {
 
 	@Query("SELECT table_action.*, table_trigger_action_map.triggerBackendMeta FROM table_action " +
 		   "INNER JOIN table_trigger_action_map ON table_trigger_action_map.actionId = table_action.id " +
-		   "WHERE table_action.id IN (SELECT actionId FROM table_trigger_action_map WHERE (triggerId = :triggerId AND type IN (:types))) AND (deliverAt = 0 OR deliverAt > :now)")
+		   "WHERE (table_trigger_action_map.triggerId = :triggerId) " +
+		   "AND (table_trigger_action_map.type IN (:types)) " +
+		   "AND (table_action.deliverAt = 0 OR table_action.deliverAt > :now)")
 	abstract fun getActionsForTrigger(triggerId: String, now: Long, vararg types: Trigger.Type): List<ActionQueryModel>
 
 	@Query("SELECT * FROM table_statistics WHERE actionId = :actionId")
