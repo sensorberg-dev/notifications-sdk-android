@@ -9,12 +9,21 @@ import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class DatabaseTests {
+
+	companion object {
+		// this repeat value is only used to profile execution time
+		// do not commit to git with a value different than 1
+		const val REPEAT = 1
+	}
+
+	@get:Rule val repeatRule = RepeatTest.RepeatRule()
 
 	private val random = Random()
 	private var actionDao: ActionDao? = null
@@ -33,7 +42,7 @@ class DatabaseTests {
 		database!!.close()
 	}
 
-	@Test
+	@Test @RepeatTest.Repeat(REPEAT)
 	fun findActionForEnterTrigger() {
 		val dao = actionDao!!
 
@@ -45,7 +54,7 @@ class DatabaseTests {
 
 	}
 
-	@Test
+	@Test @RepeatTest.Repeat(REPEAT)
 	fun findActionForExitTrigger() {
 		val dao = actionDao!!
 
@@ -57,7 +66,7 @@ class DatabaseTests {
 
 	}
 
-	@Test
+	@Test @RepeatTest.Repeat(REPEAT)
 	fun findActionForEnterOrExitTrigger() {
 		val dao = actionDao!!
 
@@ -69,7 +78,7 @@ class DatabaseTests {
 
 	}
 
-	@Test
+	@Test @RepeatTest.Repeat(REPEAT)
 	fun dontFindActionForOppositeTrigger() {
 		val dao = actionDao!!
 
@@ -79,7 +88,7 @@ class DatabaseTests {
 		assertEquals(0, query.size)
 	}
 
-	@Test
+	@Test @RepeatTest.Repeat(REPEAT)
 	fun dontFindActionForOppositeTrigger2() {
 		val dao = actionDao!!
 
@@ -89,7 +98,7 @@ class DatabaseTests {
 		assertEquals(0, query.size)
 	}
 
-	@Test
+	@Test @RepeatTest.Repeat(REPEAT)
 	fun findMultipleTriggersForSameAction() {
 		val dao = actionDao!!
 
@@ -123,7 +132,7 @@ class DatabaseTests {
 
 	}
 
-	@Test
+	@Test @RepeatTest.Repeat(REPEAT)
 	fun findMultipleActionsForSameTrigger() {
 		val dao = actionDao!!
 
@@ -160,9 +169,96 @@ class DatabaseTests {
 		assertEquals(1, query.size)
 	}
 
-	private fun fillDb(type: Trigger.Type): Pair<String, String> {
+	@Test @RepeatTest.Repeat(REPEAT)
+	fun findMultipleActionsForMultipleTrigger() {
+
+		// 5 triggers
+		val t1 = Trigger.Beacon(uuid(), -1, -2, Trigger.Type.Enter)
+		val t2 = Trigger.Beacon(uuid(), -1, -3, Trigger.Type.Exit)
+		val t3 = Trigger.Beacon(uuid(), -1, -4, Trigger.Type.Enter)
+		val t4 = Trigger.Beacon(uuid(), -1, -5, Trigger.Type.Exit)
+		val t5 = Trigger.Beacon(uuid(), -1, -6, Trigger.Type.EnterOrExit)
+		val testTriggers = listOf(t1, t2, t3, t4, t5)
+
+		// 5 actions
+		val a1 = newAction()
+		val a2 = newAction()
+		val a3 = newAction()
+		val a4 = newAction()
+		val a5 = newAction()
+		val testActions = listOf(a1, a2, a3, a4, a5)
+
+		// all actions have all triggers
+		val timePeriods = mutableListOf<TimePeriod>()
+		val mappings = mutableListOf<TriggerActionMap>()
+		for (action in testActions) {
+			timePeriods.add(TimePeriod(0, action.id, 0, Long.MAX_VALUE))
+			for (trigger in testTriggers) {
+				mappings.add(TriggerActionMap(0, trigger.getTriggerId(), trigger.type, action.id, null))
+			}
+		}
+
+		val actions = mutableListOf<ActionModel>()
+		actions.addAll(testActions)
+
+		// add a bunch or random stuff just to have stuff on DB
+		for (i in 1..90) {
+			val a = newAction()
+			actions.add(a)
+			mappings.add(TriggerActionMap(0, string(), if (random.nextBoolean()) Trigger.Type.Enter else Trigger.Type.Exit, a.id, null))
+			timePeriods.add(TimePeriod(0, a.id, 0, Long.MAX_VALUE))
+		}
+
+		// add all to DB
+		database!!.insertData(timePeriods, actions, mappings, listOf())
 
 		val dao = actionDao!!
+		assertEquals(5, dao.getActionsForTrigger(t1.getTriggerId(), 1, Trigger.Type.Enter, Trigger.Type.EnterOrExit).size)
+		assertEquals(0, dao.getActionsForTrigger(t2.getTriggerId(), 1, Trigger.Type.Enter, Trigger.Type.EnterOrExit).size)
+		assertEquals(5, dao.getActionsForTrigger(t3.getTriggerId(), 1, Trigger.Type.Enter, Trigger.Type.EnterOrExit).size)
+		assertEquals(0, dao.getActionsForTrigger(t4.getTriggerId(), 1, Trigger.Type.Enter, Trigger.Type.EnterOrExit).size)
+		assertEquals(5, dao.getActionsForTrigger(t5.getTriggerId(), 1, Trigger.Type.Enter, Trigger.Type.EnterOrExit).size)
+
+		assertEquals(0, dao.getActionsForTrigger(t1.getTriggerId(), 1, Trigger.Type.Exit, Trigger.Type.EnterOrExit).size)
+		assertEquals(5, dao.getActionsForTrigger(t2.getTriggerId(), 1, Trigger.Type.Exit, Trigger.Type.EnterOrExit).size)
+		assertEquals(0, dao.getActionsForTrigger(t3.getTriggerId(), 1, Trigger.Type.Exit, Trigger.Type.EnterOrExit).size)
+		assertEquals(5, dao.getActionsForTrigger(t4.getTriggerId(), 1, Trigger.Type.Exit, Trigger.Type.EnterOrExit).size)
+		assertEquals(5, dao.getActionsForTrigger(t5.getTriggerId(), 1, Trigger.Type.Exit, Trigger.Type.EnterOrExit).size)
+
+	}
+
+	@Test @RepeatTest.Repeat(REPEAT)
+	fun actions_that_deliver_at_is_have_passed_shouldnt_trigger() {
+		val timePeriods = mutableListOf<TimePeriod>()
+		val mappings = mutableListOf<TriggerActionMap>()
+		val actions = mutableListOf<ActionModel>()
+
+		val action = newAction().copy(deliverAt = 100)
+		val trigger = Trigger.Beacon(uuid(), -1, -2, Trigger.Type.Enter)
+
+		actions.add(action)
+		mappings.add(TriggerActionMap(0, trigger.getTriggerId(), Trigger.Type.Enter, action.id, null))
+		timePeriods.add(TimePeriod(0, action.id, 0, Long.MAX_VALUE))
+
+		// add a bunch or random stuff just to have stuff on DB
+		val random = Random()
+		for (i in 1..90) {
+			val a = newAction()
+			actions.add(a)
+			mappings.add(TriggerActionMap(0, string(), if (random.nextBoolean()) Trigger.Type.Enter else Trigger.Type.Exit, a.id, null))
+			timePeriods.add(TimePeriod(0, a.id, 0, Long.MAX_VALUE))
+		}
+
+		database!!.insertData(timePeriods, actions, mappings, listOf())
+
+		val dao = actionDao!!
+		val passQuery = dao.getActionsForTrigger(trigger.getTriggerId(), 10, Trigger.Type.Enter, Trigger.Type.EnterOrExit)
+		assertEquals(1, passQuery.size)
+		assertEquals(action.id, passQuery[0].id)
+		assertEquals(0, dao.getActionsForTrigger(trigger.getTriggerId(), 200, Trigger.Type.Enter, Trigger.Type.EnterOrExit).size)
+	}
+
+	private fun fillDb(type: Trigger.Type): Pair<String, String> {
 
 		val action = newAction()
 		val trigger = Trigger.Beacon(uuid(), -1, -2, Trigger.Type.EnterOrExit)
@@ -199,10 +295,6 @@ class DatabaseTests {
 						   0,
 						   0,
 						   false)
-	}
-
-	private fun short(): Short {
-		return random.nextInt(Short.MAX_VALUE.toInt()).toShort()
 	}
 
 	private fun uuid(): UUID {
