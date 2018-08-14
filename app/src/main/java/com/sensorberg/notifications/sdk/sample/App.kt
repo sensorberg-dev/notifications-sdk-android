@@ -24,12 +24,16 @@ class App : Application() {
 		getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE)
 			.registerOnSharedPreferenceChangeListener(preferencesChange)
 
-		sdk = NotificationsSdk.with(this)
-			.enableHttpLogs()
-			.setApiKey(KEY)
-			.setBaseUrl(STAGING)
-			.build()
-
+		sdk = NotificationsSdk.with(this).run {
+			return@run if (true) {
+				enableHttpLogs()
+				setApiKey(KEY)
+				setBaseUrl(STAGING)
+				build()
+			} else { // use this to manual test the empty() SDK
+				empty()
+			}
+		}
 	}
 
 	companion object {
