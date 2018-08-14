@@ -134,7 +134,7 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 	}
 
 	fun disableAll() {
-		workManager.cancelAllWorkByTag(WORKER_TAG)
+		disableAlLWorkers()
 	}
 
 	companion object {
@@ -148,6 +148,10 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 
 		fun createAction(moshi: Moshi): JsonAdapter<Action> {
 			return moshi.adapter<Action>(Action::class.java)
+		}
+
+		fun disableAlLWorkers() {
+			WorkManager.getInstance().cancelAllWorkByTag(WORKER_TAG)
 		}
 	}
 }

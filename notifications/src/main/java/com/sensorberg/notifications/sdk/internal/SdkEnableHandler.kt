@@ -83,26 +83,26 @@ internal class SdkEnableHandler : KoinComponent {
 				workUtils.disableAll() // disable the workers
 				setAllComponentsEnable(false, app) // disable the manifest stuff
 				sdkDatabase.clearAllTables() // clear the data
-				unregisterFromGooglePlayServices() // unregister from Google Play
+				unregisterFromGooglePlayServices(app) // unregister from Google Play
 			}
 		}
-	}
-
-	private fun unregisterFromGooglePlayServices() {
-		val nearby = Nearby.getMessagesClient(app, MessagesOptions.Builder()
-			.setPermissions(NearbyPermissions.BLE)
-			.build())
-		val geofence = GeofencingClient(app)
-		val task = googleApi.checkApiAvailability(nearby, geofence)
-			.onSuccessTask { nearby.unsubscribe(BeaconReceiver.generatePendingIntent(app)) }
-			.onSuccessTask { geofence.removeGeofences(GeofenceReceiver.generatePendingIntent(app)) }
-		RegistrationHelper.awaitResult("SdkDisabled", 30, task)
 	}
 
 	companion object {
 
 		private const val componentPackage = "com.sensorberg.notifications.sdk.internal.receivers."
 		private val components = listOf("BeaconReceiver", "GeofenceReceiver", "BootReceiver")
+
+		internal fun unregisterFromGooglePlayServices(app: Application) {
+			val nearby = Nearby.getMessagesClient(app, MessagesOptions.Builder()
+				.setPermissions(NearbyPermissions.BLE)
+				.build())
+			val geofence = GeofencingClient(app)
+			val task = GoogleApiAvailability.getInstance().checkApiAvailability(nearby, geofence)
+				.onSuccessTask { nearby.unsubscribe(BeaconReceiver.generatePendingIntent(app)) }
+				.onSuccessTask { geofence.removeGeofences(GeofenceReceiver.generatePendingIntent(app)) }
+			RegistrationHelper.awaitResult("SdkDisabled", 30, task)
+		}
 
 		internal fun setAllComponentsEnable(enabled: Boolean, context: Context) {
 			components.forEach { setComponentEnable(enabled, context, "$componentPackage$it") }

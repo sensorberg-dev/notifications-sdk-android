@@ -7,6 +7,7 @@ import android.os.Build
 import android.webkit.URLUtil
 import androidx.work.WorkManager
 import com.sensorberg.notifications.sdk.internal.*
+import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import org.koin.standalone.StandAloneContext
 import timber.log.Timber
@@ -66,6 +67,20 @@ interface NotificationsSdk {
 		fun setBaseUrl(baseUrl: String): NotificationsSdk.Builder {
 			this.baseUrl = baseUrl
 			return this
+		}
+
+		fun empty(): NotificationsSdk {
+			Timber.w("Returning empty NotificationsSdk as requested by the host app")
+			Thread {
+				Timber.v("Empty NotificationsSdk is making sure everything is cleared")
+				WorkUtils.disableAlLWorkers()
+				SdkEnableHandler.setAllComponentsEnable(false, app)
+				SdkEnableHandler.unregisterFromGooglePlayServices(app)
+				val database = SdkDatabase.createDatabase(app)
+				database.clearAllTables()
+				database.close()
+			}.start()
+			return EmptyImpl()
 		}
 
 		fun build(): NotificationsSdk {
