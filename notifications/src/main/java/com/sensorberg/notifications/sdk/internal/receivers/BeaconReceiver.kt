@@ -78,9 +78,14 @@ class BeaconReceiver : BroadcastReceiver(), KoinComponent {
 			}
 		}
 
-		fun generatePendingIntent(context: Context): PendingIntent {
+		fun generateSubscribePendingIntent(context: Context): PendingIntent {
 			val intent = Intent(context, BeaconReceiver::class.java)
 			return PendingIntent.getBroadcast(context, BEACON_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+		}
+
+		fun generateUnsubscribePendingIntent(context: Context): PendingIntent {
+			val intent = Intent(context, BeaconReceiver::class.java)
+			return PendingIntent.getBroadcast(context, BEACON_REQUEST_CODE, intent, 0)
 		}
 	}
 }

@@ -99,7 +99,7 @@ internal class SdkEnableHandler : KoinComponent {
 				.build())
 			val geofence = GeofencingClient(app)
 			val task = GoogleApiAvailability.getInstance().checkApiAvailability(nearby, geofence)
-				.onSuccessTask { nearby.unsubscribe(BeaconReceiver.generatePendingIntent(app)) }
+				.onSuccessTask { nearby.unsubscribe(BeaconReceiver.generateUnsubscribePendingIntent(app)) }
 				.onSuccessTask { geofence.removeGeofences(GeofenceReceiver.generatePendingIntent(app)) }
 			RegistrationHelper.awaitResult("SdkDisabled", 30, task)
 		}
