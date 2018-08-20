@@ -34,7 +34,7 @@ internal class BeaconRegistration : KoinComponent {
 
 		val task = apis
 			.checkApiAvailability(nearby)
-			.onSuccessTask { nearby.unsubscribe(BeaconReceiver.generatePendingIntent(app)) }
+			.onSuccessTask { nearby.unsubscribe(BeaconReceiver.generateUnsubscribePendingIntent(app)) }
 			.onSuccessTask {
 				return@onSuccessTask if (beacons.isEmpty()) {
 					// if beacons is empty, I don't have to register anything,
@@ -50,7 +50,7 @@ internal class BeaconRegistration : KoinComponent {
 						.setFilter(messageFilter.build())
 						.build()
 
-					nearby.subscribe(BeaconReceiver.generatePendingIntent(app), options)
+					nearby.subscribe(BeaconReceiver.generateSubscribePendingIntent(app), options)
 				}
 			}
 		return RegistrationHelper.awaitResult("Beacon", 30, task)
