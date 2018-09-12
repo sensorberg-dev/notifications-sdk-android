@@ -44,6 +44,7 @@ dependencies {
 	implementation (name:'work-runtime-ktx-1.0.0', ext:'aar')
 	implementation (name:'work-runtime-1.0.0', ext:'aar')
 	implementation (name:'work-firebase-1.0.0', ext:'aar')
+	implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
 	implementation "android.arch.lifecycle:livedata:$arch_lifecycle_version"
 	implementation "android.arch.lifecycle:extensions:$arch_lifecycle_version"
 
