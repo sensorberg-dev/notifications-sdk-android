@@ -41,9 +41,12 @@ dependencies {
 
 	implementation "com.google.android.gms:play-services-nearby:$google_play_version"
 	implementation "com.google.android.gms:play-services-location:$google_play_version"
-
-	implementation "android.arch.work:work-runtime-ktx:$work_manager_version"
-	implementation "android.arch.work:work-firebase:$work_manager_version"
+	implementation (name:'work-runtime-ktx-1.0.0', ext:'aar')
+	implementation (name:'work-runtime-1.0.0', ext:'aar')
+	implementation (name:'work-firebase-1.0.0', ext:'aar')
+	implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
+	implementation "android.arch.lifecycle:livedata:$arch_lifecycle_version"
+	implementation "android.arch.lifecycle:extensions:$arch_lifecycle_version"
 
 	// storage
 	api "android.arch.persistence.room:runtime:$room_version"
