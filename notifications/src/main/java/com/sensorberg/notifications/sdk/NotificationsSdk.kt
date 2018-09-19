@@ -9,7 +9,7 @@ import androidx.work.WorkManager
 import com.sensorberg.notifications.sdk.internal.*
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
-import org.koin.standalone.StandAloneContext
+import org.koin.standalone.StandAloneContext.loadKoinModules
 import timber.log.Timber
 
 interface NotificationsSdk {
@@ -27,8 +27,6 @@ interface NotificationsSdk {
 	companion object {
 
 		const val ACTION_RECEIVER = "com.sensorberg.notifications.sdk.ACTION_RECEIVER"
-
-		const val notificationSdkContext = "com.sensorberg.notifications.sdk"
 
 		fun with(context: Context): Builder {
 			return Builder(context.applicationContext as Application)
@@ -95,7 +93,7 @@ interface NotificationsSdk {
 			val osVersion = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
 			val gpsAvailable = app.isGooglePlayServicesAvailable()
 			return if (osVersion && gpsAvailable) {
-				StandAloneContext.loadKoinModules(InjectionModule(app, apiKey, baseUrl, log).module)
+				loadKoinModules(InjectionModule(app, apiKey, baseUrl, log).module)
 				NotificationsSdkImpl()
 			} else {
 				Timber.w("NotificationsSdk disabled. Android Version(${Build.VERSION.SDK_INT}). Google Play Services (${if (gpsAvailable) "" else "un"}available)")
