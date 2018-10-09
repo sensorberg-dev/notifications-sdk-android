@@ -1,5 +1,12 @@
 package com.sensorberg.notifications.sdk.internal.backend.backendsdkv2
 
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.TriggerMapper.Companion.META_ACTION_TRIGGER
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.TriggerMapper.Companion.META_ACTION_TYPE
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model.Content
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model.ResolveAction
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model.Timeframe
+import com.sensorberg.notifications.sdk.internal.model.TimePeriod
+import org.json.JSONObject
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -50,6 +57,57 @@ class TriggerMapperTest {
 		assertEquals((-1).toShort(), TriggerMapper.extractMinor(minor("65535")))
 		assertEquals((32767).toShort(), TriggerMapper.extractMinor(minor("32767")))
 		assertEquals((-32768).toShort(), TriggerMapper.extractMinor(minor("32768")))
+	}
+
+	@Test fun map_action_is_properly_mapped() {
+		val resolveAction = ResolveAction(
+				"eid",
+				0,
+				1,
+				"name",
+				listOf("beacon1", "beacon2"),
+				2,
+				false,
+				3,
+				false,
+				Content("subject", "body", null, "url"),
+				listOf(Timeframe("2018-10-09T14:00:00Z", "2018-11-09T14:00:00Z")))
+		val timePeriods = mutableListOf<TimePeriod>()
+		val action = TriggerMapper.mapAction(resolveAction, timePeriods)
+		assertEquals("eid", action.id)
+		assertEquals(0, JSONObject(action.payload!!)[META_ACTION_TRIGGER])
+		assertEquals(1, JSONObject(action.payload!!)[META_ACTION_TYPE])
+		assertEquals(2000, action.suppressionTime)
+		assertEquals(3000, action.delay)
+		assertEquals(0, action.maxCount)
+		assertEquals("subject", action.subject)
+		assertEquals("body", action.body)
+		assertEquals("url", action.url)
+		assertEquals(false, action.reportImmediately)
+		assertEquals("eid", timePeriods[0].actionId)
+		assertEquals(1539093600000, timePeriods[0].startsAt)
+		assertEquals(1541772000000, timePeriods[0].endsAt)
+	}
+
+	@Test fun map_action_is_properly_mapped_2() {
+		val resolveAction = ResolveAction(
+				"eid",
+				0,
+				1,
+				"name",
+				listOf("beacon1", "beacon2"),
+				2,
+				true,
+				3,
+				true,
+				Content("subject", "body", null, "url"),
+				listOf(Timeframe("2018-10-09T14:00:00Z", "2018-11-09T14:00:00Z")))
+		val timePeriods = mutableListOf<TimePeriod>()
+		val action = TriggerMapper.mapAction(resolveAction, timePeriods)
+
+		assertEquals(1, action.maxCount)
+		assertEquals(true, action.reportImmediately)
+
 	}
 
 	fun major(value: String): String {

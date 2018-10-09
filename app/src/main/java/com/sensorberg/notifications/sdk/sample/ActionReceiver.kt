@@ -28,7 +28,7 @@ class ActionReceiver : AbstractActionReceiver() {
 		val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 		val notification = createNotification(context, pending, action)
 
-		notificationManager.notify(action.id.hashCode(), notification)
+		notificationManager.notify(action.actionId.hashCode(), notification)
 		val notificationSdk = (context.applicationContext as App).sdk
 		notificationSdk.setConversion(action, Conversion.Ignored) //Ignored in Conversion/Manager speech is the same as shown for us lolz
 	}

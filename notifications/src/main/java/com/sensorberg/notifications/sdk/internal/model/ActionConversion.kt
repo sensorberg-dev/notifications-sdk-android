@@ -14,14 +14,17 @@ internal data class ActionConversion(
 	var latitude: Double?,
 	var longitude: Double?,
 	var radius: Float?,
-	var locationTimeStamp: Long?)
+	var locationTimeStamp: Long?) {
 
-internal fun Action.toActionConversion(conversion: Conversion, location: Location?): ActionConversion {
-	return ActionConversion(instanceId,
-							System.currentTimeMillis(),
-							conversion,
-							location?.latitude,
-							location?.longitude,
-							location?.accuracy,
-							location?.time)
+	companion object {
+		fun create(instanceId: String, conversion: Conversion, location: Location?): ActionConversion {
+			return ActionConversion(instanceId,
+									System.currentTimeMillis(),
+									conversion,
+									location?.latitude,
+									location?.longitude,
+									location?.accuracy,
+									location?.time)
+		}
+	}
 }

@@ -20,6 +20,8 @@ interface NotificationsSdk {
 
 	fun setConversion(action: Action, conversion: Conversion)
 
+	fun setConversion(actionInstanceId: String, conversion: Conversion)
+
 	fun setEnabled(enabled: Boolean)
 
 	fun isEnabled(): Boolean
