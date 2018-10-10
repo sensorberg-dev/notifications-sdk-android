@@ -13,14 +13,19 @@ import android.widget.Toast
 import com.sensorberg.notifications.sdk.AbstractActionReceiver
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.Conversion
+import org.json.JSONObject
 import timber.log.Timber
 
 class ActionReceiver : AbstractActionReceiver() {
 
+	private val type = "com.sensorberg.notifications.sdk.backend.v2.meta.action_type"
+	private val trigger = "com.sensorberg.notifications.sdk.backend.v2.meta.action_trigger"
 	private val NOTIFICATION_CHANNEL_ID = "NotificationChannelIdFromSdkSample"
 
 	override fun onAction(context: Context, action: Action) {
 		Timber.i("Action received by the application. $action")
+		val json = JSONObject(action.payload!!)
+		Timber.d("Action backend metadata is: ${json.getInt(type)}, ${json.getInt(trigger)}")
 		val intent = Intent(context, MainActivity::class.java)
 		intent.putExtra("action", action)
 		val pending = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
