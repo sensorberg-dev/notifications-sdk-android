@@ -36,7 +36,7 @@ dependencies {
 }
 
 mavenPublish {
-	releaseRepositoryUrl = findProperty("MAVEN_JCENTER_URL", null)
+	releaseRepositoryUrl = findProperty("MAVEN_JCENTER_URL_WORK_CLONE", null)
 	snapshotRepositoryUrl = findProperty("MAVEN_JCENTER_SNAPSHOT_URL", null)
 	repositoryUsername = findProperty("MAVEN_JCENTER_USERNAME", null)
 	repositoryPassword = findProperty("MAVEN_JCENTER_PASSWORD", null)
