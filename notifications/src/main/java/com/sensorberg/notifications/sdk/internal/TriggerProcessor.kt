@@ -2,10 +2,14 @@ package com.sensorberg.notifications.sdk.internal
 
 import android.app.Application
 import com.sensorberg.notifications.sdk.Action
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.TriggerMapper
+import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.model.getType
 import com.sensorberg.notifications.sdk.internal.model.*
 import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import com.sensorberg.notifications.sdk.internal.work.UploadWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
+import org.json.JSONException
+import org.json.JSONObject
 import timber.log.Timber
 import java.util.*
 
@@ -39,7 +43,25 @@ internal class TriggerProcessor(private val dao: ActionDao,
 
 	private fun executeActions(actions: List<ActionQueryModel>, type: Trigger.Type) {
 		actions.forEach { model ->
-			val action = Action(model.id, UUID.randomUUID().toString(), model.subject, model.body, model.url, model.payload, model.backendMeta, model.triggerBackendMeta)
+
+			/*
+			TODO: <the hack starts here>
+			See: https://git.sensorberg.io/android/notifications-sdk/issues/9
+			 */
+			val payload = model.payload?.let {
+				try {
+					val jsonPayload = JSONObject(it)
+					jsonPayload.put(TriggerMapper.META_ACTION_TRIGGER, type.getType())
+					jsonPayload.toString()
+				} catch (e: JSONException) {
+					null
+				}
+			} ?: model.payload
+			/*
+			TODO: </the hack ends here>
+			 */
+
+			val action = Action(model.id, UUID.randomUUID().toString(), model.subject, model.body, model.url, payload, model.backendMeta, model.triggerBackendMeta)
 			when {
 				model.deliverAt > 0 -> calculateAndSendDelayedAction(model, action, type)
 				model.delay > 0 -> sendDelayedAction(action, type, model)
