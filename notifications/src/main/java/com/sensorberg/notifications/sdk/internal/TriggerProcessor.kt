@@ -8,6 +8,7 @@ import com.sensorberg.notifications.sdk.internal.model.*
 import com.sensorberg.notifications.sdk.internal.storage.ActionDao
 import com.sensorberg.notifications.sdk.internal.work.UploadWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
+import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 import java.util.*
@@ -48,9 +49,13 @@ internal class TriggerProcessor(private val dao: ActionDao,
 			See: https://git.sensorberg.io/android/notifications-sdk/issues/9
 			 */
 			val payload = model.payload?.let {
-				val jsonPayload = JSONObject(it)
-				jsonPayload.put(TriggerMapper.META_ACTION_TRIGGER, type.getType())
-				jsonPayload.toString()
+				try {
+					val jsonPayload = JSONObject(it)
+					jsonPayload.put(TriggerMapper.META_ACTION_TRIGGER, type.getType())
+					jsonPayload.toString()
+				} catch (e: JSONException) {
+					null
+				}
 			} ?: model.payload
 			/*
 			TODO: </the hack ends here>
