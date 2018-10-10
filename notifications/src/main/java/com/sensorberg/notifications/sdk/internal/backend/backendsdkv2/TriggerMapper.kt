@@ -8,6 +8,7 @@ import com.sensorberg.notifications.sdk.internal.model.ActionModel
 import com.sensorberg.notifications.sdk.internal.model.TimePeriod
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.model.TriggerActionMap
+import org.json.JSONObject
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoField
 import retrofit2.Call
@@ -81,39 +82,12 @@ internal class TriggerMapper(private val callback: Backend.NotificationTriggers)
 		return Trigger.Geofence(point.latitude, point.longitude, radius, type)
 	}
 
-	private fun mapAction(action: ResolveAction, timePeriods: MutableList<TimePeriod>): ActionModel {
-		return ActionModel(action.eid,
-						   null,
-						   action.content?.subject,
-						   action.content?.body,
-						   action.content?.url,
-						   action.content?.payload?.toString(),
-						   action.reportImmediately == true,
-						   if (action.delay == null) 0 else action.delay * 1000,
-						   action.deliverAt ?: 0,
-						   if (action.suppressionTime == null) DEFAULT_SUPPRESSION_TIME else action.suppressionTime * 1000,
-						   if (action.sendOnlyOnce == true) 1 else 0,
-						   action.type == ResolveAction.TYPE_SILENT)
-			.also {
-
-				if (action.timeframes == null || action.timeframes.isEmpty()) {
-					timePeriods.add(TimePeriod(
-							actionId = action.eid,
-							startsAt = 0,
-							endsAt = Long.MAX_VALUE))
-				} else {
-					timePeriods.addAll(action.timeframes.mapNotNull {
-						if (it.start == null || it.end == null) null
-						else TimePeriod(
-								actionId = action.eid,
-								startsAt = it.start!!.fromIso8601(),
-								endsAt = it.end!!.fromIso8601())
-					})
-				}
-			}
-	}
-
 	companion object {
+
+		private const val META_PREFIX = "com.sensorberg.notifications.sdk.backend.v2.meta."
+		internal const val META_ACTION_TYPE = META_PREFIX + "action_type"
+		internal const val META_ACTION_TRIGGER = META_PREFIX + "action_trigger"
+
 		private const val BEACON_ID_LENGTH = 42
 		private const val GEOFENCE_ID_LENGTH = 14
 
@@ -138,6 +112,45 @@ internal class TriggerMapper(private val callback: Backend.NotificationTriggers)
 
 		fun stringToShort(value: String): Short {
 			return value.toInt().toChar().toShort()
+		}
+
+		internal fun mapAction(action: ResolveAction, timePeriods: MutableList<TimePeriod>): ActionModel {
+			return ActionModel(action.eid,
+							   null,
+							   action.content?.subject,
+							   action.content?.body,
+							   action.content?.url,
+							   injectBackendV2MetaIntoPayload(action.content?.payload, action),
+							   action.reportImmediately == true,
+							   if (action.delay == null) 0 else action.delay * 1000,
+							   action.deliverAt ?: 0,
+							   if (action.suppressionTime == null) DEFAULT_SUPPRESSION_TIME else action.suppressionTime * 1000,
+							   if (action.sendOnlyOnce == true) 1 else 0,
+							   action.type == ResolveAction.TYPE_SILENT)
+				.also {
+
+					if (action.timeframes == null || action.timeframes.isEmpty()) {
+						timePeriods.add(TimePeriod(
+								actionId = action.eid,
+								startsAt = 0,
+								endsAt = Long.MAX_VALUE))
+					} else {
+						timePeriods.addAll(action.timeframes.mapNotNull {
+							if (it.start == null || it.end == null) null
+							else TimePeriod(
+									actionId = action.eid,
+									startsAt = it.start!!.fromIso8601(),
+									endsAt = it.end!!.fromIso8601())
+						})
+					}
+				}
+		}
+
+		private fun injectBackendV2MetaIntoPayload(payload: JSONObject?, action: ResolveAction): String {
+			val json = payload ?: JSONObject()
+			json.put(META_ACTION_TYPE, action.type)
+			json.put(META_ACTION_TRIGGER, action.trigger)
+			return json.toString()
 		}
 
 		private fun String.fromIso8601(): Long {

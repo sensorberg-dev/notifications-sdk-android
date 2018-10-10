@@ -20,7 +20,7 @@ internal data class ActionHistory(
 	var triggerBackendMeta: String?)
 
 internal fun Action.toActionHistory(type: Trigger.Type, location: Location?): ActionHistory {
-	return ActionHistory(id,
+	return ActionHistory(actionId,
 						 System.currentTimeMillis(),
 						 instanceId,
 						 type,

@@ -8,6 +8,7 @@ import com.sensorberg.notifications.sdk.NotificationsSdk
  * Used on devices that do not support bt-le
  */
 internal class EmptyImpl : NotificationsSdk {
+	override fun setConversion(actionInstanceId: String, conversion: Conversion) {}
 
 	override fun setConversion(action: Action, conversion: Conversion) {}
 

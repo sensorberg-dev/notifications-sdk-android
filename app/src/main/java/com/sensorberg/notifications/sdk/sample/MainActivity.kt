@@ -16,6 +16,8 @@ import timber.log.Timber
 import java.io.File
 import java.util.*
 import android.support.v4.content.FileProvider.getUriForFile
+import com.sensorberg.notifications.sdk.Action
+import com.sensorberg.notifications.sdk.Conversion
 
 class MainActivity : AppCompatActivity(), BitteBitte {
 
@@ -45,6 +47,17 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 		PermissionBitte.ask(this, this)
 		notificationsSdk = (application as App).sdk
 		updateEnabledText()
+		checkActionConversion(intent)
+	}
+
+	override fun onNewIntent(intent: Intent) {
+		checkActionConversion(intent)
+	}
+
+	private fun checkActionConversion(intent: Intent?) {
+		intent?.extras?.getParcelable<Action>("action")?.let {
+			notificationsSdk.setConversion(it, Conversion.Success)
+		}
 	}
 
 	fun onShareLogs(view: View) {

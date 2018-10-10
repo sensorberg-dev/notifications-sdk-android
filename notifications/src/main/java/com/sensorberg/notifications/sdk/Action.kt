@@ -5,8 +5,8 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Action(
-	val id: String,
-	internal val instanceId: String,
+	val actionId: String,
+	val instanceId: String,
 		// data
 	val subject: String?,
 	val body: String?,

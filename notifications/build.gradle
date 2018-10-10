@@ -40,11 +40,11 @@ dependencies {
 	implementation "com.squareup.moshi:moshi:$moshi_version"
 	kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
 
+	implementation project(':work')
 	implementation "com.google.android.gms:play-services-nearby:$google_play_version"
 	implementation "com.google.android.gms:play-services-location:$google_play_version"
 	implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
 	implementation "android.arch.lifecycle:extensions:$arch_lifecycle_version"
-	implementation project(':work')
 
 	// storage
 	api "android.arch.persistence.room:runtime:$room_version"
@@ -63,6 +63,8 @@ dependencies {
 	androidTestImplementation 'com.android.support.test:runner:1.0.2'
 	androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 	testImplementation "io.mockk:mockk:1.8.5"
+	testImplementation 'org.json:json:20140107'
+
 }
 
 mavenPublish {
