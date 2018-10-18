@@ -24,8 +24,7 @@ internal class BeaconWork : Worker(), KoinComponent {
 	override fun doWork(): Worker.Result {
 		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
 		logStart()
-		val beacons = beaconsAdapter.fromJson(inputData.getExtras())!!
-		return if (BeaconRegistration().execute(beacons) == Worker.Result.SUCCESS) {
+		return if (BeaconRegistration().execute() == Worker.Result.SUCCESS) {
 			Worker.Result.SUCCESS
 		} else {
 			// for beacon registration we want this to keep retrying until it succeeds

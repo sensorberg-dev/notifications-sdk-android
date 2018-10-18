@@ -28,11 +28,6 @@ class SyncDelegate : KoinComponent {
 	private val backend: Backend by inject()
 	private val workUtils: WorkUtils by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)
-	private val moshi: Moshi by inject(InjectionModule.moshiBean)
-	private val beaconsAdapter: JsonAdapter<List<Trigger.Beacon>> by lazy {
-		val listMyData = Types.newParameterizedType(List::class.java, Trigger.Beacon::class.java)
-		moshi.adapter<List<Trigger.Beacon>>(listMyData)
-	}
 	private val exchanger = Exchanger<Worker.Result>()
 	private val app: Application by inject(InjectionModule.appBean)
 	
@@ -55,12 +50,9 @@ class SyncDelegate : KoinComponent {
 				executor.execute {
 					Timber.d("Successfully got ${triggers.size} triggers and ${actions.size} actions from backend")
 
-					val beacons = triggers.mapNotNull { it as? Trigger.Beacon }
-					val geofences = triggers.mapNotNull { it as? Trigger.Geofence }
+					database.insertData(timePeriods, actions, mappings, triggers)
 
-					database.insertData(timePeriods, actions, mappings, geofences)
-
-					workUtils.execute(BeaconWork::class.java, beaconsAdapter.toJson(beacons))
+					workUtils.execute(BeaconWork::class.java)
 					workUtils.execute(GeofenceWork::class.java)
 
 					exchanger.exchange(Worker.Result.SUCCESS)

@@ -56,26 +56,19 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 		workManager.cancelUniqueWork("beacon_work_$beaconKey")
 	}
 
-	fun execute(klazz: Class<out Worker>, extras: String? = null) {
+	fun execute(klazz: Class<out Worker>) {
 		if (!app.isGooglePlayServicesAvailable() || !app.haveLocationPermission()) {
 			return
 		}
 
-		val data = extras?.let {
-			Data.Builder()
-				.putString(EXTRA_DATA, extras)
-				.build()
-		}
-
-		val request = createExecuteRequest(klazz, false, data)
+		val request = createExecuteRequest(klazz, false)
 		Timber.d("Enqueueing for immediate execution of ${klazz.simpleName}")
 		workManager.beginUniqueWork("execute_${klazz.canonicalName}", ExistingWorkPolicy.REPLACE, request).enqueue()
 	}
 
-	private fun createExecuteRequest(klazz: Class<out Worker>, needsNetwork: Boolean, data: Data?): OneTimeWorkRequest {
+	private fun createExecuteRequest(klazz: Class<out Worker>, needsNetwork: Boolean): OneTimeWorkRequest {
 		return OneTimeWorkRequest.Builder(klazz)
 			.setConstraints(if (needsNetwork) getConstraints() else Constraints.NONE)
-			.apply { data?.let { setInputData(data) } }
 			.addTag(WORKER_TAG) //only to get the workers states later
 			.build()
 	}
@@ -86,7 +79,7 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 		}
 		Timber.d("Enqueueing for immediate execution of ${klazz.simpleName} and then schedule for periodic")
 		workManager
-			.beginUniqueWork(klazz.canonicalName, ExistingWorkPolicy.REPLACE, createExecuteRequest(klazz, true, null))
+			.beginUniqueWork(klazz.canonicalName, ExistingWorkPolicy.REPLACE, createExecuteRequest(klazz, true))
 			.then(reschedule(klazz))
 			.enqueue()
 	}

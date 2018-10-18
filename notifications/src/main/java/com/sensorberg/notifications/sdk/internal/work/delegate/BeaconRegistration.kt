@@ -8,8 +8,8 @@ import com.google.android.gms.nearby.messages.*
 import com.google.android.gms.tasks.Tasks
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
-import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.receivers.BeaconReceiver
+import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
@@ -18,13 +18,16 @@ internal class BeaconRegistration : KoinComponent {
 
 	private val app: Application by inject(InjectionModule.appBean)
 	private val apis: GoogleApiAvailability by inject(InjectionModule.googleApiAvailabilityBean)
+	private val database: SdkDatabase by inject()
 
-	fun execute(beacons: List<Trigger.Beacon>): Worker.Result {
+	fun execute(): Worker.Result {
 
 		if (!app.haveLocationPermission()) {
 			Timber.w("Beacon registration FAILURE. User revoked location permission")
 			return Worker.Result.FAILURE
 		}
+
+		val beacons = database.beaconDao().getBeaconsForRegistration()
 
 		Timber.d("Start to register ${beacons.size} beacons to Google Play Services")
 
@@ -44,7 +47,6 @@ internal class BeaconRegistration : KoinComponent {
 					beacons.forEach {
 						messageFilter.includeIBeaconIds(it.proximityUuid, it.major, it.minor)
 					}
-
 					val options = SubscribeOptions.Builder()
 						.setStrategy(Strategy.BLE_ONLY)
 						.setFilter(messageFilter.build())
@@ -53,6 +55,10 @@ internal class BeaconRegistration : KoinComponent {
 					nearby.subscribe(BeaconReceiver.generateSubscribePendingIntent(app), options)
 				}
 			}
-		return RegistrationHelper.awaitResult("Beacon", 30, task)
+		val result = RegistrationHelper.awaitResult("Beacon", 30, task)
+		if (result == Worker.Result.SUCCESS) {
+			database.beaconDao().clearBeaconsForRegistration()
+		}
+		return result
 	}
 }

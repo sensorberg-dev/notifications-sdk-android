@@ -2,6 +2,7 @@ package com.sensorberg.notifications.sdk.internal.storage
 
 import android.arch.persistence.room.*
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
+import com.sensorberg.notifications.sdk.internal.model.BeaconStorage
 import com.sensorberg.notifications.sdk.internal.model.VisibleBeacons
 
 @Dao
@@ -18,5 +19,9 @@ internal abstract class BeaconDao {
 	abstract fun deleteEventForBeacon(beaconKey: String, timestamp: Long)
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE) abstract fun addBeaconEvent(event: BeaconEvent)
+
+	@Query("DELETE FROM table_beacons_registration") abstract fun clearBeaconsForRegistration()
+	@Insert(onConflict = OnConflictStrategy.REPLACE) abstract fun insertBeaconsForRegistration(beacons: List<BeaconStorage>)
+	@Query("SELECT * FROM table_beacons_registration") abstract fun getBeaconsForRegistration(): List<BeaconStorage>
 
 }
