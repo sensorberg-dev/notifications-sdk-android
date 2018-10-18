@@ -15,6 +15,7 @@ object DatabaseMigrations {
 		object : Migration(1, 2) {
 			override fun migrate(database: SupportSQLiteDatabase) {
 				database.execSQL("CREATE TABLE IF NOT EXISTS `table_beacons_registration` (`id` TEXT NOT NULL, `proximityUuid` TEXT NOT NULL, `major` INTEGER NOT NULL, `minor` INTEGER NOT NULL, `type` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+				database.execSQL("CREATE TABLE IF NOT EXISTS `table_delayed_actions` (`actionId` TEXT NOT NULL, `instanceId` TEXT NOT NULL, `subject` TEXT, `body` TEXT, `url` TEXT, `payload` TEXT, `backendMeta` TEXT, `triggerBackendMeta` TEXT, PRIMARY KEY(`instanceId`))")
 			}
 		}
 	}

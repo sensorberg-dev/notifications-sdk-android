@@ -20,8 +20,4 @@ internal abstract class BeaconDao {
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE) abstract fun addBeaconEvent(event: BeaconEvent)
 
-	@Query("DELETE FROM table_beacons_registration") abstract fun clearBeaconsForRegistration()
-	@Insert(onConflict = OnConflictStrategy.REPLACE) abstract fun insertBeaconsForRegistration(beacons: List<BeaconStorage>)
-	@Query("SELECT * FROM table_beacons_registration") abstract fun getBeaconsForRegistration(): List<BeaconStorage>
-
 }

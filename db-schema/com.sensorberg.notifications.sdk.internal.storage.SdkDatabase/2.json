@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "d17003436f9c817b186592043dfe36e9",
+    "identityHash": "b4f50e5f5be19fa2180f099bf69e9de6",
     "entities": [
       {
         "tableName": "table_action",
@@ -550,11 +550,73 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "table_delayed_actions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`actionId` TEXT NOT NULL, `instanceId` TEXT NOT NULL, `subject` TEXT, `body` TEXT, `url` TEXT, `payload` TEXT, `backendMeta` TEXT, `triggerBackendMeta` TEXT, PRIMARY KEY(`instanceId`))",
+        "fields": [
+          {
+            "fieldPath": "actionId",
+            "columnName": "actionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instanceId",
+            "columnName": "instanceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subject",
+            "columnName": "subject",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "body",
+            "columnName": "body",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "payload",
+            "columnName": "payload",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "backendMeta",
+            "columnName": "backendMeta",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "triggerBackendMeta",
+            "columnName": "triggerBackendMeta",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "instanceId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"d17003436f9c817b186592043dfe36e9\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"b4f50e5f5be19fa2180f099bf69e9de6\")"
     ]
   }
 }

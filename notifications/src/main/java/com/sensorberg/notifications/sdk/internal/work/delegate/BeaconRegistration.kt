@@ -27,7 +27,7 @@ internal class BeaconRegistration : KoinComponent {
 			return Worker.Result.FAILURE
 		}
 
-		val beacons = database.beaconDao().getBeaconsForRegistration()
+		val beacons = database.beaconRegistrationDao().get()
 
 		Timber.d("Start to register ${beacons.size} beacons to Google Play Services")
 
@@ -57,7 +57,7 @@ internal class BeaconRegistration : KoinComponent {
 			}
 		val result = RegistrationHelper.awaitResult("Beacon", 30, task)
 		if (result == Worker.Result.SUCCESS) {
-			database.beaconDao().clearBeaconsForRegistration()
+			database.beaconRegistrationDao().delete()
 		}
 		return result
 	}

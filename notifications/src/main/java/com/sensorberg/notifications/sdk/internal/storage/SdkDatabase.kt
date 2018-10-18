@@ -5,6 +5,7 @@ import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
+import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.internal.model.*
 
 @Database(version = 2,
@@ -20,13 +21,16 @@ import com.sensorberg.notifications.sdk.internal.model.*
 			  RegisteredGeoFence::class,
 			  BeaconEvent::class,
 			  VisibleBeacons::class,
-			  BeaconStorage::class])
+			  BeaconStorage::class,
+			  DelayedActionModel::class])
 @TypeConverters(DatabaseConverters::class)
 internal abstract class SdkDatabase : RoomDatabase() {
 
+	abstract fun delayedActionDao(): DelayedActionDao
 	abstract fun actionDao(): ActionDao
 	abstract fun geofenceDao(): GeofenceDao
 	abstract fun beaconDao(): BeaconDao
+	abstract fun beaconRegistrationDao(): BeaconRegistrationDao
 
 	fun insertData(timePeriods: List<TimePeriod>, actions: List<ActionModel>, mappings: List<TriggerActionMap>, triggers: List<Trigger>) {
 		runInTransaction {
@@ -42,9 +46,9 @@ internal abstract class SdkDatabase : RoomDatabase() {
 				clearGeofences()
 				insertGeofences(triggers.mapNotNull { if (it is Trigger.Geofence) GeofenceMapper.mapInsert(it) else null })
 			}
-			with(beaconDao()) {
-				clearBeaconsForRegistration()
-				insertBeaconsForRegistration(triggers.mapNotNull { if (it is Trigger.Beacon) BeaconStorage.from(it) else null })
+			with(beaconRegistrationDao()) {
+				delete()
+				insert(triggers.mapNotNull { if (it is Trigger.Beacon) BeaconStorage.from(it) else null })
 			}
 		}
 	}
