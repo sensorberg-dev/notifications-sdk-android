@@ -28,6 +28,10 @@ android {
 		}
 	}
 
+	sourceSets {
+		androidTest.assets.srcDirs += files("${rootProject.projectDir}/db-schema".toString())
+	}
+
 }
 
 androidExtensions {
@@ -66,6 +70,7 @@ dependencies {
 	testImplementation 'junit:junit:4.12'
 	androidTestImplementation 'com.android.support.test:runner:1.0.2'
 	androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+	androidTestImplementation "android.arch.persistence.room:testing:$room_version"
 	testImplementation "io.mockk:mockk:1.8.5"
 	testImplementation 'org.json:json:20140107'
 
