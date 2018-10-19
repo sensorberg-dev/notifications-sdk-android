@@ -1,27 +1,25 @@
 package com.sensorberg.notifications.sdk.internal.work
 
 import android.app.Application
-import android.content.SharedPreferences
 import androidx.work.*
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
 import com.sensorberg.notifications.sdk.internal.isGooglePlayServicesAvailable
+import com.sensorberg.notifications.sdk.internal.model.DelayedActionModel
 import com.sensorberg.notifications.sdk.internal.model.Trigger
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
+import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-internal class WorkUtils(private val workManager: WorkManager, private val app: Application, moshi: Moshi, private val prefs: SharedPreferences) {
-
-	private val actionAdapter: JsonAdapter<Action> by lazy { createAction(moshi) }
+internal class WorkUtils(private val workManager: WorkManager, private val app: Application, private val database: SdkDatabase) {
 
 	fun sendDelayedAction(action: Action, type: Trigger.Type, reportImmediately: Boolean, delay: Long) {
 		Timber.d("Scheduling execution of action in ${delay / 1000L} seconds. ${action.subject}")
+		database.delayedActionDao().insert(DelayedActionModel.fromAction(action))
 		val data = Data.Builder()
-			.putString(ACTION_STRING, actionAdapter.toJson(action))
+			.putString(ACTION_STRING, action.instanceId)
 			.putString(TRIGGER_TYPE, type.name)
 			.putBoolean(REPORT_IMMEDIATE, reportImmediately)
 			.build()
@@ -56,26 +54,19 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 		workManager.cancelUniqueWork("beacon_work_$beaconKey")
 	}
 
-	fun execute(klazz: Class<out Worker>, extras: String? = null) {
+	fun execute(klazz: Class<out Worker>) {
 		if (!app.isGooglePlayServicesAvailable() || !app.haveLocationPermission()) {
 			return
 		}
 
-		val data = extras?.let {
-			Data.Builder()
-				.putString(EXTRA_DATA, extras)
-				.build()
-		}
-
-		val request = createExecuteRequest(klazz, false, data)
+		val request = createExecuteRequest(klazz, false)
 		Timber.d("Enqueueing for immediate execution of ${klazz.simpleName}")
 		workManager.beginUniqueWork("execute_${klazz.canonicalName}", ExistingWorkPolicy.REPLACE, request).enqueue()
 	}
 
-	private fun createExecuteRequest(klazz: Class<out Worker>, needsNetwork: Boolean, data: Data?): OneTimeWorkRequest {
+	private fun createExecuteRequest(klazz: Class<out Worker>, needsNetwork: Boolean): OneTimeWorkRequest {
 		return OneTimeWorkRequest.Builder(klazz)
 			.setConstraints(if (needsNetwork) getConstraints() else Constraints.NONE)
-			.apply { data?.let { setInputData(data) } }
 			.addTag(WORKER_TAG) //only to get the workers states later
 			.build()
 	}
@@ -86,7 +77,7 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 		}
 		Timber.d("Enqueueing for immediate execution of ${klazz.simpleName} and then schedule for periodic")
 		workManager
-			.beginUniqueWork(klazz.canonicalName, ExistingWorkPolicy.REPLACE, createExecuteRequest(klazz, true, null))
+			.beginUniqueWork(klazz.canonicalName, ExistingWorkPolicy.REPLACE, createExecuteRequest(klazz, true))
 			.then(reschedule(klazz))
 			.enqueue()
 	}
@@ -142,13 +133,8 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 		internal const val FIRE_ACTION_WORK = "com.sensorberg.notifications.sdk.internal.work.fireAction.ACTION"
 		internal const val REPORT_IMMEDIATE = "com.sensorberg.notifications.sdk.internal.work.fireAction.REPORT_IMMEDIATE"
 		internal const val TRIGGER_TYPE = "com.sensorberg.notifications.sdk.internal.work.fireAction.TRIGGER_TYPE"
-		internal const val EXTRA_DATA = "com.sensorberg.notifications.sdk.internal.work.EXTRA_DATA"
 		internal const val WORKER_TAG = "com.sensorberg.notifications.sdk.internal.work.WORKER_TAG"
 		internal const val BEACON_STRING = "com.sensorberg.notifications.sdk.internal.work.BEACON_STRING"
-
-		fun createAction(moshi: Moshi): JsonAdapter<Action> {
-			return moshi.adapter<Action>(Action::class.java)
-		}
 
 		fun disableAlLWorkers() {
 			WorkManager.getInstance().cancelAllWorkByTag(WORKER_TAG)
@@ -160,12 +146,9 @@ internal fun BeaconProcessingWork.getBeaconKey(): String {
 	return inputData.getString(WorkUtils.BEACON_STRING)!!
 }
 
-internal fun Data.getExtras(): String {
-	return getString(WorkUtils.EXTRA_DATA)!!
-}
-
-internal fun FireActionWork.getAction(actionAdapter: JsonAdapter<Action>): Action {
-	return actionAdapter.fromJson(inputData.getString(WorkUtils.ACTION_STRING)!!)!!
+internal fun FireActionWork.getAction(): Action {
+	val action = database.delayedActionDao().get(inputData.getString(WorkUtils.ACTION_STRING)!!)
+	return DelayedActionModel.toAction(action)
 }
 
 internal fun FireActionWork.getTriggerType(): Trigger.Type {

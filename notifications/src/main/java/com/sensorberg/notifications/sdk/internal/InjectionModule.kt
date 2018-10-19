@@ -43,7 +43,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 		single { VersionUpdate.check(get(preferencesBean), BuildConfig.VERSION_NAME) }
 		single { SdkEnableHandler() }
 		single(googleApiAvailabilityBean) { GoogleApiAvailability.getInstance() }
-		single { WorkUtils(WorkManager.getInstance(), app, get(moshiBean), get(preferencesBean)) }
+		single { WorkUtils(WorkManager.getInstance(), app, get()) }
 		single(moshiBean) {
 			Moshi.Builder()
 				.add(UuidObjectAdapter)

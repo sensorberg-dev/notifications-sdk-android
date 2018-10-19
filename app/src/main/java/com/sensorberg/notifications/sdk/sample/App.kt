@@ -27,22 +27,13 @@ class App : Application() {
 		sdk = NotificationsSdk.with(this).run {
 			return@run if (true) {
 				enableHttpLogs()
-				setApiKey(KEY)
-				setBaseUrl(STAGING)
+				setApiKey(BuildConfig.API_KEY)
+				setBaseUrl(BuildConfig.BASE_URL)
 				build()
 			} else { // use this to manual test the empty() SDK
 				empty()
 			}
 		}
-	}
-
-	companion object {
-		private const val KEY = "67eebdd2cda9bcda000ea32c980599116c3e7621072564e18830a8cdb0528411"
-		private const val STAGING = "https://staging.sensorberg-cdn.io"
-
-		private const val KEY_PORTAL = "dd715fd0f49e6902516958b0777327b73c6a018d253f2ab436835f383b425eb4"
-		private const val PORTAL_CDN = "https://portal.sensorberg-cdn.com"
-		private const val PORTAL = "https://portal.sensorberg.com"
 	}
 
 	private val preferencesChange = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->

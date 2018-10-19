@@ -5,10 +5,11 @@ import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
+import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.internal.model.*
 
-@Database(version = 1,
-		  exportSchema = false,
+@Database(version = 2,
+		  exportSchema = true,
 		  entities = [
 			  ActionModel::class,
 			  ActionHistory::class,
@@ -19,15 +20,19 @@ import com.sensorberg.notifications.sdk.internal.model.*
 			  TimePeriod::class,
 			  RegisteredGeoFence::class,
 			  BeaconEvent::class,
-			  VisibleBeacons::class])
+			  VisibleBeacons::class,
+			  BeaconStorage::class,
+			  DelayedActionModel::class])
 @TypeConverters(DatabaseConverters::class)
 internal abstract class SdkDatabase : RoomDatabase() {
 
+	abstract fun delayedActionDao(): DelayedActionDao
 	abstract fun actionDao(): ActionDao
 	abstract fun geofenceDao(): GeofenceDao
 	abstract fun beaconDao(): BeaconDao
+	abstract fun beaconRegistrationDao(): BeaconRegistrationDao
 
-	fun insertData(timePeriods: List<TimePeriod>, actions: List<ActionModel>, mappings: List<TriggerActionMap>, geofences: List<Trigger.Geofence>) {
+	fun insertData(timePeriods: List<TimePeriod>, actions: List<ActionModel>, mappings: List<TriggerActionMap>, triggers: List<Trigger>) {
 		runInTransaction {
 			with(actionDao()) {
 				clearActions()
@@ -39,14 +44,20 @@ internal abstract class SdkDatabase : RoomDatabase() {
 			}
 			with(geofenceDao()) {
 				clearGeofences()
-				insertGeofences(geofences.map { GeofenceMapper.mapInsert(it) })
+				insertGeofences(triggers.mapNotNull { if (it is Trigger.Geofence) GeofenceMapper.mapInsert(it) else null })
+			}
+			with(beaconRegistrationDao()) {
+				delete()
+				insert(triggers.mapNotNull { if (it is Trigger.Beacon) BeaconStorage.from(it) else null })
 			}
 		}
 	}
 
 	companion object {
 		fun createDatabase(app: Application): SdkDatabase {
-			return Room.databaseBuilder(app, SdkDatabase::class.java, "notifications-sdk")
+			return Room
+				.databaseBuilder(app, SdkDatabase::class.java, "notifications-sdk")
+				.addMigrations(*DatabaseMigrations.migrations)
 				.build()
 		}
 	}

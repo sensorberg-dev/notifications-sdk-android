@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+apply from: 'https://raw.githubusercontent.com/sensorberg-dev/gradle-scripts/master/common-def.gradle'
 android {
 	compileSdkVersion android_compileSdkVersion
 	defaultConfig {
@@ -11,6 +12,8 @@ android {
 		versionCode 1
 		versionName "1.0"
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+		buildConfigField "String", "BASE_URL", findQuotedProperty("NOTIFICATIONS_SDK_BASE_URL", wrapInQuotes("https://portal.sensorberg-cdn.com"))
+		buildConfigField "String", "API_KEY", findQuotedProperty("NOTIFICATIONS_SDK_API_KEY", "null")
 	}
 	buildTypes {
 		release {

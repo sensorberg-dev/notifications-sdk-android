@@ -35,3 +35,26 @@ internal data class BeaconEvent(@PrimaryKey val beaconKey: String,
 
 @Entity(tableName = "table_visible_beacons")
 internal data class VisibleBeacons(@PrimaryKey val id: String, val timestamp: Long)
+
+/**
+ * That's supposed to be a very short lived data storage.
+ * As per docs androidx.work.Data have a hard limitation on MAX_DATA_BYTES (10K).
+ * So for very long list of beacons we would hit this limit.
+ * So we'll save to DB and erase as soon as the registration succeeds
+ */
+@Entity(tableName = "table_beacons_registration")
+internal data class BeaconStorage(@PrimaryKey val id: String,
+								  val proximityUuid: UUID,
+								  val major: Short,
+								  val minor: Short,
+								  val type: Trigger.Type) {
+	companion object {
+		fun from(beacon: Trigger.Beacon): BeaconStorage {
+			return BeaconStorage(beacon.getTriggerId(),
+								 beacon.proximityUuid,
+								 beacon.major,
+								 beacon.minor,
+								 beacon.type)
+		}
+	}
+}
