@@ -1,6 +1,8 @@
 package com.sensorberg.notifications.sdk.internal.work
 
+import android.content.Context
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.logResult
@@ -14,7 +16,7 @@ import timber.log.Timber
 import java.util.concurrent.Exchanger
 import java.util.concurrent.TimeUnit
 
-internal class UploadWork : Worker(), KoinComponent {
+internal class UploadWork(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
 
 	private val sdkEnableHandler: SdkEnableHandler by inject()
 	private val dao: ActionDao by inject()

@@ -48,7 +48,8 @@ dependencies {
 	implementation "com.squareup.moshi:moshi:$moshi_version"
 	kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
 
-	implementation project(':work')
+	implementation "android.arch.work:work-runtime-ktx:$arch_work_manager_version"
+	implementation "android.arch.work:work-firebase:$arch_work_manager_version"
 	implementation "com.google.android.gms:play-services-nearby:$google_play_version"
 	implementation "com.google.android.gms:play-services-location:$google_play_version"
 	implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
@@ -77,8 +78,13 @@ dependencies {
 }
 
 mavenPublish {
-	releaseRepositoryUrl = findProperty("MAVEN_JCENTER_URL_NOTIFICATIONS", null)
+/*	releaseRepositoryUrl = findProperty("MAVEN_JCENTER_URL_NOTIFICATIONS", null)
 	snapshotRepositoryUrl = findProperty("MAVEN_JCENTER_SNAPSHOT_URL", null)
 	repositoryUsername = findProperty("MAVEN_JCENTER_USERNAME", null)
-	repositoryPassword = findProperty("MAVEN_JCENTER_PASSWORD", null)
+	repositoryPassword = findProperty("MAVEN_JCENTER_PASSWORD", null)*/
+
+	releaseRepositoryUrl = findProperty("MAVEN_URL", null)
+	snapshotRepositoryUrl = findProperty("MAVEN_URL_SNAPSHOT", null)
+	repositoryUsername = findProperty("MAVEN_USERNAME", null)
+	repositoryPassword = findProperty("MAVEN_PASSWORD", null)
 }

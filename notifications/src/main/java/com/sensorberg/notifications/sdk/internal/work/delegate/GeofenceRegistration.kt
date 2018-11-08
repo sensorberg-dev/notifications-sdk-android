@@ -3,7 +3,7 @@ package com.sensorberg.notifications.sdk.internal.work.delegate
 import android.annotation.SuppressLint
 import android.app.Application
 import android.location.Location
-import androidx.work.Worker
+import androidx.work.ListenableWorker
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
@@ -32,16 +32,16 @@ internal class GeofenceRegistration : KoinComponent {
 	private val executor: Executor by inject(InjectionModule.executorBean)
 
 	@SuppressLint("MissingPermission")
-	fun execute(): Worker.Result {
+	fun execute(): ListenableWorker.Result {
 
 		if (!app.haveLocationPermission()) {
 			Timber.w("Fences registration FAILURE. User revoked location permission")
-			return Worker.Result.FAILURE
+			return ListenableWorker.Result.FAILURE
 		}
 
 		if (!app.haveLocationProvider()) {
 			Timber.w("Fences registration FAILURE. Location providers are turned off")
-			return Worker.Result.FAILURE
+			return ListenableWorker.Result.FAILURE
 		}
 
 		Timber.d("Start to register geofences to Google Play Services")

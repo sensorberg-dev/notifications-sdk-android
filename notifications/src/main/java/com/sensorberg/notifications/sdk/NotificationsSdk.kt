@@ -35,7 +35,7 @@ interface NotificationsSdk {
 		}
 
 		fun printAllSdkWorkerStates() {
-			val statusesForUniqueWork = WorkManager.getInstance().getStatusesByTag(WorkUtils.WORKER_TAG)
+			val statusesForUniqueWork = WorkManager.getInstance().getStatusesForUniqueWorkLiveData(WorkUtils.WORKER_TAG)
 			statusesForUniqueWork.observeForever { workStatuses ->
 				workStatuses?.forEach { workStatus ->
 					Timber.d(workStatus.toString())

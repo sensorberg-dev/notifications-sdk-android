@@ -1,7 +1,7 @@
 package com.sensorberg.notifications.sdk.internal.work.delegate
 
 import android.app.Application
-import androidx.work.Worker
+import androidx.work.ListenableWorker
 import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
@@ -13,9 +13,6 @@ import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.BeaconWork
 import com.sensorberg.notifications.sdk.internal.work.GeofenceWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
@@ -28,14 +25,14 @@ class SyncDelegate : KoinComponent {
 	private val backend: Backend by inject()
 	private val workUtils: WorkUtils by inject()
 	private val executor: Executor by inject(InjectionModule.executorBean)
-	private val exchanger = Exchanger<Worker.Result>()
+	private val exchanger = Exchanger<ListenableWorker.Result>()
 	private val app: Application by inject(InjectionModule.appBean)
 	
-	fun execute(): Worker.Result {
+	fun execute(): ListenableWorker.Result {
 
 		if (!app.haveLocationPermission()) {
 			Timber.w("SyncWork FAILURE. User revoked location permission")
-			return Worker.Result.FAILURE
+			return ListenableWorker.Result.FAILURE
 		}
 
 		getTriggersFromBackend()
@@ -55,13 +52,13 @@ class SyncDelegate : KoinComponent {
 					workUtils.execute(BeaconWork::class.java)
 					workUtils.execute(GeofenceWork::class.java)
 
-					exchanger.exchange(Worker.Result.SUCCESS)
+					exchanger.exchange(ListenableWorker.Result.SUCCESS)
 				}
 			}
 
 			override fun onFail() {
 				Timber.w("SyncWork RETRY. Fail to get triggers from backend")
-				exchanger.exchange(Worker.Result.RETRY)
+				exchanger.exchange(ListenableWorker.Result.RETRY)
 			}
 		})
 	}

@@ -1,6 +1,8 @@
 package com.sensorberg.notifications.sdk.internal.work
 
+import android.content.Context
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.sensorberg.notifications.sdk.internal.ActionLauncher
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.model.DelayedActionModel
@@ -8,7 +10,7 @@ import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
-internal class FireActionWork : Worker(), KoinComponent {
+internal class FireActionWork(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
 
 	internal val database: SdkDatabase by inject()
 	private val workUtils: WorkUtils by inject()

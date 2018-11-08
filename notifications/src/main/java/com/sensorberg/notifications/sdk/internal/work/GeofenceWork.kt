@@ -1,24 +1,26 @@
 package com.sensorberg.notifications.sdk.internal.work
 
+import android.content.Context
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.logStart
 import com.sensorberg.notifications.sdk.internal.work.delegate.GeofenceRegistration
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
-internal class GeofenceWork : Worker(), KoinComponent {
+internal class GeofenceWork(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
 
 	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun doWork(): Result {
 		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
 		logStart()
-		return if (GeofenceRegistration().execute() == Worker.Result.SUCCESS) {
-			Worker.Result.SUCCESS
+		return if (GeofenceRegistration().execute() == Result.SUCCESS) {
+			Result.SUCCESS
 		} else {
 			// for geofence re-registration we want this to keep retrying until it succeeds
-			Worker.Result.RETRY
+			Result.RETRY
 		}
 	}
 }

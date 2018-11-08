@@ -1,23 +1,20 @@
 package com.sensorberg.notifications.sdk.sample
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.support.v4.content.FileProvider
+import android.support.v4.content.FileProvider.getUriForFile
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
+import com.sensorberg.notifications.sdk.Action
+import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.permissionbitte.BitteBitte
 import com.sensorberg.permissionbitte.PermissionBitte
 import timber.log.Timber
 import java.io.File
 import java.util.*
-import android.support.v4.content.FileProvider.getUriForFile
-import com.sensorberg.notifications.sdk.Action
-import com.sensorberg.notifications.sdk.Conversion
 
 class MainActivity : AppCompatActivity(), BitteBitte {
 
@@ -27,8 +24,8 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 		AlertDialog.Builder(this)
 			.setTitle("Do it")
 			.setMessage("You really have to accept the permission")
-			.setPositiveButton("Sure", { _, _ -> PermissionBitte.ask(this, this) })
-			.setNegativeButton("OK", { _, _ -> PermissionBitte.ask(this, this) })
+			.setPositiveButton("Sure") { _, _ -> PermissionBitte.ask(this, this) }
+			.setNegativeButton("OK") { _, _ -> PermissionBitte.ask(this, this) }
 			.setCancelable(false)
 			.show()
 	}
