@@ -43,7 +43,7 @@ dependencies {
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
 	// main
-	implementation 'org.koin:koin-core:1.0.0'
+	implementation 'org.koin:koin-core:1.0.2'
 	implementation "com.jakewharton.timber:timber:$jakewharton_timber_version"
 	implementation "com.squareup.moshi:moshi:$moshi_version"
 	kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
@@ -72,7 +72,7 @@ dependencies {
 	androidTestImplementation 'com.android.support.test:runner:1.0.2'
 	androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 	androidTestImplementation "android.arch.persistence.room:testing:$room_version"
-	testImplementation "io.mockk:mockk:1.8.5"
+	testImplementation "io.mockk:mockk:1.8.13"
 	testImplementation 'org.json:json:20140107'
 
 }
