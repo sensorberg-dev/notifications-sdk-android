@@ -13,7 +13,7 @@ android {
         versionCode 1
         versionName findProperty("VERSION_NAME", "0.0.0-alpha")
         consumerProguardFiles 'proguard-rules.txt'
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation": "${rootProject.projectDir}/db-schema".toString()]
@@ -53,11 +53,11 @@ dependencies {
     implementation "com.google.android.gms:play-services-nearby:$google_play_version"
     implementation "com.google.android.gms:play-services-location:$google_play_version"
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
-    implementation "android.arch.lifecycle:extensions:$arch_lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-extensions:$arch_lifecycle_version"
 
     // storage
-    api "android.arch.persistence.room:runtime:$room_version"
-    kapt "android.arch.persistence.room:compiler:$room_version"
+    api "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 
     // backend
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
@@ -69,9 +69,9 @@ dependencies {
 
     // tests
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    androidTestImplementation "android.arch.persistence.room:testing:$room_version"
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation "androidx.room:room-testing:$room_version"
     testImplementation "io.mockk:mockk:1.8.13"
     testImplementation 'org.json:json:20140107'
 

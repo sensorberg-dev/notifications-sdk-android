@@ -1,6 +1,6 @@
 package com.sensorberg.notifications.sdk.internal.storage
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import android.location.Location
 import com.sensorberg.notifications.sdk.internal.model.GeofenceQuery
 import com.sensorberg.notifications.sdk.internal.model.RegisteredGeoFence
