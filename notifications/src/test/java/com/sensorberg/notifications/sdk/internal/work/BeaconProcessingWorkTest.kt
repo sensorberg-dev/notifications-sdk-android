@@ -38,28 +38,28 @@ class BeaconProcessingWorkTest {
 	@Test fun no_bt_should_retry() {
 		val event = enter()
 		var result = BeaconProcessingWork.processData(false, true, event.beaconKey, null, event)
-		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.retry())
 		result = BeaconProcessingWork.processData(false, false, event.beaconKey, null, event)
-		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.retry())
 		result = BeaconProcessingWork.processData(false, false, event.beaconKey, seenLately(), event)
-		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.retry())
 	}
 
 	@Test fun no_location_should_retry() {
 		val event = enter()
 		var result = BeaconProcessingWork.processData(true, false, event.beaconKey, null, event)
-		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.retry())
 		result = BeaconProcessingWork.processData(false, false, event.beaconKey, null, event)
-		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.retry())
 		result = BeaconProcessingWork.processData(true, false, event.beaconKey, seenLately(), event)
-		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.retry())
 	}
 
 	@Test fun no_event_should_success() {
 		var result = BeaconProcessingWork.processData(true, true, "b", null, null)
-		assertEquals(result.workerResult, ListenableWorker.Result.SUCCESS)
+		assertEquals(result.workerResult, ListenableWorker.Result.success())
 		result = BeaconProcessingWork.processData(true, true, "b", seenLately(), null)
-		assertEquals(result.workerResult, ListenableWorker.Result.SUCCESS)
+		assertEquals(result.workerResult, ListenableWorker.Result.success())
 
 	}
 

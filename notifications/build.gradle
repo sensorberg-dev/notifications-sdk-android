@@ -49,7 +49,6 @@ dependencies {
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
 
     implementation "android.arch.work:work-runtime-ktx:$arch_work_manager_version"
-//    implementation "android.arch.work:work-firebase:$arch_work_manager_version"
     implementation "com.google.android.gms:play-services-nearby:$google_play_version"
     implementation "com.google.android.gms:play-services-location:$google_play_version"
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
