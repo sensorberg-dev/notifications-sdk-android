@@ -32,7 +32,7 @@ class SyncDelegate : KoinComponent {
 
 		if (!app.haveLocationPermission()) {
 			Timber.w("SyncWork FAILURE. User revoked location permission")
-			return ListenableWorker.Result.FAILURE
+			return ListenableWorker.Result.failure()
 		}
 
 		getTriggersFromBackend()
@@ -52,13 +52,13 @@ class SyncDelegate : KoinComponent {
 					workUtils.execute(BeaconWork::class.java)
 					workUtils.execute(GeofenceWork::class.java)
 
-					exchanger.exchange(ListenableWorker.Result.SUCCESS)
+					exchanger.exchange(ListenableWorker.Result.success())
 				}
 			}
 
 			override fun onFail() {
 				Timber.w("SyncWork RETRY. Fail to get triggers from backend")
-				exchanger.exchange(ListenableWorker.Result.RETRY)
+				exchanger.exchange(ListenableWorker.Result.retry())
 			}
 		})
 	}

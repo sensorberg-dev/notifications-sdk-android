@@ -17,7 +17,7 @@ internal class BeaconProcessingWork(context: Context, workerParams: WorkerParame
 	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun doWork(): Result {
-		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
+		if (!sdkEnableHandler.isEnabled()) return Result.failure()
 		logStart()
 		val beaconKey = getBeaconKey()
 		val result = BeaconProcessingDelegate().execute(beaconKey)
@@ -40,17 +40,17 @@ internal class BeaconProcessingWork(context: Context, workerParams: WorkerParame
 						lastEvent: BeaconEvent?): ProcessResult {
 
 			if (!bluetoothOn) {
-				return ProcessResult(Result.RETRY, null, "BeaconProcessingWork can't proceed. Bluetooth is off.")
+				return ProcessResult(Result.retry(), null, "BeaconProcessingWork can't proceed. Bluetooth is off.")
 			}
 
 			if (!haveLocationProvider) {
-				return ProcessResult(Result.RETRY, null, "BeaconProcessingWork can't proceed. Location is off.")
+				return ProcessResult(Result.retry(), null, "BeaconProcessingWork can't proceed. Location is off.")
 			}
 
 			if (lastEvent == null) {
 				// this is a weird edge case in case there's a duplicate work running and one deleted it already from DB
 				// in reality it should never happen, but I rather check it, then crash the app
-				return ProcessResult(Result.SUCCESS, null, "There was no lastEvent for beacon $beaconKey")
+				return ProcessResult(Result.success(), null, "There was no lastEvent for beacon $beaconKey")
 			}
 
 			val isBeaconVisible = if (visibleBeaconTimeStamp != null) {
@@ -67,7 +67,7 @@ internal class BeaconProcessingWork(context: Context, workerParams: WorkerParame
 			}
 			val message = if (result == null) "Beacon $beaconKey no changes" else "Beacon ${result.type} lastEvent for $beaconKey"
 
-			return ProcessResult(Result.SUCCESS, result, message, lastEvent.timestamp)
+			return ProcessResult(Result.success(), result, message, lastEvent.timestamp)
 
 		}
 	}

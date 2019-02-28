@@ -121,7 +121,7 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 		override fun doWork(): Result {
 			val className = inputData.getString("klazz")!!
 			workUtils.schedule(Class.forName(className) as Class<out Worker>)
-			return Result.SUCCESS
+			return Result.success()
 		}
 	}
 

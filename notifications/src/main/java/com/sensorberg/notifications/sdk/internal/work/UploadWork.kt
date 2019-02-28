@@ -24,34 +24,34 @@ internal class UploadWork(context: Context, workerParams: WorkerParameters) : Wo
 	private val backendExecution = Exchanger<Result>()
 
 	override fun doWork(): Result {
-		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
+		if (!sdkEnableHandler.isEnabled()) return Result.failure()
 		logStart()
 
 		val actions: List<ActionHistory> = dao.getActionHistory()
 		val conversions: List<ActionConversion> = dao.getActionConversion()
 		if (actions.isEmpty() && conversions.isEmpty()) {
 			Timber.d("Nothing to upload")
-			return Result.SUCCESS
+			return Result.success()
 		}
 
 		Timber.d("Executing upload work for ${actions.size} actions triggered and ${conversions.size} conversion data")
 
 		backend.publishHistory(actions, conversions) {
-			val result = if (it) Result.SUCCESS else Result.RETRY
+			val result = if (it) Result.success() else Result.retry()
 			backendExecution.exchange(result)
 		}
 
 		return logResult(try {
 			val result = backendExecution.exchange(null, 30, TimeUnit.SECONDS)
-			if (result == Result.SUCCESS) {
+			if (result == Result.success()) {
 				dao.clearActionHistory(actions)
 				dao.clearActionConversion(conversions)
 			}
-			Timber.d("Upload work execution ${result.name}")
+			Timber.d("Upload work execution $result")
 			result
 		} catch (e: Exception) {
 			Timber.w(e, "Upload work execution failed")
-			Result.RETRY
+			Result.retry()
 		})
 	}
 }

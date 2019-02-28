@@ -21,7 +21,7 @@ internal class FireActionWork(context: Context, workerParams: WorkerParameters) 
 		val action = getAction()
 		if (!sdkEnableHandler.isEnabled()) {
 			database.delayedActionDao().delete(DelayedActionModel.fromAction(action))
-			return Result.FAILURE
+			return Result.failure()
 		}
 		val triggerType = getTriggerType()
 		val reportImmediate = isReportImmediate()
@@ -30,6 +30,6 @@ internal class FireActionWork(context: Context, workerParams: WorkerParameters) 
 			workUtils.executeAndSchedule(UploadWork::class.java)
 		}
 		database.delayedActionDao().delete(DelayedActionModel.fromAction(action))
-		return Result.SUCCESS
+		return Result.success()
 	}
 }
