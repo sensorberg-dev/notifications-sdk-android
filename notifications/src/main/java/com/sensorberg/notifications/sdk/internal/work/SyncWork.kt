@@ -15,7 +15,7 @@ internal class SyncWork(context: Context, workerParams: WorkerParameters) : Work
 	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun doWork(): Result {
-		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
+		if (!sdkEnableHandler.isEnabled()) return Result.failure()
 		logStart()
 		val result = SyncDelegate().execute()
 		return logResult(result)

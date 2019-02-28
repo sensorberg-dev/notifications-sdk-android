@@ -14,13 +14,13 @@ internal class BeaconWork(context: Context, workerParams: WorkerParameters) : Wo
 	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun doWork(): Result {
-		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
+		if (!sdkEnableHandler.isEnabled()) return Result.failure()
 		logStart()
-		return if (BeaconRegistration().execute() == Result.SUCCESS) {
-			Result.SUCCESS
+		return if (BeaconRegistration().execute() == Result.success()) {
+			Result.success()
 		} else {
 			// for beacon registration we want this to keep retrying until it succeeds
-			Result.RETRY
+			Result.retry()
 		}
 	}
 }

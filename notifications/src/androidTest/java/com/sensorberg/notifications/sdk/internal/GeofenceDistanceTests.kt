@@ -1,9 +1,9 @@
 package com.sensorberg.notifications.sdk.internal
 
-import android.arch.persistence.room.Room
+import androidx.room.Room
 import android.location.Location
-import android.support.test.InstrumentationRegistry
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.InstrumentationRegistry
+import androidx.test.runner.AndroidJUnit4
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.storage.GeofenceDao

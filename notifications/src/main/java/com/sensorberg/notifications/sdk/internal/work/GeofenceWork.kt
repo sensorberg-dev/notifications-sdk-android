@@ -14,13 +14,13 @@ internal class GeofenceWork(context: Context, workerParams: WorkerParameters) : 
 	private val sdkEnableHandler: SdkEnableHandler by inject()
 
 	override fun doWork(): Result {
-		if (!sdkEnableHandler.isEnabled()) return Result.FAILURE
+		if (!sdkEnableHandler.isEnabled()) return Result.failure()
 		logStart()
-		return if (GeofenceRegistration().execute() == Result.SUCCESS) {
-			Result.SUCCESS
+		return if (GeofenceRegistration().execute() == Result.success()) {
+			Result.success()
 		} else {
 			// for geofence re-registration we want this to keep retrying until it succeeds
-			Result.RETRY
+			Result.retry()
 		}
 	}
 }

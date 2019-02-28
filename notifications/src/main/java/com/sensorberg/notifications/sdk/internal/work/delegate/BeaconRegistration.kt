@@ -24,7 +24,7 @@ internal class BeaconRegistration : KoinComponent {
 
 		if (!app.haveLocationPermission()) {
 			Timber.w("Beacon registration FAILURE. User revoked location permission")
-			return ListenableWorker.Result.FAILURE
+			return ListenableWorker.Result.failure()
 		}
 
 		val beacons = database.beaconRegistrationDao().get()
@@ -56,7 +56,7 @@ internal class BeaconRegistration : KoinComponent {
 				}
 			}
 		val result = RegistrationHelper.awaitResult("Beacon", 30, task)
-		if (result == ListenableWorker.Result.SUCCESS) {
+		if (result == ListenableWorker.Result.success()) {
 			database.beaconRegistrationDao().delete()
 		}
 		return result

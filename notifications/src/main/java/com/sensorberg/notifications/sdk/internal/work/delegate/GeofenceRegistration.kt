@@ -36,12 +36,12 @@ internal class GeofenceRegistration : KoinComponent {
 
 		if (!app.haveLocationPermission()) {
 			Timber.w("Fences registration FAILURE. User revoked location permission")
-			return ListenableWorker.Result.FAILURE
+			return ListenableWorker.Result.failure()
 		}
 
 		if (!app.haveLocationProvider()) {
 			Timber.w("Fences registration FAILURE. Location providers are turned off")
-			return ListenableWorker.Result.FAILURE
+			return ListenableWorker.Result.failure()
 		}
 
 		Timber.d("Start to register geofences to Google Play Services")

@@ -2,9 +2,9 @@ package com.sensorberg.notifications.sdk.sample
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.content.FileProvider.getUriForFile
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
+import androidx.core.content.FileProvider.getUriForFile
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
 import com.sensorberg.notifications.sdk.Action
