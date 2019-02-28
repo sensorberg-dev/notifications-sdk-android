@@ -1,7 +1,7 @@
 package com.sensorberg.notifications.sdk.internal.model
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import android.location.Location
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.Conversion

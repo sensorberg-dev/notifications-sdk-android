@@ -1,7 +1,7 @@
 package com.sensorberg.notifications.sdk.internal.work.delegate
 
 import android.app.Application
-import androidx.work.Worker
+import androidx.work.ListenableWorker
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.messages.*
@@ -20,11 +20,11 @@ internal class BeaconRegistration : KoinComponent {
 	private val apis: GoogleApiAvailability by inject(InjectionModule.googleApiAvailabilityBean)
 	private val database: SdkDatabase by inject()
 
-	fun execute(): Worker.Result {
+	fun execute(): ListenableWorker.Result {
 
 		if (!app.haveLocationPermission()) {
 			Timber.w("Beacon registration FAILURE. User revoked location permission")
-			return Worker.Result.FAILURE
+			return ListenableWorker.Result.failure()
 		}
 
 		val beacons = database.beaconRegistrationDao().get()
@@ -56,7 +56,7 @@ internal class BeaconRegistration : KoinComponent {
 				}
 			}
 		val result = RegistrationHelper.awaitResult("Beacon", 30, task)
-		if (result == Worker.Result.SUCCESS) {
+		if (result == ListenableWorker.Result.success()) {
 			database.beaconRegistrationDao().delete()
 		}
 		return result

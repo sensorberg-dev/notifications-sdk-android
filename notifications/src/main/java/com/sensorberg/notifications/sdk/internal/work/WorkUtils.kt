@@ -1,6 +1,7 @@
 package com.sensorberg.notifications.sdk.internal.work
 
 import android.app.Application
+import android.content.Context
 import androidx.work.*
 import com.sensorberg.notifications.sdk.Action
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
@@ -114,13 +115,13 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 			.build()
 	}
 
-	class Rescheduler : Worker(), KoinComponent {
+	class Rescheduler(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
 
 		private val workUtils: WorkUtils by inject()
 		override fun doWork(): Result {
 			val className = inputData.getString("klazz")!!
 			workUtils.schedule(Class.forName(className) as Class<out Worker>)
-			return Result.SUCCESS
+			return Result.success()
 		}
 	}
 

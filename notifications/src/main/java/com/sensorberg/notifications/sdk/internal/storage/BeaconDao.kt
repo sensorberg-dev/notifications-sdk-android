@@ -1,6 +1,6 @@
 package com.sensorberg.notifications.sdk.internal.storage
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.BeaconStorage
 import com.sensorberg.notifications.sdk.internal.model.VisibleBeacons

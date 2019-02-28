@@ -1,6 +1,6 @@
 package com.sensorberg.notifications.sdk.internal.work
 
-import androidx.work.Worker
+import androidx.work.ListenableWorker
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import org.junit.Assert.assertEquals
@@ -38,28 +38,28 @@ class BeaconProcessingWorkTest {
 	@Test fun no_bt_should_retry() {
 		val event = enter()
 		var result = BeaconProcessingWork.processData(false, true, event.beaconKey, null, event)
-		assertEquals(result.workerResult, Worker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
 		result = BeaconProcessingWork.processData(false, false, event.beaconKey, null, event)
-		assertEquals(result.workerResult, Worker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
 		result = BeaconProcessingWork.processData(false, false, event.beaconKey, seenLately(), event)
-		assertEquals(result.workerResult, Worker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
 	}
 
 	@Test fun no_location_should_retry() {
 		val event = enter()
 		var result = BeaconProcessingWork.processData(true, false, event.beaconKey, null, event)
-		assertEquals(result.workerResult, Worker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
 		result = BeaconProcessingWork.processData(false, false, event.beaconKey, null, event)
-		assertEquals(result.workerResult, Worker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
 		result = BeaconProcessingWork.processData(true, false, event.beaconKey, seenLately(), event)
-		assertEquals(result.workerResult, Worker.Result.RETRY)
+		assertEquals(result.workerResult, ListenableWorker.Result.RETRY)
 	}
 
 	@Test fun no_event_should_success() {
 		var result = BeaconProcessingWork.processData(true, true, "b", null, null)
-		assertEquals(result.workerResult, Worker.Result.SUCCESS)
+		assertEquals(result.workerResult, ListenableWorker.Result.SUCCESS)
 		result = BeaconProcessingWork.processData(true, true, "b", seenLately(), null)
-		assertEquals(result.workerResult, Worker.Result.SUCCESS)
+		assertEquals(result.workerResult, ListenableWorker.Result.SUCCESS)
 
 	}
 

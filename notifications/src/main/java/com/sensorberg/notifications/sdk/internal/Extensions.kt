@@ -11,6 +11,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Process
+import androidx.work.ListenableWorker
 import androidx.work.Worker
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -82,7 +83,7 @@ internal fun Worker.logStart() {
 	Timber.i("Starting ${javaClass.simpleName}")
 }
 
-internal fun Worker.logResult(result: Worker.Result): Worker.Result {
+internal fun Worker.logResult(result: ListenableWorker.Result): ListenableWorker.Result {
 	Timber.i("${javaClass.simpleName} workerResult $result")
 	return result
 }

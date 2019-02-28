@@ -1,6 +1,6 @@
 package com.sensorberg.notifications.sdk.internal.storage
 
-import android.arch.persistence.room.TypeConverter
+import androidx.room.TypeConverter
 import com.sensorberg.notifications.sdk.Conversion
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import java.util.*

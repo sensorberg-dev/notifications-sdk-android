@@ -1,6 +1,8 @@
 package com.sensorberg.notifications.sdk.internal.work
 
+import android.content.Context
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.sensorberg.notifications.sdk.internal.ActionLauncher
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.model.DelayedActionModel
@@ -8,7 +10,7 @@ import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
-internal class FireActionWork : Worker(), KoinComponent {
+internal class FireActionWork(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
 
 	internal val database: SdkDatabase by inject()
 	private val workUtils: WorkUtils by inject()
@@ -19,7 +21,7 @@ internal class FireActionWork : Worker(), KoinComponent {
 		val action = getAction()
 		if (!sdkEnableHandler.isEnabled()) {
 			database.delayedActionDao().delete(DelayedActionModel.fromAction(action))
-			return Result.FAILURE
+			return Result.failure()
 		}
 		val triggerType = getTriggerType()
 		val reportImmediate = isReportImmediate()
@@ -28,6 +30,6 @@ internal class FireActionWork : Worker(), KoinComponent {
 			workUtils.executeAndSchedule(UploadWork::class.java)
 		}
 		database.delayedActionDao().delete(DelayedActionModel.fromAction(action))
-		return Result.SUCCESS
+		return Result.success()
 	}
 }
