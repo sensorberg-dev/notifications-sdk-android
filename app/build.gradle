@@ -25,9 +25,8 @@ android {
 dependencies {
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 	implementation project(':notifications')
-	implementation "androidx.arch.core:core-runtime:$room_version"
 	implementation "com.jakewharton.timber:timber:$jakewharton_timber_version"
-	implementation "com.sensorberg.libs:timber-extensions:$sb_libs_timber_version"
+	// implementation "com.sensorberg.libs:timber-extensions:$sb_libs_timber_version"
 	implementation 'com.sensorberg.libs:permission-bitte:0.3.0'
 
 	implementation 'androidx.appcompat:appcompat:1.0.2'

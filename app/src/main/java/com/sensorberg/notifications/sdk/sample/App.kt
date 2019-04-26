@@ -4,10 +4,10 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import com.sensorberg.notifications.sdk.NotificationsSdk
-import com.sensorberg.timberextensions.tree.DebugTree
-import com.sensorberg.timberextensions.tree.FileLogTree
+//import com.sensorberg.timberextensions.tree.DebugTree
+//import com.sensorberg.timberextensions.tree.FileLogTree
 import timber.log.Timber
-import java.io.File
+//import java.io.File
 
 class App : Application() {
 
@@ -17,9 +17,9 @@ class App : Application() {
 		super.onCreate()
 
 		Timber.plant(
-				/*Timber.DebugTree(),*/
+				Timber.DebugTree()/*,
 				DebugTree("NotificationsSdk"),
-				FileLogTree(File(filesDir, "logs/").absolutePath, 1, 3))
+				FileLogTree(File(filesDir, "logs/").absolutePath, 1, 3)*/)
 
 		getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE)
 			.registerOnSharedPreferenceChangeListener(preferencesChange)
