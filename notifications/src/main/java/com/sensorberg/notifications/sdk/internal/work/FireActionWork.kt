@@ -7,10 +7,10 @@ import com.sensorberg.notifications.sdk.internal.ActionLauncher
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.model.DelayedActionModel
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import com.sensorberg.notifications.sdk.internal.NotificationSdkComponent
+import org.koin.core.inject
 
-internal class FireActionWork(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
+internal class FireActionWork(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), NotificationSdkComponent {
 
 	internal val database: SdkDatabase by inject()
 	private val workUtils: WorkUtils by inject()

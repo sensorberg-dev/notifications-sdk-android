@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import androidx.work.WorkManager
 import com.google.android.gms.common.GoogleApiAvailability
 import com.sensorberg.notifications.sdk.BuildConfig
-import com.sensorberg.notifications.sdk.NotificationsSdk
 import com.sensorberg.notifications.sdk.internal.backend.Backend
 import com.sensorberg.notifications.sdk.internal.backend.backendsdkv2.BackendSdkV2
 import com.sensorberg.notifications.sdk.internal.model.Trigger
@@ -15,36 +14,28 @@ import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.ToJson
-import org.koin.dsl.module.module
+import org.koin.core.module.Module
 import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 internal class InjectionModule(private val app: Application, private val apiKey: String, private val baseUrl: String, private val log: Boolean) {
 
-	companion object {
-		const val preferencesBean = "com.sensorberg.notifications.sdk.Preferences"
-		const val appBean = "com.sensorberg.notifications.sdk.App"
-		const val executorBean = "com.sensorberg.notifications.sdk.Executor"
-		const val googleApiAvailabilityBean = "com.sensorberg.notifications.sdk.googleApiAvailability"
-		const val moshiBean = "com.sensorberg.notifications.sdk.moshi"
-	}
-
-	internal val module = listOf(module {
-		single(appBean) { app }
-		single(executorBean) { Executors.newFixedThreadPool(3) as Executor } // used for DB operations
-		single { SdkDatabase.createDatabase(get(appBean)) }
+	val module: Module = org.koin.dsl.module {
+		single { app }
+		single { Executors.newFixedThreadPool(3) as Executor } // used for DB operations
+		single { SdkDatabase.createDatabase(get()) }
 		single { get<SdkDatabase>().actionDao() }
 		single { get<SdkDatabase>().geofenceDao() }
 		single { get<SdkDatabase>().beaconDao() }
-		single(preferencesBean) { get<Application>(appBean).getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
-		single { TriggerProcessor(get(), get(), get(), get(appBean)) }
-		single { ActionLauncher(get(appBean), get(), get(preferencesBean)) }
-		single { VersionUpdate.check(get(preferencesBean), BuildConfig.VERSION_NAME) }
+		single { get<Application>().getSharedPreferences("notifications-sdk", Context.MODE_PRIVATE) }
+		single { TriggerProcessor(get(), get(), get(), get()) }
+		single { ActionLauncher(get(), get(), get()) }
+		single { VersionUpdate.check(get(), BuildConfig.VERSION_NAME) }
 		single { SdkEnableHandler() }
-		single(googleApiAvailabilityBean) { GoogleApiAvailability.getInstance() }
+		single { GoogleApiAvailability.getInstance() }
 		single { WorkUtils(WorkManager.getInstance(), app, get()) }
-		single(moshiBean) {
+		single {
 			Moshi.Builder()
 				.add(UuidObjectAdapter)
 				.add(TriggerTypeObjectAdapter)
@@ -52,7 +43,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 		}
 		single {
 
-			val prefs = get<SharedPreferences>(preferencesBean)
+			val prefs: SharedPreferences = get()
 			var installId = prefs.getString(NotificationsSdkImpl.PREF_INSTALL_ID, null)
 			if (installId == null) {
 				installId = UUID.randomUUID().toString().replace("-", "").toLowerCase()
@@ -66,7 +57,7 @@ internal class InjectionModule(private val app: Application, private val apiKey:
 									   log) as Backend
 
 		}
-	})
+	}
 
 	private object UuidObjectAdapter {
 		@FromJson fun toUUID(value: String): UUID {

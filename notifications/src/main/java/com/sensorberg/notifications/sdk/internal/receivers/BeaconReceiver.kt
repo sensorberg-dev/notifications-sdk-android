@@ -8,23 +8,21 @@ import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.messages.IBeaconId
 import com.google.android.gms.nearby.messages.Message
 import com.google.android.gms.nearby.messages.MessageListener
-import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.async
 import com.sensorberg.notifications.sdk.internal.model.BeaconEvent
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.storage.BeaconDao
-import com.sensorberg.notifications.sdk.internal.work.BeaconProcessingWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import com.sensorberg.notifications.sdk.internal.work.delegate.BeaconProcessingDelegate
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import com.sensorberg.notifications.sdk.internal.NotificationSdkComponent
+import org.koin.core.inject
 import timber.log.Timber
 import java.util.concurrent.Executor
 
-class BeaconReceiver : BroadcastReceiver(), KoinComponent {
+class BeaconReceiver : BroadcastReceiver(), NotificationSdkComponent {
 
-	private val executor: Executor by inject(InjectionModule.executorBean)
+	private val executor: Executor by inject()
 	private val dao: BeaconDao by inject()
 	private val workUtils: WorkUtils by inject()
 	private val sdkEnableHandler: SdkEnableHandler by inject()

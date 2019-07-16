@@ -3,20 +3,19 @@ package com.sensorberg.notifications.sdk.internal.work.delegate
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import androidx.work.ListenableWorker
-import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.TriggerProcessor
 import com.sensorberg.notifications.sdk.internal.haveLocationProvider
 import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.model.VisibleBeacons
 import com.sensorberg.notifications.sdk.internal.storage.BeaconDao
 import com.sensorberg.notifications.sdk.internal.work.BeaconProcessingWork
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import com.sensorberg.notifications.sdk.internal.NotificationSdkComponent
+import org.koin.core.inject
 import timber.log.Timber
 
-internal class BeaconProcessingDelegate : KoinComponent {
+internal class BeaconProcessingDelegate : NotificationSdkComponent {
 
-	private val app: Application by inject(InjectionModule.appBean)
+	private val app: Application by inject()
 	private val dao: BeaconDao by inject()
 	private val triggerProcessor: TriggerProcessor by inject()
 

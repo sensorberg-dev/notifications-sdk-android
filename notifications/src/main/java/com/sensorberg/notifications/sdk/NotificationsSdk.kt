@@ -9,7 +9,7 @@ import androidx.work.WorkManager
 import com.sensorberg.notifications.sdk.internal.*
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
-import org.koin.standalone.StandAloneContext.loadKoinModules
+import org.koin.dsl.koinApplication
 import timber.log.Timber
 
 interface NotificationsSdk {
@@ -92,13 +92,13 @@ interface NotificationsSdk {
 				throw IllegalArgumentException("baseUrl is invalid - use baseUrl to provide a valid baseUrl")
 			}
 
-			val osVersion = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
-			val gpsAvailable = app.isGooglePlayServicesAvailable()
-			return if (osVersion && gpsAvailable) {
-				loadKoinModules(InjectionModule(app, apiKey, baseUrl, log).module)
+			val jellyBeanVersionSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
+			val googlePlayServiceAvailable = app.isGooglePlayServicesAvailable()
+			return if (jellyBeanVersionSupported && googlePlayServiceAvailable) {
+				insertKoin(app, apiKey, baseUrl, log)
 				NotificationsSdkImpl()
 			} else {
-				Timber.w("NotificationsSdk disabled. Android Version(${Build.VERSION.SDK_INT}). Google Play Services (${if (gpsAvailable) "" else "un"}available)")
+				Timber.w("NotificationsSdk disabled. Android Version(${Build.VERSION.SDK_INT}). Google Play Services (${if (googlePlayServiceAvailable) "" else "un"}available)")
 				SdkEnableHandler.setAllComponentsEnable(false, app)
 				EmptyImpl()
 			}

@@ -6,10 +6,10 @@ import androidx.work.WorkerParameters
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.logStart
 import com.sensorberg.notifications.sdk.internal.work.delegate.GeofenceRegistration
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import com.sensorberg.notifications.sdk.internal.NotificationSdkComponent
+import org.koin.core.inject
 
-internal class GeofenceWork(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
+internal class GeofenceWork(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), NotificationSdkComponent {
 
 	private val sdkEnableHandler: SdkEnableHandler by inject()
 

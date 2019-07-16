@@ -6,18 +6,17 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.messages.*
 import com.google.android.gms.tasks.Tasks
-import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.haveLocationPermission
 import com.sensorberg.notifications.sdk.internal.receivers.BeaconReceiver
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import com.sensorberg.notifications.sdk.internal.NotificationSdkComponent
+import org.koin.core.inject
 import timber.log.Timber
 
-internal class BeaconRegistration : KoinComponent {
+internal class BeaconRegistration : NotificationSdkComponent {
 
-	private val app: Application by inject(InjectionModule.appBean)
-	private val apis: GoogleApiAvailability by inject(InjectionModule.googleApiAvailabilityBean)
+	private val app: Application by inject()
+	private val apis: GoogleApiAvailability by inject()
 	private val database: SdkDatabase by inject()
 
 	fun execute(): ListenableWorker.Result {

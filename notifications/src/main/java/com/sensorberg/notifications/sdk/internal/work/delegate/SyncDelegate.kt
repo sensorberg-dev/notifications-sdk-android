@@ -13,21 +13,21 @@ import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.BeaconWork
 import com.sensorberg.notifications.sdk.internal.work.GeofenceWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import com.sensorberg.notifications.sdk.internal.NotificationSdkComponent
+import org.koin.core.inject
 import timber.log.Timber
 import java.util.concurrent.Exchanger
 import java.util.concurrent.Executor
 
-class SyncDelegate : KoinComponent {
+class SyncDelegate : NotificationSdkComponent {
 
 	private val database: SdkDatabase by inject()
 	private val backend: Backend by inject()
 	private val workUtils: WorkUtils by inject()
-	private val executor: Executor by inject(InjectionModule.executorBean)
+	private val executor: Executor by inject()
 	private val exchanger = Exchanger<ListenableWorker.Result>()
-	private val app: Application by inject(InjectionModule.appBean)
-	
+	private val app: Application by inject()
+
 	fun execute(): ListenableWorker.Result {
 
 		if (!app.haveLocationPermission()) {

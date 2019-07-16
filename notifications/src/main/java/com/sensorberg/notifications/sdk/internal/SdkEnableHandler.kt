@@ -3,8 +3,7 @@ package com.sensorberg.notifications.sdk.internal
 import android.app.Application
 import android.content.SharedPreferences
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import org.koin.core.inject
 import android.content.pm.PackageManager
 import android.content.ComponentName
 import android.content.Context
@@ -19,19 +18,17 @@ import com.sensorberg.notifications.sdk.internal.work.delegate.RegistrationHelpe
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.SyncWork
 import com.sensorberg.notifications.sdk.internal.work.UploadWork
-import com.sensorberg.notifications.sdk.internal.work.delegate.SyncDelegate
 import timber.log.Timber
 import java.util.concurrent.Executor
 
-internal class SdkEnableHandler : KoinComponent {
+internal class SdkEnableHandler : NotificationSdkComponent {
 
-	private val googleApi: GoogleApiAvailability by inject(InjectionModule.googleApiAvailabilityBean)
-	private val app: Application by inject(InjectionModule.appBean)
+	private val app: Application by inject()
 	private val sdkDatabase: SdkDatabase by inject()
 	private val versionUpdate: VersionUpdate by inject()
-	private val prefs: SharedPreferences by inject(InjectionModule.preferencesBean)
+	private val prefs: SharedPreferences by inject()
 	private val workUtils: WorkUtils by inject()
-	private val executor: Executor by inject(InjectionModule.executorBean)
+	private val executor: Executor by inject()
 
 	fun onNotificationSdkInit() {
 

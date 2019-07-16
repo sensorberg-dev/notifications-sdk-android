@@ -17,22 +17,21 @@ import com.sensorberg.notifications.sdk.internal.work.WorkUtils
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import org.koin.core.inject
 import timber.log.Timber
 import java.util.concurrent.Executor
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-internal class NotificationsSdkImpl : NotificationsSdk, KoinComponent {
+internal class NotificationsSdkImpl : NotificationsSdk, NotificationSdkComponent {
 
-	private val app: Application by inject(InjectionModule.appBean)
-	private val prefs: SharedPreferences by inject(InjectionModule.preferencesBean)
+	private val app: Application by inject()
+	private val prefs: SharedPreferences by inject()
 	private val backend: Backend by inject()
-	private val moshi: Moshi by inject(InjectionModule.moshiBean)
+	private val moshi: Moshi by inject()
 	private val workUtils: WorkUtils by inject()
 	private val dao: ActionDao by inject()
 	private val sdkEnableHandler: SdkEnableHandler by inject()
-	private val executor: Executor by inject(InjectionModule.executorBean)
+	private val executor: Executor by inject()
 	private val mapAdapter: JsonAdapter<Map<String, String>> = moshi.adapter<Map<String, String>>(MAP_TYPE)
 
 	init {

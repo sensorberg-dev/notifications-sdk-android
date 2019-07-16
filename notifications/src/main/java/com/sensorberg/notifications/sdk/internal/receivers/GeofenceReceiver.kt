@@ -7,7 +7,6 @@ import android.content.Intent
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
-import com.sensorberg.notifications.sdk.internal.InjectionModule
 import com.sensorberg.notifications.sdk.internal.SdkEnableHandler
 import com.sensorberg.notifications.sdk.internal.TriggerProcessor
 import com.sensorberg.notifications.sdk.internal.async
@@ -15,15 +14,15 @@ import com.sensorberg.notifications.sdk.internal.model.Trigger
 import com.sensorberg.notifications.sdk.internal.storage.GeofenceDao
 import com.sensorberg.notifications.sdk.internal.work.GeofenceWork
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import com.sensorberg.notifications.sdk.internal.NotificationSdkComponent
+import org.koin.core.inject
 import timber.log.Timber
 import java.util.concurrent.Executor
 
-class GeofenceReceiver : BroadcastReceiver(), KoinComponent {
+class GeofenceReceiver : BroadcastReceiver(), NotificationSdkComponent {
 
 	private val dao: GeofenceDao by inject()
-	private val executor: Executor by inject(InjectionModule.executorBean)
+	private val executor: Executor by inject()
 	private val triggerProcessor: TriggerProcessor by inject()
 	private val workUtils: WorkUtils by inject()
 	private val sdkEnableHandler: SdkEnableHandler by inject()

@@ -10,13 +10,13 @@ import com.sensorberg.notifications.sdk.internal.logStart
 import com.sensorberg.notifications.sdk.internal.model.ActionConversion
 import com.sensorberg.notifications.sdk.internal.model.ActionHistory
 import com.sensorberg.notifications.sdk.internal.storage.ActionDao
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import com.sensorberg.notifications.sdk.internal.NotificationSdkComponent
+import org.koin.core.inject
 import timber.log.Timber
 import java.util.concurrent.Exchanger
 import java.util.concurrent.TimeUnit
 
-internal class UploadWork(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
+internal class UploadWork(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), NotificationSdkComponent {
 
 	private val sdkEnableHandler: SdkEnableHandler by inject()
 	private val dao: ActionDao by inject()

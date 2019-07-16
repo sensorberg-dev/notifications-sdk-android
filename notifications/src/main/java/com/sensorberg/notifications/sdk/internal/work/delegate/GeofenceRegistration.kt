@@ -19,17 +19,17 @@ import com.sensorberg.notifications.sdk.internal.model.RegisteredGeoFence
 import com.sensorberg.notifications.sdk.internal.receivers.GeofenceReceiver
 import com.sensorberg.notifications.sdk.internal.storage.GeofenceDao
 import com.sensorberg.notifications.sdk.internal.storage.GeofenceQueryResult
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import com.sensorberg.notifications.sdk.internal.NotificationSdkComponent
+import org.koin.core.inject
 import timber.log.Timber
 import java.util.concurrent.Executor
 
-internal class GeofenceRegistration : KoinComponent {
+internal class GeofenceRegistration : NotificationSdkComponent {
 
-	private val app: Application by inject(InjectionModule.appBean)
-	private val googleApi: GoogleApiAvailability by inject(InjectionModule.googleApiAvailabilityBean)
+	private val app: Application by inject()
+	private val googleApi: GoogleApiAvailability by inject()
 	private val fenceDao: GeofenceDao by inject()
-	private val executor: Executor by inject(InjectionModule.executorBean)
+	private val executor: Executor by inject()
 
 	@SuppressLint("MissingPermission")
 	fun execute(): ListenableWorker.Result {
