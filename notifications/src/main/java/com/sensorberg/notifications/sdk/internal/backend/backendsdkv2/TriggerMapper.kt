@@ -123,7 +123,7 @@ internal class TriggerMapper(private val callback: Backend.NotificationTriggers)
 							   injectBackendV2MetaIntoPayload(action.content?.payload, action),
 							   action.reportImmediately == true,
 							   if (action.delay == null) 0 else action.delay * 1000,
-							   action.deliverAt ?: 0,
+							   action.deliverAt?.fromIso8601() ?: 0,
 							   if (action.suppressionTime == null) DEFAULT_SUPPRESSION_TIME else action.suppressionTime * 1000,
 							   if (action.sendOnlyOnce == true) 1 else 0,
 							   action.type == ResolveAction.TYPE_SILENT)
