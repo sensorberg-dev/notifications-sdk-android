@@ -29,7 +29,7 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 	}
 
 	private fun createDelayedActionRequest(delay: Long, data: Data): OneTimeWorkRequest {
-		return OneTimeWorkRequestBuilder<FireActionWork>()
+		return OneTimeWorkRequest.Builder(FireActionWork::class.java)
 			.setInitialDelay(delay, TimeUnit.MILLISECONDS)
 			.setInputData(data)
 			.addTag(WORKER_TAG) //only to get the workers states later
@@ -43,7 +43,7 @@ internal class WorkUtils(private val workManager: WorkManager, private val app: 
 		val data = Data.Builder()
 			.putString(BEACON_STRING, beaconKey)
 			.build()
-		val request = OneTimeWorkRequestBuilder<BeaconProcessingWork>()
+		val request = OneTimeWorkRequest.Builder(BeaconProcessingWork::class.java)
 			.setInitialDelay(time, TimeUnit.MINUTES)
 			.setInputData(data)
 			.addTag(WORKER_TAG) //only to get the workers states later

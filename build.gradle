@@ -7,13 +7,13 @@ ext {
 	retrofit_version = '2.3.0'
 	okhttp_version = '3.10.0'
 	moshi_version = '1.6.0'
-	google_play_version = '15.0.1'
+	google_play_version = '17.0.0'
 	jakewharton_timber_version = '4.7.1'
-	jakewharton_threetenabp_version = '1.0.5'
+	jakewharton_threetenabp_version = '1.2.1'
 	sb_libs_timber_version = '0.3.0'
-	room_version = '2.0.0'
-	arch_lifecycle_version = '2.0.0'
-	arch_work_manager_version = '1.0.0'
+	room_version = '2.2.1'
+	arch_lifecycle_version = '2.1.0'
+	arch_work_manager_version = '2.2.0'
 }
 
 buildscript {
