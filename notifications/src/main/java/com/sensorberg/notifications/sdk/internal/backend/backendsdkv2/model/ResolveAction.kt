@@ -21,7 +21,7 @@ internal data class ResolveAction(
 	val reportImmediately: Boolean? = null,
 	val content: Content? = null,
 	val timeframes: List<Timeframe>? = null,
-	val deliverAt: String? = null) {
+	val deliverAt: Long? = null) {
 
 	fun getTriggerType(): Trigger.Type {
 		return when (trigger) {
