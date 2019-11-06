@@ -4,10 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import com.sensorberg.notifications.sdk.NotificationsSdk
-//import com.sensorberg.timberextensions.tree.DebugTree
-//import com.sensorberg.timberextensions.tree.FileLogTree
 import timber.log.Timber
-//import java.io.File
 
 class App : Application() {
 

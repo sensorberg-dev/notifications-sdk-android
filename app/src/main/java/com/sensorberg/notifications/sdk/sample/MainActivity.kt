@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 		}
 	}
 
-	fun onShareLogs(view: View) {
+	fun onShareLogs(@Suppress("UNUSED_PARAMETER") view: View) {
 		File(filesDir, "logs/").listFiles().toList().sortedBy { it.absolutePath }.lastOrNull()?.let {
 			val contentUri = getUriForFile(this, "com.sensorberg.notifications.sdk.sample.fileprovider", it)
 			val shareIntent: Intent = Intent().apply {
@@ -69,11 +69,11 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 		}
 	}
 
-	fun onClickPrint(view: View) {
+	fun onClickPrint(@Suppress("UNUSED_PARAMETER") view: View) {
 		NotificationsSdk.printAllSdkWorkerStates()
 	}
 
-	fun onChangeAttrs(view: View) {
+	fun onChangeAttrs(@Suppress("UNUSED_PARAMETER") view: View) {
 		val map = mutableMapOf<String, String>().apply {
 			put("blz", UUID.randomUUID().toString().replace("-", "_"))
 		}
@@ -81,13 +81,13 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 		notificationsSdk.setAttributes(map)
 	}
 
-	fun onChangeAdId(view: View) {
+	fun onChangeAdId(@Suppress("UNUSED_PARAMETER") view: View) {
 		val ad = UUID.randomUUID().toString()
 		Timber.d("Adding ad = $ad")
 		notificationsSdk.setAdvertisementId(ad)
 	}
 
-	fun onEnabledChange(view: View) {
+	fun onEnabledChange(@Suppress("UNUSED_PARAMETER") view: View) {
 		if (notificationsSdk.isEnabled()) {
 			notificationsSdk.setEnabled(false)
 		} else {

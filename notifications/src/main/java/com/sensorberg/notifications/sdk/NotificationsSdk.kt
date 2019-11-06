@@ -9,7 +9,6 @@ import androidx.work.WorkManager
 import com.sensorberg.notifications.sdk.internal.*
 import com.sensorberg.notifications.sdk.internal.storage.SdkDatabase
 import com.sensorberg.notifications.sdk.internal.work.WorkUtils
-import org.koin.dsl.koinApplication
 import timber.log.Timber
 
 interface NotificationsSdk {
@@ -59,12 +58,12 @@ interface NotificationsSdk {
 			return this
 		}
 
-		fun setApiKey(apiKey: String): NotificationsSdk.Builder {
+		fun setApiKey(apiKey: String): Builder {
 			this.apiKey = apiKey
 			return this
 		}
 
-		fun setBaseUrl(baseUrl: String): NotificationsSdk.Builder {
+		fun setBaseUrl(baseUrl: String): Builder {
 			this.baseUrl = baseUrl
 			return this
 		}
@@ -84,10 +83,10 @@ interface NotificationsSdk {
 		}
 
 		fun build(): NotificationsSdk {
-
 			if (apiKey.isEmpty()) {
 				throw IllegalArgumentException("apiKey is empty - use setApiKey to provide a apiKey")
 			}
+
 			if (baseUrl.isEmpty() || !URLUtil.isNetworkUrl(baseUrl)) {
 				throw IllegalArgumentException("baseUrl is invalid - use baseUrl to provide a valid baseUrl")
 			}
