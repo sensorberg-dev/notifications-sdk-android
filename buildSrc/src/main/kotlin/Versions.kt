@@ -12,29 +12,29 @@ import org.gradle.plugin.use.PluginDependencySpec
  * YOU are responsible for updating manually the dependency version.
  */
 object Versions {
-  const val appcompat: String = "1.0.2" // available: "1.1.0"
+  const val appcompat: String = "1.1.0"
 
   const val constraintlayout: String = "1.1.3"
 
   const val lifecycle_extensions: String = "2.1.0"
 
-  const val androidx_room: String = "2.2.1" // available: "2.2.2"
+  const val androidx_room: String = "2.2.2"
 
-  const val espresso_core: String = "3.1.1" // available: "3.2.0"
+  const val espresso_core: String = "3.2.0"
 
-  const val androidx_test_runner: String = "1.1.1" // available: "1.2.0"
+  const val androidx_test_runner: String = "1.2.0"
 
   const val androidx_work: String = "2.2.0"
 
   const val geohash: String = "1.3.0"
 
-  const val aapt2: String = "3.5.1-5435860" // available: "3.5.2-5435860"
+  const val aapt2: String = "3.5.2-5435860"
 
-  const val com_android_tools_build_gradle: String = "3.5.1" // available: "3.5.2"
+  const val com_android_tools_build_gradle: String = "3.5.2"
 
-  const val lint_gradle: String = "26.5.1" // available: "26.5.2"
+  const val lint_gradle: String = "26.5.2"
 
-  const val firebase_jobdispatcher: String = "0.8.5" // available: "0.8.6"
+  const val firebase_jobdispatcher: String = "0.8.6"
 
   const val com_google_android_gms: String = "17.0.0"
 
@@ -44,11 +44,11 @@ object Versions {
 
   const val permission_bitte: String = "0.3.0" // available: "1.0.2"
 
-  const val com_squareup_moshi: String = "1.6.0" // available: "1.9.2"
+  const val com_squareup_moshi: String = "1.9.2"
 
-  const val com_squareup_okhttp3: String = "3.10.0" // available: "4.2.2"
+  const val com_squareup_okhttp3: String = "4.2.2"
 
-  const val com_squareup_retrofit2: String = "2.3.0" // available: "2.6.2"
+  const val com_squareup_retrofit2: String = "2.6.2"
 
   const val gradle_maven_publish_plugin: String = "0.8.0"
 
@@ -58,7 +58,7 @@ object Versions {
 
   const val junit: String = "4.12"
 
-  const val org_jetbrains_kotlin: String = "1.3.50" // available: "1.3.60"
+  const val org_jetbrains_kotlin: String = "1.3.60"
 
   const val json: String = "20140107"
 
@@ -71,7 +71,7 @@ object Versions {
    */
   const val gradleLatestVersion: String = "6.0.1"
 
-  const val gradleCurrentVersion: String = "5.6.2"
+  const val gradleCurrentVersion: String = "6.0.1"
 }
 
 /**

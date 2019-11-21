@@ -23,6 +23,12 @@ internal object Transport {
 	internal const val HEADER_USER_AGENT = "User-Agent"
 	internal const val HEADER_XAPIKEY = "X-Api-Key"
 
+	private val logger = object : HttpLoggingInterceptor.Logger {
+		override fun log(message: String) {
+			Timber.v(message)
+		}
+	}
+
 	fun createInterface(baseUrl: String, client: OkHttpClient, converter: Converter.Factory): BackendApi {
 		return Retrofit.Builder()
 			.baseUrl(baseUrl)
@@ -42,9 +48,7 @@ internal object Transport {
 		}
 
 		if (log) {
-			val httpLog = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger { message ->
-				Timber.v(message)
-			})
+			val httpLog = HttpLoggingInterceptor(logger)
 			httpLog.level = HttpLoggingInterceptor.Level.BODY
 			okClientBuilder.addNetworkInterceptor(httpLog)
 		}
