@@ -1,0 +1,40 @@
+image: bitriseio/docker-android:v2019_11_09-08_04-b1834
+# you can find latest docker image at https://hub.docker.com/r/bitriseio/docker-android/tags
+# to ensure backward compatability we should always use a concrete docker image version and NOT latest!
+
+variables:
+  GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle
+
+cache:
+  key: $CI_PROJECT_NAME
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+merge_request:
+  stage: test
+  artifacts:
+    when: always
+    expire_in: 3 days
+    paths:
+      - app/build/reports
+  tags:
+    - kvm
+    - x86
+  only:
+    - merge_requests
+  script:
+    # run emulator
+    - pushd $ANDROID_HOME
+    - tools/bin/avdmanager create avd -f -n cli_emu -b x86 -g google_apis -d "Nexus 5X" -c 128M -k "system-images;android-28;google_apis;x86"
+    - emulator/emulator -avd cli_emu -no-audio -no-window -gpu swiftshader_indirect -debug-init -wipe-data -no-snapshot &
+    - popd
+    - sleep 5
+    - echo "Emulator booting ... "
+
+    # build
+    - ./gradlew clean assembleDebug testDebugUnit assembleAndroidTest lintDebug
+
+    # await for emulator
+    - bash  <(curl -s https://git.sensorberg.io/snippets/4/raw)
+    - ./gradlew cAT
