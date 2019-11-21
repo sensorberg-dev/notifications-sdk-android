@@ -40,41 +40,35 @@ androidExtensions {
 }
 
 dependencies {
-	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+	implementation Libs.kotlin_stdlib_jdk7
+	implementation Libs.koin_core
+	implementation Libs.timber
+	implementation Libs.moshi
+	implementation Libs.work_runtime
+	implementation Libs.work_gcm
+	implementation Libs.play_services_nearby
+	implementation Libs.play_services_location
+	implementation Libs.firebase_jobdispatcher
+	implementation Libs.lifecycle_extensions
+	implementation Libs.okhttp
+	implementation Libs.logging_interceptor
+	implementation Libs.retrofit
+	implementation Libs.converter_moshi
+	implementation Libs.threetenabp
+	implementation Libs.geohash
 
-	// main
-	implementation 'org.koin:koin-core:2.0.1'
-	implementation "com.jakewharton.timber:timber:$jakewharton_timber_version"
-	implementation "com.squareup.moshi:moshi:$moshi_version"
-	kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+	testImplementation Libs.junit
+	testImplementation Libs.mockk
+	testImplementation Libs.json
 
-	implementation "androidx.work:work-runtime:$arch_work_manager_version"
-	implementation "androidx.work:work-gcm:$arch_work_manager_version"
-	implementation "com.google.android.gms:play-services-nearby:$google_play_version"
-	implementation "com.google.android.gms:play-services-location:$google_play_version"
-	implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
-	implementation "androidx.lifecycle:lifecycle-extensions:$arch_lifecycle_version"
+	androidTestImplementation Libs.androidx_test_runner
+	androidTestImplementation Libs.espresso_core
+	androidTestImplementation Libs.room_testing
 
-	// storage
-	api "androidx.room:room-runtime:$room_version"
-	kapt "androidx.room:room-compiler:$room_version"
+	api Libs.room_runtime
 
-	// backend
-	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-	implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
-	implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-	implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
-	implementation "com.jakewharton.threetenabp:threetenabp:$jakewharton_threetenabp_version"
-	implementation 'ch.hsr:geohash:1.3.0'
-
-	// tests
-	testImplementation 'junit:junit:4.12'
-	androidTestImplementation 'androidx.test:runner:1.2.0'
-	androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-	androidTestImplementation "androidx.room:room-testing:$room_version"
-	testImplementation "io.mockk:mockk:1.9.3"
-	testImplementation 'org.json:json:20140107'
-
+	kapt Libs.room_compiler
+	kapt Libs.moshi_kotlin_codegen
 }
 
 mavenPublish {

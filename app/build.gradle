@@ -23,16 +23,17 @@ android {
 }
 
 dependencies {
-	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 	implementation project(':notifications')
-	implementation "com.jakewharton.timber:timber:$jakewharton_timber_version"
+
+	implementation Libs.kotlin_stdlib_jdk7
+	implementation Libs.timber
 	// implementation "com.sensorberg.libs:timber-extensions:$sb_libs_timber_version"
-	implementation 'com.sensorberg.libs:permission-bitte:0.3.0'
+	implementation Libs.permission_bitte
+	implementation Libs.appcompat
+	implementation Libs.constraintlayout
 
-	implementation 'androidx.appcompat:appcompat:1.0.2'
-	implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+	testImplementation Libs.junit
 
-	testImplementation 'junit:junit:4.12'
-	androidTestImplementation 'androidx.test:runner:1.1.1'
-	androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+	androidTestImplementation Libs.androidx_test_runner
+	androidTestImplementation Libs.espresso_core
 }
