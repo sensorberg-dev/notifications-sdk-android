@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity(), BitteBitte {
 	}
 
 	override fun onNewIntent(intent: Intent) {
+		super.onNewIntent(intent)
 		checkActionConversion(intent)
 	}
 
